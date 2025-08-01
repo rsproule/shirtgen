@@ -1,1 +1,39 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: 255 255 255;
+  --color-foreground: 9 9 11;
+  --color-primary: 24 24 27;
+  --color-primary-foreground: 250 250 250;
+  --color-secondary: 244 244 245;
+  --color-secondary-foreground: 39 39 42;
+  --color-border: 228 228 231;
+  --color-input: 228 228 231;
+  --color-ring: 24 24 27;
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --animate-pulse-ring: pulse-ring var(--duration) ease-out infinite;
+  @keyframes pulse-ring {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 var(--pulse-color);
+    }
+    50% {
+      box-shadow: 0 0 0 8px var(--pulse-color);
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
