@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useShirtData } from "@/context/ShirtDataContext";
 import * as THREE from "three";
 
 type TexturePlacement = "front" | "back" | "full-shirt";
@@ -14,6 +15,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   const groupRef = useRef<THREE.Group>(null!);
   const [targetRotation, setTargetRotation] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const { shirtColor } = useShirtData();
 
   // Load the GLB model
   const { scene } = useGLTF("/oversized_t-shirt.glb");
@@ -62,8 +64,8 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     canvas.width = 2048;
     canvas.height = 2048;
 
-    // Fill with white background
-    ctx.fillStyle = "#d1d1d1";
+    // Fill with selected shirt color background
+    ctx.fillStyle = shirtColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Create a temporary image to draw the design texture
@@ -201,7 +203,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         img.src = imageUrl;
       }
     });
-  }, [imageUrl, texturePlacement]);
+  }, [imageUrl, texturePlacement, shirtColor]);
 
   // Smooth rotation animation
   useFrame((_, delta) => {

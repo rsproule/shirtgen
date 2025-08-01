@@ -6,6 +6,7 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import { Header } from "@/components/layout/Header";
 import { Scene3D } from "@/components/3d/Scene3D";
 import { PlacementControls } from "@/components/3d/PlacementControls";
+import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
 import { Shirt3D } from "@/components/Shirt3D";
 import type { ShirtData } from "@/types";
 
@@ -115,6 +116,9 @@ export function ViewPage() {
                 )}
               </div>
             )}
+
+            {/* Shirt Color Selection */}
+            <ShirtColorPicker />
 
             {/* Texture Placement */}
             <PlacementControls
