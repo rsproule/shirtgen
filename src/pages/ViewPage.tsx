@@ -89,19 +89,28 @@ export function ViewPage() {
         {/* Header */}
         <Header showBackButton />
 
-        {/* 3D Scene - Takes most of the screen */}
-        <Scene3D>
-          {shirtData.imageUrl && (
-            <Shirt3D
-              imageUrl={shirtData.imageUrl}
-              texturePlacement={texturePlacement}
-            />
-          )}
-        </Scene3D>
+        {/* 3D Scene - Takes remaining space */}
+        <div className="flex-1 min-h-0">
+          <Scene3D>
+            {shirtData.imageUrl && (
+              <Shirt3D
+                imageUrl={shirtData.imageUrl}
+                texturePlacement={texturePlacement}
+              />
+            )}
+          </Scene3D>
+        </div>
 
         {/* Bottom Controls */}
-        <div className="bg-white border-t border-gray-200 p-4">
+        <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
           <div className="max-w-4xl mx-auto">
+            {/* User Prompt Display */}
+            {shirtData.prompt && (
+              <div className="mb-6 text-center">
+                <p className="text-gray-500 text-sm italic">"{shirtData.prompt}"</p>
+              </div>
+            )}
+
             {/* Texture Placement */}
             <PlacementControls
               placement={texturePlacement}
