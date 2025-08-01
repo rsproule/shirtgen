@@ -22,8 +22,11 @@ export function ViewPage() {
   } = useShirtData();
 
   useEffect(() => {
-    // Reset loading when component mounts
-    setIsLoading(false);
+    // Only reset loading when component mounts if we don't have partial data
+    // Let the image generation hook control loading state for partial images
+    if (!shirtData || !shirtData.isPartial) {
+      setIsLoading(false);
+    }
 
     // Check if data was passed via router state (fallback for direct navigation)
     if (location.state && !shirtData) {
