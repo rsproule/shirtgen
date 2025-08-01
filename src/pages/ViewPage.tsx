@@ -70,7 +70,7 @@ export function ViewPage() {
                 {shirtData.imageUrl ? (
                   <img 
                     src={shirtData.imageUrl} 
-                    alt={shirtData.title}
+                    alt="Your Shirt Design"
                     className="w-full h-full object-cover rounded-lg"
                   />
                 ) : (

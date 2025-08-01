@@ -1,16 +1,4 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useNavigate } from "react-router-dom";
-import {
-  useEcho,
-  useEchoOpenAI,
-  EchoSignIn,
-  EchoTokenPurchase,
-} from "@zdql/echo-react-sdk";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -26,7 +14,18 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { EchoStyleWrapper } from "@/components/EchoStyleWrapper";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  EchoSignIn,
+  EchoTokenPurchase,
+  useEcho,
+  useEchoOpenAI,
+} from "@zdql/echo-react-sdk";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 
 const formSchema = z.object({
   prompt: z
@@ -59,30 +58,38 @@ export function InputForm() {
     setIsSubmitting(true);
 
     try {
-      // Create a detailed prompt for DALL-E 2
-      const imagePrompt = `A high-quality t-shirt design featuring: ${data.prompt}. Clean, professional design suitable for printing on a t-shirt. White background, centered design.`;
+      // Create a detailed prompt for image generation
+      const imagePrompt = `Generate an image for: ${data.prompt}.`;
 
-      // Generate image using OpenAI via Echo (DALL-E 2)
-      const response = await openai.images.generate({
-        model: "gpt-image-1",
-        prompt: imagePrompt,
-        n: 1,
-        size: "1024x1024",
+      // Use OpenAI responses API via Echo SDK
+      const response = await openai.responses.create({
+        model: "gpt-4o-mini",
+        input: imagePrompt,
+        tools: [{ type: "image_generation" }],
       });
 
-      const imageUrl = response.data?.[0]?.url;
-      if (imageUrl) {
-        // Store form data and image URL in localStorage
-        localStorage.setItem(
-          "shirtGenData",
-          JSON.stringify({
+      console.log("OpenAI response:", response);
+
+      // Extract image data from the response
+      const imageData = response.output
+        .filter((output: any) => output.type === "image_generation_call")
+        .map((output: any) => output.result);
+
+      if (imageData.length > 0) {
+        // Convert base64 to data URL for display
+        const imageBase64 = imageData[0];
+        const imageUrl = `data:image/png;base64,${imageBase64}`;
+
+        // Navigate to 3D view with image data in state
+        navigate("/3d-view", {
+          state: {
             prompt: data.prompt,
             imageUrl,
             generatedAt: new Date().toISOString(),
-          }),
-        );
-
-        navigate("/view");
+          },
+        });
+      } else {
+        throw new Error("No image data returned from OpenAI");
       }
     } catch (error) {
       console.error("Error generating image:", error);
@@ -90,6 +97,17 @@ export function InputForm() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const onDebugSubmit = () => {
+    // Use gorilla.jpg for quick testing
+    navigate("/3d-view", {
+      state: {
+        prompt: "Debug: Gorilla image for testing",
+        imageUrl: "/gorilla.jpg",
+        generatedAt: new Date().toISOString(),
+      },
+    });
   };
 
   return (
@@ -102,34 +120,9 @@ export function InputForm() {
           </p>
         </div>
 
-        {/* Echo Authentication */}
-        {!isAuthenticated && (
-          <Card className="shadow-xl mb-6">
-            <CardHeader>
-              <CardTitle>Sign In Required</CardTitle>
-              <CardDescription>
-                Please sign in to start generating shirt designs
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center space-y-4">
-              <EchoStyleWrapper>
-                <EchoSignIn />
-              </EchoStyleWrapper>
-            </CardContent>
-          </Card>
-        )}
-
-        {isAuthenticated && (
-          <Card className="shadow-xl mb-6">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-center">
-                <EchoStyleWrapper>
-                  <EchoTokenPurchase />
-                </EchoStyleWrapper>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <div className="mb-6 flex flex-col items-center justify-center">
+          {isAuthenticated ? <EchoTokenPurchase /> : <EchoSignIn />}
+        </div>
 
         <Card
           className={`shadow-xl ${
@@ -179,21 +172,33 @@ Be as creative and specific as you want!"
                   )}
                 />
 
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full text-lg py-6 font-semibold"
-                  disabled={isSubmitting || !isAuthenticated}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Creating Your Design...
-                    </>
-                  ) : (
-                    "Generate Shirt Design ✨"
-                  )}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full text-lg py-6 font-semibold"
+                    disabled={isSubmitting || !isAuthenticated}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Creating Your Design...
+                      </>
+                    ) : (
+                      "Generate Shirt Design ✨"
+                    )}
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full text-lg py-4"
+                    onClick={onDebugSubmit}
+                  >
+                    🦍 Debug Shirt (Gorilla)
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
