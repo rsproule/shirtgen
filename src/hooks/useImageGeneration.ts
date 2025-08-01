@@ -24,7 +24,7 @@ export function useImageGeneration() {
 
       // Use streaming OpenAI responses API via Echo SDK for partial images
       const stream = await openai.responses.create({
-        model: "gpt-4.1-mini",
+        model: "gpt-4o",
         input: imagePrompt,
         stream: true,
         tools: [
@@ -33,6 +33,7 @@ export function useImageGeneration() {
             quality: "high",
             size: "1024x1536",
             partial_images: 3,
+            moderation: "low",
           },
         ],
       });
