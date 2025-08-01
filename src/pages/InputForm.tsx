@@ -209,10 +209,9 @@ export function InputForm() {
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
         <div className="text-center w-full">
           <p className="text-white text-lg lg:text-xl font-light mb-8">
-            Creating your design... This may take a few seconds. Enjoy the
-            brainrot
+            Creating your design... This may take a few seconds.
           </p>
-          
+
           {/* Desktop: Show all 3 videos */}
           <div className="hidden lg:flex flex-row items-center justify-center gap-8 max-w-6xl mx-auto">
             {loadingVideos.map((videoSrc) => (
