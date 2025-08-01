@@ -78,17 +78,17 @@ export function Shirt3DView() {
               <CardContent className="p-0 h-full">
                 <div className="w-full h-full rounded-lg overflow-hidden bg-gradient-to-b from-gray-100 to-gray-200">
                   <Canvas>
-                    <PerspectiveCamera makeDefault position={[0, 0, 8]} />
+                    <PerspectiveCamera makeDefault position={[0, 0, 5]} />
                     <OrbitControls 
                       enablePan={true} 
                       enableZoom={true} 
                       enableRotate={true}
-                      minDistance={3}
-                      maxDistance={12}
+                      minDistance={0.5}
+                      maxDistance={8}
                     />
                     <Environment preset="studio" />
-                    <ambientLight intensity={0.5} />
-                    <directionalLight position={[10, 10, 5]} intensity={1} />
+                    <ambientLight intensity={0.3} />
+                    <directionalLight position={[5, 5, 3]} intensity={0.4} />
                     <Suspense fallback={null}>
                       {shirtData.imageUrl && (
                         <Shirt3D 
