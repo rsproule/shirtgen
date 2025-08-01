@@ -26,14 +26,17 @@ export function ActionButtons({
         onClick={handleGenerate}
         disabled={!isAuthenticated || promptLength < 10}
         disabledAnimation={!isAuthenticated || promptLength < 10}
-        className={`text-white ${!isAuthenticated || promptLength < 10 ? "bg-gray-400 cursor-not-allowed" : "bg-black"}`}
+        className={`text-white ${
+          !isAuthenticated || promptLength < 10
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-black"
+        }`}
       >
-        {!isAuthenticated 
-          ? "Sign In to Generate" 
-          : promptLength < 10 
-          ? "Enter More Details" 
-          : "Generate Design"
-        }
+        {!isAuthenticated
+          ? "Sign In to Generate"
+          : promptLength < 10
+          ? "Enter More Details"
+          : "Generate Design"}
       </PulsatingButton>
     </div>
   );
