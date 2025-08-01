@@ -17,7 +17,12 @@ export function useImageGeneration() {
 
     try {
       // Create a detailed prompt for image generation
-      const imagePrompt = `Generate an image for: ${prompt}.`;
+      const imagePrompt = `Generate an image for: ${prompt}.
+     
+      IMPORTANT:
+      - if the user asks for a shirt, just include the image, this is already on a shirt
+      - if the user doesn't specify a style, go with a realistic style with 2000s vibe 
+      `;
 
       // Use streaming OpenAI responses API via Echo SDK for partial images
       const stream = await openai.responses.create({
@@ -46,8 +51,10 @@ export function useImageGeneration() {
           partial_image_index?: number;
           result?: string;
         };
-        
-        if (streamEvent.type === "response.image_generation_call.partial_image") {
+
+        if (
+          streamEvent.type === "response.image_generation_call.partial_image"
+        ) {
           const imageBase64 = streamEvent.partial_image_b64;
           const imageUrl = `data:image/png;base64,${imageBase64}`;
           const partialIndex = streamEvent.partial_image_index ?? 0;
@@ -69,12 +76,14 @@ export function useImageGeneration() {
             hasNavigated = true;
             // Keep loading state active for partial images
           }
-        } else if (streamEvent.type === "response.image_generation_call.complete") {
+        } else if (
+          streamEvent.type === "response.image_generation_call.complete"
+        ) {
           // Final complete image
           const imageData = streamEvent.result;
           if (imageData) {
             const imageUrl = `data:image/png;base64,${imageData}`;
-            
+
             const finalShirtData = {
               prompt,
               imageUrl,
