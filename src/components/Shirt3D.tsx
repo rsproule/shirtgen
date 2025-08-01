@@ -54,41 +54,23 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     return cloned;
   }, [scene]);
 
-  // Create fabric roughness texture for realistic appearance
-  const roughnessTexture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
 
-    canvas.width = 512;
-    canvas.height = 512;
-
-    // Create noise pattern for fabric texture
-    const imageData = ctx.createImageData(canvas.width, canvas.height);
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      // Generate fabric-like noise pattern
-      const noise = Math.random() * 0.3 + 0.7; // Between 0.7 and 1.0
-      const value = Math.floor(noise * 255);
-      
-      data[i] = value;     // Red
-      data[i + 1] = value; // Green
-      data[i + 2] = value; // Blue
-      data[i + 3] = 255;   // Alpha
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(8, 8); // Repeat pattern for fabric detail
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearFilter;
+  // Extract existing base texture from GLB model
+  const existingBaseTexture = useMemo(() => {
+    if (!shirtScene) return null;
     
-    return texture;
-  }, []);
+    let baseTexture = null;
+    shirtScene.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        const material = child.material as THREE.MeshStandardMaterial;
+        if (material.map) {
+          baseTexture = material.map;
+          return; // Found it, stop traversing
+        }
+      }
+    });
+    return baseTexture;
+  }, [shirtScene]);
 
   // Create custom texture based on placement
   const customTexture = useMemo(() => {
@@ -100,15 +82,28 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     canvas.width = 2048;
     canvas.height = 2048;
 
-    // Fill with selected shirt color background
-    ctx.fillStyle = shirtColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Create a temporary image to draw the design texture
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-
     return new Promise<THREE.CanvasTexture>((resolve) => {
+      // First, draw the existing base texture if available
+      if (existingBaseTexture && existingBaseTexture.image) {
+        try {
+          // Draw the existing GLB texture as the base
+          ctx.drawImage(existingBaseTexture.image, 0, 0, canvas.width, canvas.height);
+        } catch (error) {
+          console.warn("Could not draw existing base texture, using solid color fallback", error);
+          // Fallback to solid color background
+          ctx.fillStyle = shirtColor;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      } else {
+        // Fallback to solid color background if no base texture
+        ctx.fillStyle = shirtColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Create a temporary image to draw the design texture
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+
       img.onload = () => {
         // Enable high-quality image rendering
         ctx.imageSmoothingEnabled = true;
@@ -239,7 +234,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         img.src = imageUrl;
       }
     });
-  }, [imageUrl, texturePlacement, shirtColor]);
+  }, [imageUrl, texturePlacement, shirtColor, existingBaseTexture]);
 
   // Smooth rotation animation
   useFrame((_, delta) => {
@@ -305,11 +300,10 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             (mesh.material as THREE.Material).dispose();
           }
 
-          // Apply clean base material with fabric roughness
+          // Apply clean base material
           mesh.material = new THREE.MeshStandardMaterial({
             color: "#d1d1d1",
-            roughness: 0.85,
-            roughnessMap: roughnessTexture,
+            roughness: 0.8,
             metalness: 0.0,
             side: THREE.DoubleSide,
           });
@@ -331,12 +325,11 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
               (mesh.material as THREE.Material).dispose();
             }
 
-            // Apply textured material with fabric roughness
+            // Apply textured material
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
               color: "#d1d1d1",
-              roughness: 0.85,
-              roughnessMap: roughnessTexture,
+              roughness: 0.8,
               metalness: 0.0,
               transparent: false,
               side: THREE.DoubleSide,
