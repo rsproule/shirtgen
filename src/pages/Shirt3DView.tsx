@@ -1,38 +1,49 @@
-import { useEffect, useState, Suspense } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, PerspectiveCamera } from '@react-three/drei'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Download, Share2, RotateCcw } from 'lucide-react'
-import { Shirt3D } from '@/components/Shirt3D'
+import { Shirt3D } from "@/components/Shirt3D";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Environment,
+  OrbitControls,
+  PerspectiveCamera,
+} from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { ArrowLeft, Download, RotateCcw, Share2 } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface ShirtData {
-  prompt: string
-  imageUrl?: string
-  generatedAt?: string
+  prompt: string;
+  imageUrl?: string;
+  generatedAt?: string;
 }
 
-type TexturePlacement = 'front' | 'back' | 'full-shirt'
+type TexturePlacement = "front" | "back" | "full-shirt";
 
 export function Shirt3DView() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [shirtData, setShirtData] = useState<ShirtData | null>(null)
-  const [texturePlacement, setTexturePlacement] = useState<TexturePlacement>('front')
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [shirtData, setShirtData] = useState<ShirtData | null>(null);
+  const [texturePlacement, setTexturePlacement] =
+    useState<TexturePlacement>("front");
 
   useEffect(() => {
     // Check if data was passed via router state
     if (location.state) {
-      setShirtData(location.state as ShirtData)
+      setShirtData(location.state as ShirtData);
     } else {
       // Fallback to localStorage for backward compatibility
-      const stored = localStorage.getItem('shirtGenData')
+      const stored = localStorage.getItem("shirtGenData");
       if (stored) {
-        setShirtData(JSON.parse(stored))
+        setShirtData(JSON.parse(stored));
       }
     }
-  }, [location.state])
+  }, [location.state]);
 
   if (!shirtData) {
     return (
@@ -40,16 +51,20 @@ export function Shirt3DView() {
         <div className="max-w-4xl mx-auto text-center">
           <Card className="shadow-xl">
             <CardContent className="py-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">No Design Found</h2>
-              <p className="text-gray-600 mb-8">Create your first shirt design to see it here.</p>
-              <Button onClick={() => navigate('/')} size="lg">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                No Design Found
+              </h2>
+              <p className="text-gray-600 mb-8">
+                Create your first shirt design to see it here.
+              </p>
+              <Button onClick={() => navigate("/")} size="lg">
                 Create Design
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -59,15 +74,14 @@ export function Shirt3DView() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Design
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Your 3D Shirt Design</h1>
-            <p className="text-gray-600">Interactive 3D preview of your design</p>
+            <h1 className="text-3xl font-bold text-gray-900">InstaShirt</h1>
           </div>
         </div>
 
@@ -79,9 +93,9 @@ export function Shirt3DView() {
                 <div className="w-full h-full rounded-lg overflow-hidden bg-gradient-to-b from-gray-100 to-gray-200">
                   <Canvas>
                     <PerspectiveCamera makeDefault position={[0, 0, 5]} />
-                    <OrbitControls 
-                      enablePan={true} 
-                      enableZoom={true} 
+                    <OrbitControls
+                      enablePan={true}
+                      enableZoom={true}
                       enableRotate={true}
                       minDistance={0.5}
                       maxDistance={8}
@@ -91,8 +105,8 @@ export function Shirt3DView() {
                     <directionalLight position={[5, 5, 3]} intensity={0.4} />
                     <Suspense fallback={null}>
                       {shirtData.imageUrl && (
-                        <Shirt3D 
-                          imageUrl={shirtData.imageUrl} 
+                        <Shirt3D
+                          imageUrl={shirtData.imageUrl}
                           texturePlacement={texturePlacement}
                         />
                       )}
@@ -101,33 +115,41 @@ export function Shirt3DView() {
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Texture Placement Selector */}
             <Card className="shadow-lg mt-4">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Texture Placement</CardTitle>
-                <CardDescription>Choose where to apply the design</CardDescription>
+                <CardDescription>
+                  Choose where to apply the design
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-3 gap-2">
                   <Button
-                    variant={texturePlacement === 'front' ? 'default' : 'outline'}
+                    variant={
+                      texturePlacement === "front" ? "default" : "outline"
+                    }
                     size="sm"
-                    onClick={() => setTexturePlacement('front')}
+                    onClick={() => setTexturePlacement("front")}
                   >
                     Front Only
                   </Button>
                   <Button
-                    variant={texturePlacement === 'back' ? 'default' : 'outline'}
+                    variant={
+                      texturePlacement === "back" ? "default" : "outline"
+                    }
                     size="sm"
-                    onClick={() => setTexturePlacement('back')}
+                    onClick={() => setTexturePlacement("back")}
                   >
                     Back Only
                   </Button>
                   <Button
-                    variant={texturePlacement === 'full-shirt' ? 'default' : 'outline'}
+                    variant={
+                      texturePlacement === "full-shirt" ? "default" : "outline"
+                    }
                     size="sm"
-                    onClick={() => setTexturePlacement('full-shirt')}
+                    onClick={() => setTexturePlacement("full-shirt")}
                   >
                     Full Shirt
                   </Button>
@@ -164,12 +186,14 @@ export function Shirt3DView() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Your Design Prompt</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Your Design Prompt
+                  </h4>
                   <p className="text-gray-700 text-sm leading-relaxed bg-gray-50 p-4 rounded-md whitespace-pre-wrap">
                     {shirtData.prompt}
                   </p>
                 </div>
-                
+
                 {shirtData.generatedAt && (
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Created</h4>
@@ -184,51 +208,53 @@ export function Shirt3DView() {
             <Card className="shadow-xl">
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
-                <CardDescription>What would you like to do with your design?</CardDescription>
+                <CardDescription>
+                  What would you like to do with your design?
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
-                  className="w-full flex items-center gap-2" 
+                <Button
+                  className="w-full flex items-center gap-2"
                   size="lg"
                   disabled={!shirtData.imageUrl}
                   onClick={() => {
                     if (shirtData.imageUrl) {
-                      const link = document.createElement('a')
-                      link.href = shirtData.imageUrl
-                      link.download = `shirt_design_${Date.now()}.png`
-                      link.click()
+                      const link = document.createElement("a");
+                      link.href = shirtData.imageUrl;
+                      link.download = `shirt_design_${Date.now()}.png`;
+                      link.click();
                     }
                   }}
                 >
                   <Download className="w-4 h-4" />
                   Download Design
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center gap-2" 
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
                   size="lg"
                   disabled={!shirtData.imageUrl}
                   onClick={() => {
                     if (shirtData.imageUrl && navigator.share) {
                       navigator.share({
-                        title: 'ShirtGen 3D Design',
-                        text: 'Check out this AI-generated 3D shirt design!',
-                        url: window.location.href
-                      })
+                        title: "ShirtGen 3D Design",
+                        text: "Check out this AI-generated 3D shirt design!",
+                        url: window.location.href,
+                      });
                     } else if (shirtData.imageUrl) {
-                      navigator.clipboard.writeText(window.location.href)
-                      alert('Design URL copied to clipboard!')
+                      navigator.clipboard.writeText(window.location.href);
+                      alert("Design URL copied to clipboard!");
                     }
                   }}
                 >
                   <Share2 className="w-4 h-4" />
                   Share Design
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  className="w-full" 
+                <Button
+                  variant="secondary"
+                  className="w-full"
                   size="lg"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate("/")}
                 >
                   Create New Design
                 </Button>
@@ -236,7 +262,7 @@ export function Shirt3DView() {
                   variant="outline"
                   className="w-full"
                   size="lg"
-                  onClick={() => navigate('/view')}
+                  onClick={() => navigate("/view")}
                 >
                   View 2D Version
                 </Button>
@@ -246,5 +272,5 @@ export function Shirt3DView() {
         </div>
       </div>
     </div>
-  )
+  );
 }

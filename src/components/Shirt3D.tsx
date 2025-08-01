@@ -56,9 +56,9 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
-    // Set canvas size to texture size
-    canvas.width = 1024;
-    canvas.height = 1024;
+    // Set canvas size to higher resolution for better quality
+    canvas.width = 2048;
+    canvas.height = 2048;
 
     // Fill with white background
     ctx.fillStyle = "#ffffff";
@@ -70,6 +70,10 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
     return new Promise<THREE.CanvasTexture>((resolve) => {
       img.onload = () => {
+        // Enable high-quality image rendering
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
         // Rotate context to fix 90-degree offset
         ctx.save();
 
@@ -90,7 +94,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
           case "front": {
             // Small patch on chest area - adjust position for front placement
-            const frontSize = 200;
+            const frontSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
             const frontX = canvas.width * 0.2; // Move toward left side of UV
             const frontY = canvas.height * 0.3; // Upper area
             ctx.translate(frontX + frontSize / 2, frontY + frontSize / 2);
@@ -107,8 +111,8 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
           case "back": {
             // Small patch on back area - adjust position for back placement
-            const backSize = 200;
-            const backX = canvas.width * 0.83 - backSize; // Move toward right side of UV
+            const backSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
+            const backX = canvas.width * 0.84 - backSize; // Move toward right side of UV
             const backY = canvas.height * 0.3; // Upper area
             ctx.translate(backX + backSize / 2, backY + backSize / 2);
             ctx.rotate(Math.PI);
@@ -129,6 +133,13 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         texture.flipY = false;
         texture.wrapS = THREE.ClampToEdgeWrapping;
         texture.wrapT = THREE.ClampToEdgeWrapping;
+        
+        // Improve texture quality
+        texture.magFilter = THREE.LinearFilter;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.anisotropy = Math.max(1, 4); // Improve quality at angles
+        texture.generateMipmaps = true;
+        
         resolve(texture);
       };
 
