@@ -1,7 +1,6 @@
+import { useShirtData } from "@/context/ShirtDataContext";
 import { useEchoOpenAI } from "@zdql/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
-import { useShirtData } from "@/context/ShirtDataContext";
-import type { ImageGenerationResponse } from "@/types";
 
 export function useImageGeneration() {
   const { openai } = useEchoOpenAI();
@@ -20,43 +19,74 @@ export function useImageGeneration() {
       // Create a detailed prompt for image generation
       const imagePrompt = `Generate an image for: ${prompt}.`;
 
-      // Use OpenAI responses API via Echo SDK
-      const response = await openai.responses.create({
-        model: "gpt-4o",
+      // Use streaming OpenAI responses API via Echo SDK for partial images
+      const stream = await openai.responses.create({
+        model: "gpt-4.1-mini",
         input: imagePrompt,
-        tools: [{ type: "image_generation" }],
-      }) as ImageGenerationResponse;
+        stream: true,
+        tools: [
+          {
+            type: "image_generation",
+            quality: "high",
+            size: "1024x1536",
+            partial_images: 3,
+          },
+        ],
+      });
 
-      console.log("OpenAI response:", response);
+      let hasNavigated = false;
 
-      // Extract image data from the response
-      const imageData = response.output
-        .filter(
-          (output) => output.type === "image_generation_call",
-        )
-        .map((output) => output.result);
+      for await (const event of stream) {
+        console.log("Stream event:", event);
 
-      if (imageData.length > 0) {
-        // Convert base64 to data URL for display
-        const imageBase64 = imageData[0];
-        const imageUrl = `data:image/png;base64,${imageBase64}`;
-
-        const shirtData = {
-          prompt,
-          imageUrl,
-          generatedAt: new Date().toISOString(),
+        // Type assertion to handle the stream event types
+        const streamEvent = event as {
+          type: string;
+          partial_image_b64?: string;
+          partial_image_index?: number;
+          result?: string;
         };
-
-        // Update context state
-        setShirtData(shirtData);
-
-        // Navigate to view
-        navigate("/view");
         
-        // Keep loading state until navigation completes
-        return;
-      } else {
-        throw new Error("No image data returned from OpenAI");
+        if (streamEvent.type === "response.image_generation_call.partial_image") {
+          const imageBase64 = streamEvent.partial_image_b64;
+          const imageUrl = `data:image/png;base64,${imageBase64}`;
+          const partialIndex = streamEvent.partial_image_index ?? 0;
+
+          const shirtData = {
+            prompt,
+            imageUrl,
+            generatedAt: new Date().toISOString(),
+            isPartial: partialIndex < 2, // Mark as partial until final image
+            partialIndex,
+          };
+
+          // Update context state with partial image
+          setShirtData(shirtData);
+
+          // Navigate on first partial image
+          if (!hasNavigated) {
+            navigate("/view");
+            hasNavigated = true;
+            // Keep loading state active for partial images
+          }
+        } else if (streamEvent.type === "response.image_generation_call.complete") {
+          // Final complete image
+          const imageData = streamEvent.result;
+          if (imageData) {
+            const imageUrl = `data:image/png;base64,${imageData}`;
+            
+            const finalShirtData = {
+              prompt,
+              imageUrl,
+              generatedAt: new Date().toISOString(),
+              isPartial: false,
+              partialIndex: -1,
+            };
+
+            setShirtData(finalShirtData);
+            setIsLoading(false); // Stop loading on final image
+          }
+        }
       }
     } catch (error) {
       console.error("Error generating image:", error);

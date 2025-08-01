@@ -108,6 +108,11 @@ export function ViewPage() {
             {shirtData.prompt && (
               <div className="mb-6 text-center">
                 <p className="text-gray-500 text-sm italic">"{shirtData.prompt}"</p>
+                {shirtData.isPartial && (
+                  <p className="text-blue-500 text-xs mt-1 animate-pulse">
+                    Generating... ({shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1}/3)
+                  </p>
+                )}
               </div>
             )}
 

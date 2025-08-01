@@ -10,6 +10,8 @@ export interface ShirtData {
   prompt: string;
   imageUrl?: string;
   generatedAt?: string;
+  isPartial?: boolean;
+  partialIndex?: number;
 }
 
 export type TexturePlacement = "front" | "back" | "full-shirt";

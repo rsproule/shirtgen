@@ -22,11 +22,6 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   const shirtScene = useMemo(() => {
     const cloned = scene.clone();
 
-    // Debug: Log all children to see what's in the scene
-    console.log("Scene children before cleanup:", cloned.children.length);
-    cloned.traverse((child) => {
-      console.log("Child:", child.name, child.type, child.userData);
-    });
 
     // Remove any existing added geometries from the original
     const toRemove: THREE.Object3D[] = [];
@@ -41,14 +36,19 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
       }
     });
 
-    console.log("Removing", toRemove.length, "objects");
     toRemove.forEach((obj) => {
       if (obj.parent) {
         obj.parent.remove(obj);
       }
     });
-
-    console.log("Scene children after cleanup:", cloned.children.length);
+    
+    // Try to center the model by offsetting based on its bounding box
+    const finalBox = new THREE.Box3().setFromObject(cloned);
+    const finalCenter = finalBox.getCenter(new THREE.Vector3());
+    
+    // Offset the entire scene to center it at origin
+    cloned.position.set(-finalCenter.x, -finalCenter.y, -finalCenter.z);
+    
     return cloned;
   }, [scene]);
 
@@ -311,7 +311,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
   return (
     <group ref={groupRef}>
-      <primitive object={shirtScene} scale={[2, 2, 2]} position={[0, -2, 0]} />
+      <primitive object={shirtScene} scale={[2.5, 2.5, 2.5]} position={[0, -3, 0]} />
     </group>
   );
 }
