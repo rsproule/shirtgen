@@ -76,54 +76,92 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
 
+        // Calculate image aspect ratio
+        const imgAspectRatio = img.width / img.height;
+
         // Rotate context to fix 90-degree offset
         ctx.save();
 
         switch (texturePlacement) {
           case "full-shirt": {
             // Fill the entire UV map but shift left to center on chest
+            const maxWidth = canvas.width;
+            const maxHeight = canvas.height;
+            
+            // Calculate dimensions preserving aspect ratio
+            let drawWidth = maxWidth;
+            let drawHeight = maxWidth / imgAspectRatio;
+            
+            if (drawHeight > maxHeight) {
+              drawHeight = maxHeight;
+              drawWidth = maxHeight * imgAspectRatio;
+            }
+            
             ctx.translate(canvas.width * 0.3, canvas.height / 2);
             ctx.rotate(Math.PI);
+            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
             ctx.drawImage(
               img,
-              -canvas.width / 2,
-              -canvas.height / 2,
-              canvas.width,
-              canvas.height,
+              -drawWidth / 2,
+              -drawHeight / 2,
+              drawWidth,
+              drawHeight,
             );
             break;
           }
 
           case "front": {
             // Small patch on chest area - adjust position for front placement
-            const frontSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
+            const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
             const frontX = canvas.width * 0.2; // Move toward left side of UV
             const frontY = canvas.height * 0.3; // Upper area
-            ctx.translate(frontX + frontSize / 2, frontY + frontSize / 2);
+            
+            // Calculate dimensions preserving aspect ratio
+            let drawWidth = maxSize;
+            let drawHeight = maxSize / imgAspectRatio;
+            
+            if (drawHeight > maxSize) {
+              drawHeight = maxSize;
+              drawWidth = maxSize * imgAspectRatio;
+            }
+            
+            ctx.translate(frontX + maxSize / 2, frontY + maxSize / 2);
             ctx.rotate(Math.PI);
+            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
             ctx.drawImage(
               img,
-              -frontSize / 2,
-              -frontSize / 2,
-              frontSize,
-              frontSize,
+              -drawWidth / 2,
+              -drawHeight / 2,
+              drawWidth,
+              drawHeight,
             );
             break;
           }
 
           case "back": {
             // Small patch on back area - adjust position for back placement
-            const backSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
-            const backX = canvas.width * 0.84 - backSize; // Move toward right side of UV
+            const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
+            const backX = canvas.width * 0.84 - maxSize; // Move toward right side of UV
             const backY = canvas.height * 0.3; // Upper area
-            ctx.translate(backX + backSize / 2, backY + backSize / 2);
+            
+            // Calculate dimensions preserving aspect ratio
+            let drawWidth = maxSize;
+            let drawHeight = maxSize / imgAspectRatio;
+            
+            if (drawHeight > maxSize) {
+              drawHeight = maxSize;
+              drawWidth = maxSize * imgAspectRatio;
+            }
+            
+            ctx.translate(backX + maxSize / 2, backY + maxSize / 2);
             ctx.rotate(Math.PI);
+            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
             ctx.drawImage(
               img,
-              -backSize / 2,
-              -backSize / 2,
-              backSize,
-              backSize,
+              -drawWidth / 2,
+              -drawHeight / 2,
+              drawWidth,
+              drawHeight,
             );
             break;
           }

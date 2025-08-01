@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { EchoProvider } from '@zdql/echo-react-sdk'
 import { InputForm } from '@/pages/InputForm'
-import { ViewPage } from '@/pages/ViewPage'
 import { Shirt3DView } from '@/pages/Shirt3DView'
 
 const echoConfig = {
@@ -15,8 +14,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<InputForm />} />
-          <Route path="/view" element={<ViewPage />} />
-          <Route path="/3d-view" element={<Shirt3DView />} />
+          <Route path="/view" element={<Shirt3DView />} />
         </Routes>
       </Router>
     </EchoProvider>
