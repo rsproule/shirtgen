@@ -19,9 +19,7 @@ export function useImageGeneration() {
       // Create a detailed prompt for image generation
       const imagePrompt = `Generate an image for: ${prompt}.
      
-      IMPORTANT:
-      - if the user asks for a shirt, just include the image, this is already on a shirt
-      - if the user doesn't specify a style, go with a realistic style with 2000s vibe 
+      IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
       `;
 
       // Use streaming OpenAI responses API via Echo SDK for partial images

@@ -54,6 +54,42 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     return cloned;
   }, [scene]);
 
+  // Create fabric roughness texture for realistic appearance
+  const roughnessTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    canvas.width = 512;
+    canvas.height = 512;
+
+    // Create noise pattern for fabric texture
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Generate fabric-like noise pattern
+      const noise = Math.random() * 0.3 + 0.7; // Between 0.7 and 1.0
+      const value = Math.floor(noise * 255);
+      
+      data[i] = value;     // Red
+      data[i + 1] = value; // Green
+      data[i + 2] = value; // Blue
+      data[i + 3] = 255;   // Alpha
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(8, 8); // Repeat pattern for fabric detail
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    
+    return texture;
+  }, []);
+
   // Create custom texture based on placement
   const customTexture = useMemo(() => {
     const canvas = document.createElement("canvas");
@@ -269,10 +305,11 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             (mesh.material as THREE.Material).dispose();
           }
 
-          // Apply clean base material
+          // Apply clean base material with fabric roughness
           mesh.material = new THREE.MeshStandardMaterial({
             color: "#d1d1d1",
-            roughness: 0.9,
+            roughness: 0.85,
+            roughnessMap: roughnessTexture,
             metalness: 0.0,
             side: THREE.DoubleSide,
           });
@@ -294,11 +331,12 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
               (mesh.material as THREE.Material).dispose();
             }
 
-            // Apply textured material
+            // Apply textured material with fabric roughness
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
               color: "#d1d1d1",
-              roughness: 0.9,
+              roughness: 0.85,
+              roughnessMap: roughnessTexture,
               metalness: 0.0,
               transparent: false,
               side: THREE.DoubleSide,
