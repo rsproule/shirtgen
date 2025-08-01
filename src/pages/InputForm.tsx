@@ -1,57 +1,100 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   EchoSignIn,
   EchoTokenPurchase,
   useEcho,
   useEchoOpenAI,
 } from "@zdql/echo-react-sdk";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-const formSchema = z.object({
-  prompt: z
-    .string()
-    .min(10, "Please describe your shirt design (at least 10 characters)")
-    .max(2000, "Prompt must be less than 2000 characters"),
-});
-
-type FormData = z.infer<typeof formSchema>;
+interface TypingStats {
+  wpm: number;
+  accuracy: number;
+  timeTyping: number;
+  correctChars: number;
+  totalChars: number;
+}
 
 export function InputForm() {
   const navigate = useNavigate();
   const { isAuthenticated } = useEcho();
   const { openai } = useEchoOpenAI();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      prompt: "",
-    },
+  const [prompt, setPrompt] = useState("");
+  const [typingStats, setTypingStats] = useState<TypingStats>({
+    wpm: 0,
+    accuracy: 100,
+    timeTyping: 0,
+    correctChars: 0,
+    totalChars: 0,
   });
+  
+  const typingStartRef = useRef<number | null>(null);
+  const lastKeystrokeRef = useRef<number>(Date.now());
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const onSubmit = async (data: FormData) => {
+  // Update typing stats
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (typingStartRef.current) {
+        const now = Date.now();
+        const timeTypingMs = now - typingStartRef.current;
+        const timeTypingMin = timeTypingMs / 60000;
+        
+        setTypingStats(prev => ({
+          ...prev,
+          timeTyping: Math.floor(timeTypingMs / 1000), // in seconds
+          wpm: timeTypingMin > 0 ? Math.round((prompt.split(' ').length - 1) / timeTypingMin) : 0,
+        }));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [prompt]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    const now = Date.now();
+    
+    if (!typingStartRef.current && newValue.length > 0) {
+      typingStartRef.current = now;
+    }
+    
+    // Reset timer if stopped typing for more than 3 seconds
+    if (now - lastKeystrokeRef.current > 3000 && newValue.length === 0) {
+      typingStartRef.current = null;
+      setTypingStats({
+        wpm: 0,
+        accuracy: 100,
+        timeTyping: 0,
+        correctChars: 0,
+        totalChars: 0,
+      });
+    }
+    
+    lastKeystrokeRef.current = now;
+    setPrompt(newValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Cmd+Enter or Ctrl+Enter to submit
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!isAuthenticated) {
       alert("Please sign in to generate shirt designs");
+      return;
+    }
+
+    if (prompt.length < 10) {
+      alert("Please write at least 10 characters to describe your design");
       return;
     }
 
@@ -59,7 +102,7 @@ export function InputForm() {
 
     try {
       // Create a detailed prompt for image generation
-      const imagePrompt = `Generate an image for: ${data.prompt}.`;
+      const imagePrompt = `Generate an image for: ${prompt}.`;
 
       // Use OpenAI responses API via Echo SDK
       const response = await openai.responses.create({
@@ -80,10 +123,10 @@ export function InputForm() {
         const imageBase64 = imageData[0];
         const imageUrl = `data:image/png;base64,${imageBase64}`;
 
-        // Navigate to 3D view with image data in state
-        navigate("/3d-view", {
+        // Navigate to view with image data in state
+        navigate("/view", {
           state: {
-            prompt: data.prompt,
+            prompt: prompt,
             imageUrl,
             generatedAt: new Date().toISOString(),
           },
@@ -101,7 +144,7 @@ export function InputForm() {
 
   const onDebugSubmit = () => {
     // Use gorilla.jpg for quick testing
-    navigate("/3d-view", {
+    navigate("/view", {
       state: {
         prompt: "Debug: Gorilla image for testing",
         imageUrl: "/gorilla.jpg",
@@ -110,99 +153,81 @@ export function InputForm() {
     });
   };
 
+  if (isSubmitting) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <video
+            autoPlay
+            loop
+            muted
+            className="w-96 h-96 object-cover rounded-lg mb-4"
+          >
+            <source src="/loading-video-ss.mp4" type="video/mp4" />
+          </video>
+          <p className="text-white text-lg">Creating your design...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">ShirtGen</h1>
-          <p className="text-lg text-gray-600">
-            Create amazing AI-generated shirt designs
-          </p>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header */}
+      <div className="text-center py-12">
+        <h1 className="text-6xl font-light text-gray-900 mb-2">InstaShirt</h1>
+        <p className="text-gray-500">AI-powered shirt design</p>
+      </div>
+
+      {/* Auth Section */}
+      <div className="flex justify-center mb-8">
+        {isAuthenticated ? <EchoTokenPurchase /> : <EchoSignIn />}
+      </div>
+
+      {/* Main Input Area */}
+      <div className="flex-1 flex items-center justify-center px-8">
+        <div className="w-full max-w-4xl">
+          <Textarea
+            ref={textareaRef}
+            value={prompt}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Describe your shirt design..."
+            className="w-full h-64 text-xl p-8 border-2 border-gray-200 rounded-lg resize-none focus:border-gray-400 focus:ring-0 bg-gray-50"
+            disabled={!isAuthenticated}
+          />
+          
+          {/* Stats Bar */}
+          <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+            <div className="flex space-x-8">
+              <span>WPM: {typingStats.wpm}</span>
+              <span>Time: {typingStats.timeTyping}s</span>
+              <span>Chars: {prompt.length}</span>
+            </div>
+            <div className="text-gray-400">
+              ⌘ + ↵ to generate
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center mt-8 space-x-4">
+            <Button
+              onClick={handleSubmit}
+              disabled={!isAuthenticated || prompt.length < 10}
+              className="px-8 py-3 bg-black text-white hover:bg-gray-800 rounded-lg"
+            >
+              Generate Design
+            </Button>
+            
+            <Button
+              onClick={onDebugSubmit}
+              variant="outline"
+              className="px-8 py-3 border border-gray-300 hover:bg-gray-50 rounded-lg"
+            >
+              Quick Test
+            </Button>
+          </div>
         </div>
-
-        <div className="mb-6 flex flex-col items-center justify-center">
-          {isAuthenticated ? <EchoTokenPurchase /> : <EchoSignIn />}
-        </div>
-
-        <Card
-          className={`shadow-xl ${
-            !isAuthenticated ? "opacity-50 pointer-events-none" : ""
-          }`}
-        >
-          <CardHeader>
-            <CardTitle className="text-2xl">Design Your Shirt</CardTitle>
-            <CardDescription className="text-base">
-              Describe your ideal shirt design and let AI bring it to life
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                <FormField
-                  control={form.control}
-                  name="prompt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe your shirt design in detail... 
-
-For example:
-• A minimalist mountain landscape with sunset colors
-• Vintage 80s neon geometric patterns
-• Abstract watercolor flowers in pastel tones
-• Bold typography with inspirational quote
-• Retro pixel art video game character
-
-Be as creative and specific as you want!"
-                          className="min-h-48 text-base resize-y text-left"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-sm text-gray-600">
-                        The more detailed your description, the better the AI
-                        can create your perfect design. Include colors, style,
-                        mood, and any specific elements.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="space-y-3">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full text-lg py-6 font-semibold"
-                    disabled={isSubmitting || !isAuthenticated}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Creating Your Design...
-                      </>
-                    ) : (
-                      "Generate Shirt Design ✨"
-                    )}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="w-full text-lg py-4"
-                    onClick={onDebugSubmit}
-                  >
-                    🦍 Debug Shirt (Gorilla)
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
