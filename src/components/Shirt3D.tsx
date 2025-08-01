@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
 
 type TexturePlacement = "front" | "back" | "full-shirt";
@@ -12,14 +12,41 @@ interface Shirt3DProps {
 
 export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   const groupRef = useRef<THREE.Group>(null!);
-  const sceneRef = useRef<THREE.Group | null>(null);
+  const shirtRef = useRef<THREE.Group | null>(null);
 
   // Load the GLB model
   const { scene } = useGLTF("/oversized_t-shirt.glb");
 
-  // Clone the scene to avoid modifying the original
-  const clonedScene = useMemo(() => {
-    return scene.clone();
+  // Create a single instance of the shirt that we'll reuse
+  const shirtScene = useMemo(() => {
+    const cloned = scene.clone();
+    
+    // Debug: Log all children to see what's in the scene
+    console.log('Scene children before cleanup:', cloned.children.length);
+    cloned.traverse((child) => {
+      console.log('Child:', child.name, child.type, child.userData);
+    });
+    
+    // Remove any existing added geometries from the original
+    const toRemove: THREE.Object3D[] = [];
+    cloned.traverse((child) => {
+      if (child.userData.isAddedTexture || 
+          child.name.includes('plane') || 
+          child.name.includes('Plane') ||
+          child.type === 'Mesh' && child.geometry?.type === 'PlaneGeometry') {
+        toRemove.push(child);
+      }
+    });
+    
+    console.log('Removing', toRemove.length, 'objects');
+    toRemove.forEach((obj) => {
+      if (obj.parent) {
+        obj.parent.remove(obj);
+      }
+    });
+    
+    console.log('Scene children after cleanup:', cloned.children.length);
+    return cloned;
   }, [scene]);
 
   // Create custom texture based on placement
@@ -130,50 +157,63 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     }
   });
 
-  // Apply the custom texture to the GLB model
-  if (clonedScene && customTexture) {
-    customTexture.then((texture) => {
-      clonedScene.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.material) {
-          const mesh = child as THREE.Mesh<
-            THREE.BufferGeometry,
-            THREE.Material
-          >;
-          const originalMaterial = child.material as THREE.MeshStandardMaterial;
+  // Apply the custom texture to the GLB model using useEffect to avoid multiple applications
+  useEffect(() => {
+    if (!shirtScene) return;
 
-          // Apply the custom texture directly to the mesh
+    const applyTexture = async () => {
+      // Reset all materials to clean state first
+      shirtScene.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material) {
+          const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
+          
+          // Dispose of old material if it exists
+          if (mesh.material && 'dispose' in mesh.material) {
+            (mesh.material as any).dispose();
+          }
+
+          // Apply clean base material
           mesh.material = new THREE.MeshStandardMaterial({
-            map: texture,
             color: "#cccccc",
             roughness: 0.9,
             metalness: 0.0,
-            transparent: false,
             side: THREE.DoubleSide,
           });
-          mesh.material.needsUpdate = true;
         }
       });
-    });
-  } else if (clonedScene) {
-    // Reset to white material when no texture
-    clonedScene.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
 
-        mesh.material = new THREE.MeshStandardMaterial({
-          color: "#cccccc",
-          roughness: 0.9,
-          metalness: 0.0,
-          side: THREE.DoubleSide,
+      // Apply texture if available
+      if (customTexture) {
+        const texture = await customTexture;
+        shirtScene.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.material) {
+            const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
+            
+            // Dispose of old material
+            if (mesh.material && 'dispose' in mesh.material) {
+              (mesh.material as any).dispose();
+            }
+
+            // Apply textured material
+            mesh.material = new THREE.MeshStandardMaterial({
+              map: texture,
+              color: "#cccccc",
+              roughness: 0.9,
+              metalness: 0.0,
+              transparent: false,
+              side: THREE.DoubleSide,
+            });
+          }
         });
-        mesh.material.needsUpdate = true;
       }
-    });
-  }
+    };
+
+    applyTexture();
+  }, [shirtScene, customTexture, texturePlacement]);
 
   return (
     <group ref={groupRef}>
-      <primitive object={clonedScene} scale={[2, 2, 2]} position={[0, -2, 0]} />
+      <primitive object={shirtScene} scale={[2, 2, 2]} position={[0, -2, 0]} />
     </group>
   );
 }
