@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Download, Share2 } from "lucide-react";
+import { Download } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
@@ -70,18 +70,6 @@ export function ViewPage() {
     }
   };
 
-  const handleShare = () => {
-    if (shirtData.imageUrl && navigator.share) {
-      navigator.share({
-        title: "InstaShirt Design",
-        text: "Check out this AI-generated shirt design!",
-        url: window.location.href,
-      });
-    } else if (shirtData.imageUrl) {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Design URL copied to clipboard!");
-    }
-  };
 
   const handleNewDesign = () => {
     navigate("/");
@@ -110,7 +98,7 @@ export function ViewPage() {
           <div className="max-w-4xl mx-auto">
             {/* User Prompt Display */}
             {shirtData.prompt && (
-              <div className="mb-6 text-center">
+              <div className="mb-4 text-center">
                 <p className="text-gray-500 text-sm italic">"{shirtData.prompt}"</p>
                 {shirtData.isPartial && (
                   <p className="text-blue-500 text-xs mt-1 animate-pulse">
@@ -120,17 +108,24 @@ export function ViewPage() {
               </div>
             )}
 
-            {/* Shirt Color Selection */}
-            <ShirtColorPicker />
+            {/* Simplified Controls Row */}
+            <div className="flex items-center justify-between mb-4">
+              {/* Shirt Color Selection */}
+              <div className="flex-shrink-0">
+                <ShirtColorPicker />
+              </div>
 
-            {/* Texture Placement */}
-            <PlacementControls
-              placement={texturePlacement}
-              onPlacementChange={setTexturePlacement}
-            />
+              {/* Texture Placement */}
+              <div className="flex-shrink-0">
+                <PlacementControls
+                  placement={texturePlacement}
+                  onPlacementChange={setTexturePlacement}
+                />
+              </div>
+            </div>
 
             {/* Actions */}
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-3">
               <Button
                 variant="outline"
                 size="sm"
@@ -140,16 +135,6 @@ export function ViewPage() {
               >
                 <Download className="w-4 h-4" />
                 Download
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!shirtData.imageUrl}
-                onClick={handleShare}
-                className="flex items-center gap-2"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
               </Button>
               <Button
                 size="sm"

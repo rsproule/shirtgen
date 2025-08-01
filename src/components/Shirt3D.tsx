@@ -56,10 +56,10 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
 
   // Extract existing base texture from GLB model
-  const existingBaseTexture = useMemo(() => {
+  const existingBaseTexture = useMemo((): THREE.Texture | null => {
     if (!shirtScene) return null;
     
-    let baseTexture = null;
+    let baseTexture: THREE.Texture | null = null;
     shirtScene.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         const material = child.material as THREE.MeshStandardMaterial;
@@ -84,7 +84,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
     return new Promise<THREE.CanvasTexture>((resolve) => {
       // First, draw the existing base texture if available
-      if (existingBaseTexture && existingBaseTexture.image) {
+      if (existingBaseTexture && existingBaseTexture.image instanceof HTMLImageElement) {
         try {
           // Draw the existing GLB texture as the base
           ctx.drawImage(existingBaseTexture.image, 0, 0, canvas.width, canvas.height);
@@ -300,9 +300,9 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             (mesh.material as THREE.Material).dispose();
           }
 
-          // Apply clean base material
+          // Apply clean base material with selected shirt color
           mesh.material = new THREE.MeshStandardMaterial({
-            color: "#d1d1d1",
+            color: shirtColor,
             roughness: 0.8,
             metalness: 0.0,
             side: THREE.DoubleSide,
@@ -325,10 +325,10 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
               (mesh.material as THREE.Material).dispose();
             }
 
-            // Apply textured material
+            // Apply textured material with selected shirt color
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
-              color: "#d1d1d1",
+              color: shirtColor,
               roughness: 0.8,
               metalness: 0.0,
               transparent: false,
