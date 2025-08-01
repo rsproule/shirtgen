@@ -13,6 +13,8 @@
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "@react-three/drei": "^10.6.1",
+    "@react-three/fiber": "^9.3.0",
     "@zdql/echo-react-sdk": "^0.1.25",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -23,6 +25,7 @@
     "react-hook-form": "^7.61.1",
     "react-router-dom": "^7.7.1",
     "tailwind-merge": "^3.3.1",
+    "three": "^0.179.0",
     "zod": "^4.0.14"
   },
   "devDependencies": {
@@ -31,6 +34,7 @@
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@types/three": "^0.178.1",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.30.1",
