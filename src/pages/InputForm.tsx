@@ -166,8 +166,11 @@ export function InputForm() {
 
       // Extract image data from the response
       const imageData = response.output
-        .filter((output: any) => output.type === "image_generation_call")
-        .map((output: any) => output.result);
+        .filter(
+          (output: unknown) =>
+            (output as { type: string }).type === "image_generation_call",
+        )
+        .map((output: unknown) => (output as { result: string }).result);
 
       if (imageData.length > 0) {
         // Convert base64 to data URL for display
@@ -253,19 +256,30 @@ export function InputForm() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="text-center py-12">
-        <h1 className="text-6xl font-light text-gray-900 mb-2">InstaShirt</h1>
-        <p className="text-gray-500">AI-powered shirt design</p>
-      </div>
+      {/* Header with conditional auth positioning */}
+      <div className="relative">
+        {/* Title */}
+        <div className="text-center pt-8 pb-4">
+          <h1 className="text-6xl font-light text-gray-900 mb-2">InstaShirt</h1>
+          <p className="text-gray-500">AI-powered shirt design</p>
+        </div>
 
-      {/* Auth Section */}
-      <div className="flex justify-center mb-8">
-        {isAuthenticated ? <EchoTokenPurchase /> : <EchoSignIn />}
+        {/* Auth Section - positioned based on login status */}
+        {isAuthenticated ? (
+          // Top right when logged in
+          <div className="absolute top-4 right-4">
+            <EchoTokenPurchase />
+          </div>
+        ) : (
+          // Dead center when not logged in
+          <div className="flex justify-center mt-6 mb-4">
+            <EchoSignIn />
+          </div>
+        )}
       </div>
 
       {/* Main Input Area */}
-      <div className="flex-1 flex items-center justify-center px-8">
+      <div className="flex justify-center px-8 mt-8">
         <div className="w-full max-w-4xl">
           <Textarea
             ref={textareaRef}
