@@ -164,7 +164,7 @@ export function InputForm() {
 
       // Use OpenAI responses API via Echo SDK
       const response = await openai.responses.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         input: imagePrompt,
         tools: [{ type: "image_generation" }],
       });
@@ -193,7 +193,7 @@ export function InputForm() {
             generatedAt: new Date().toISOString(),
           },
         });
-        
+
         // Keep loading state until navigation completes
         return;
       } else {
