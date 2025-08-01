@@ -1,11 +1,13 @@
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useEchoOpenAI } from "@zdql/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
+import { useShirtHistory } from "./useShirtHistory";
 
 export function useImageGeneration() {
   const { openai } = useEchoOpenAI();
   const navigate = useNavigate();
   const { setShirtData, setIsLoading } = useShirtData();
+  const { addToHistory } = useShirtHistory();
 
   const generateImage = async (prompt: string) => {
     if (prompt.length < 10) {
@@ -92,6 +94,8 @@ export function useImageGeneration() {
             };
 
             setShirtData(finalShirtData);
+            // Save to history when image generation is complete
+            addToHistory(finalShirtData);
             setIsLoading(false); // Stop loading on final image
           }
         }
@@ -111,6 +115,8 @@ export function useImageGeneration() {
     };
 
     setShirtData(shirtData);
+    // Save debug image to history too
+    addToHistory(shirtData);
     navigate("/view");
   };
 
