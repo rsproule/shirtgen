@@ -1,0 +1,22 @@
+export interface TypingStats {
+  wpm: number;
+  accuracy: number;
+  timeTyping: number;
+  correctChars: number;
+  totalChars: number;
+}
+
+export interface ShirtData {
+  prompt: string;
+  imageUrl?: string;
+  generatedAt?: string;
+}
+
+export type TexturePlacement = "front" | "back" | "full-shirt";
+
+export interface ImageGenerationResponse {
+  output: Array<{
+    type: string;
+    result: string;
+  }>;
+}

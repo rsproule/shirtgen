@@ -56,6 +56,9 @@ importers:
       three:
         specifier: ^0.179.0
         version: 0.179.0
+      tw-animate-css:
+        specifier: ^1.3.6
+        version: 1.3.6
       zod:
         specifier: ^4.0.14
         version: 4.0.14
@@ -1772,6 +1775,9 @@ packages:
   tunnel-rat@0.1.2:
     resolution: {integrity: sha512-lR5VHmkPhzdhrM092lI2nACsLO4QubF0/yoOhzX7c+wIpbN1GjHNzCc91QlpxBi+cnx8vVJ+Ur6vL5cEoQPFpQ==}
 
+  tw-animate-css@1.3.6:
+    resolution: {integrity: sha512-9dy0R9UsYEGmgf26L8UcHiLmSFTHa9+D7+dAt/G/sF5dCnPePZbfgDYinc7/UzAM7g/baVrmS6m9yEpU46d+LA==}
+
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -3454,6 +3460,8 @@ snapshots:
       - '@types/react'
       - immer
       - react
+
+  tw-animate-css@1.3.6: {}
 
   type-check@0.4.0:
     dependencies:

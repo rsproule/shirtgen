@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { EchoProvider } from '@zdql/echo-react-sdk'
-import { InputForm } from '@/pages/InputForm'
-import { Shirt3DView } from '@/pages/Shirt3DView'
+import { ShirtDataProvider } from '@/context/ShirtDataContext'
+import { HomePage } from '@/pages/HomePage'
+import { ViewPage } from '@/pages/ViewPage'
 
 const echoConfig = {
   appId: '157aa247-4d72-473c-8e27-6927c602892c',
@@ -11,12 +12,14 @@ const echoConfig = {
 function App() {
   return (
     <EchoProvider config={echoConfig}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<InputForm />} />
-          <Route path="/view" element={<Shirt3DView />} />
-        </Routes>
-      </Router>
+      <ShirtDataProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/view" element={<ViewPage />} />
+          </Routes>
+        </Router>
+      </ShirtDataProvider>
     </EchoProvider>
   )
 }
