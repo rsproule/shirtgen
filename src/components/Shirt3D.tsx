@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 type TexturePlacement = "front" | "back" | "full-shirt";
@@ -21,32 +21,34 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   // Create a single instance of the shirt that we'll reuse
   const shirtScene = useMemo(() => {
     const cloned = scene.clone();
-    
+
     // Debug: Log all children to see what's in the scene
-    console.log('Scene children before cleanup:', cloned.children.length);
+    console.log("Scene children before cleanup:", cloned.children.length);
     cloned.traverse((child) => {
-      console.log('Child:', child.name, child.type, child.userData);
+      console.log("Child:", child.name, child.type, child.userData);
     });
-    
+
     // Remove any existing added geometries from the original
     const toRemove: THREE.Object3D[] = [];
     cloned.traverse((child) => {
-      if (child.userData.isAddedTexture || 
-          child.name.includes('plane') || 
-          child.name.includes('Plane') ||
-          child.type === 'Mesh' && child.geometry?.type === 'PlaneGeometry') {
+      if (
+        child.userData.isAddedTexture ||
+        child.name.includes("plane") ||
+        child.name.includes("Plane") ||
+        (child.type === "Mesh" && child.geometry?.type === "PlaneGeometry")
+      ) {
         toRemove.push(child);
       }
     });
-    
-    console.log('Removing', toRemove.length, 'objects');
+
+    console.log("Removing", toRemove.length, "objects");
     toRemove.forEach((obj) => {
       if (obj.parent) {
         obj.parent.remove(obj);
       }
     });
-    
-    console.log('Scene children after cleanup:', cloned.children.length);
+
+    console.log("Scene children after cleanup:", cloned.children.length);
     return cloned;
   }, [scene]);
 
@@ -61,7 +63,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     canvas.height = 2048;
 
     // Fill with white background
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#d1d1d1";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Create a temporary image to draw the design texture
@@ -72,8 +74,8 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
       img.onload = () => {
         // Enable high-quality image rendering
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        
+        ctx.imageSmoothingQuality = "high";
+
         // Rotate context to fix 90-degree offset
         ctx.save();
 
@@ -133,13 +135,14 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         texture.flipY = false;
         texture.wrapS = THREE.ClampToEdgeWrapping;
         texture.wrapT = THREE.ClampToEdgeWrapping;
-        
+
         // Improve texture quality
         texture.magFilter = THREE.LinearFilter;
         texture.minFilter = THREE.LinearMipmapLinearFilter;
         texture.anisotropy = Math.max(1, 4); // Improve quality at angles
         texture.generateMipmaps = true;
-        
+        texture.colorSpace = THREE.SRGBColorSpace;
+
         resolve(texture);
       };
 
@@ -167,13 +170,15 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     if (groupRef.current && isAnimating) {
       const current = groupRef.current.rotation.y;
       const difference = targetRotation - current;
-      
+
       // Normalize the difference to take the shortest path
-      const normalizedDiff = ((difference % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2) - Math.PI;
-      
+      const normalizedDiff =
+        (((difference % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2)) -
+        Math.PI;
+
       const rotationSpeed = 4; // Adjust speed as needed
       const step = normalizedDiff * delta * rotationSpeed;
-      
+
       if (Math.abs(normalizedDiff) < 0.01) {
         // Close enough, snap to target and stop animating
         groupRef.current.rotation.y = targetRotation;
@@ -188,17 +193,17 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   useEffect(() => {
     if (groupRef.current) {
       let newTargetRotation = 0;
-      
+
       switch (texturePlacement) {
-        case 'front':
-        case 'full-shirt':
+        case "front":
+        case "full-shirt":
           newTargetRotation = 0;
           break;
-        case 'back':
+        case "back":
           newTargetRotation = Math.PI;
           break;
       }
-      
+
       if (newTargetRotation !== targetRotation) {
         setTargetRotation(newTargetRotation);
         setIsAnimating(true);
@@ -214,16 +219,19 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
       // Reset all materials to clean state first
       shirtScene.traverse((child) => {
         if (child instanceof THREE.Mesh && child.material) {
-          const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
-          
+          const mesh = child as THREE.Mesh<
+            THREE.BufferGeometry,
+            THREE.Material
+          >;
+
           // Dispose of old material if it exists
-          if (mesh.material && 'dispose' in mesh.material) {
+          if (mesh.material && "dispose" in mesh.material) {
             (mesh.material as any).dispose();
           }
 
           // Apply clean base material
           mesh.material = new THREE.MeshStandardMaterial({
-            color: "#cccccc",
+            color: "#d1d1d1",
             roughness: 0.9,
             metalness: 0.0,
             side: THREE.DoubleSide,
@@ -236,17 +244,20 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         const texture = await customTexture;
         shirtScene.traverse((child) => {
           if (child instanceof THREE.Mesh && child.material) {
-            const mesh = child as THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
-            
+            const mesh = child as THREE.Mesh<
+              THREE.BufferGeometry,
+              THREE.Material
+            >;
+
             // Dispose of old material
-            if (mesh.material && 'dispose' in mesh.material) {
+            if (mesh.material && "dispose" in mesh.material) {
               (mesh.material as any).dispose();
             }
 
             // Apply textured material
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
-              color: "#cccccc",
+              color: "#d1d1d1",
               roughness: 0.9,
               metalness: 0.0,
               transparent: false,
