@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 
 type TexturePlacement = "front" | "back" | "full-shirt";
@@ -12,7 +12,8 @@ interface Shirt3DProps {
 
 export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   const groupRef = useRef<THREE.Group>(null!);
-  const shirtRef = useRef<THREE.Group | null>(null);
+  const [targetRotation, setTargetRotation] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Load the GLB model
   const { scene } = useGLTF("/oversized_t-shirt.glb");
@@ -150,12 +151,49 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     });
   }, [imageUrl, texturePlacement]);
 
-  // Auto-rotate the shirt
+  // Smooth rotation animation
   useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.3;
+    if (groupRef.current && isAnimating) {
+      const current = groupRef.current.rotation.y;
+      const difference = targetRotation - current;
+      
+      // Normalize the difference to take the shortest path
+      const normalizedDiff = ((difference % (Math.PI * 2)) + (Math.PI * 3)) % (Math.PI * 2) - Math.PI;
+      
+      const rotationSpeed = 4; // Adjust speed as needed
+      const step = normalizedDiff * delta * rotationSpeed;
+      
+      if (Math.abs(normalizedDiff) < 0.01) {
+        // Close enough, snap to target and stop animating
+        groupRef.current.rotation.y = targetRotation;
+        setIsAnimating(false);
+      } else {
+        groupRef.current.rotation.y += step;
+      }
     }
   });
+
+  // Position shirt based on texture placement mode with smooth transition
+  useEffect(() => {
+    if (groupRef.current) {
+      let newTargetRotation = 0;
+      
+      switch (texturePlacement) {
+        case 'front':
+        case 'full-shirt':
+          newTargetRotation = 0;
+          break;
+        case 'back':
+          newTargetRotation = Math.PI;
+          break;
+      }
+      
+      if (newTargetRotation !== targetRotation) {
+        setTargetRotation(newTargetRotation);
+        setIsAnimating(true);
+      }
+    }
+  }, [texturePlacement, targetRotation]);
 
   // Apply the custom texture to the GLB model using useEffect to avoid multiple applications
   useEffect(() => {
