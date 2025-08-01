@@ -49,6 +49,13 @@ export function InputForm() {
   const lastActiveCheckRef = useRef<number>(Date.now());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Reset loading state when component unmounts
+  useEffect(() => {
+    return () => {
+      setIsSubmitting(false);
+    };
+  }, []);
+
   // Update typing stats
   useEffect(() => {
     const interval = setInterval(() => {
@@ -178,6 +185,7 @@ export function InputForm() {
         const imageUrl = `data:image/png;base64,${imageBase64}`;
 
         // Navigate to view with image data in state
+        // Don't set isSubmitting to false here - let the navigation happen
         navigate("/view", {
           state: {
             prompt: prompt,
@@ -185,13 +193,15 @@ export function InputForm() {
             generatedAt: new Date().toISOString(),
           },
         });
+        
+        // Keep loading state until navigation completes
+        return;
       } else {
         throw new Error("No image data returned from OpenAI");
       }
     } catch (error) {
       console.error("Error generating image:", error);
       alert("Failed to generate image. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };
