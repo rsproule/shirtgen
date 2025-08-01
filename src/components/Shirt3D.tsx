@@ -35,7 +35,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         child.userData.isAddedTexture ||
         child.name.includes("plane") ||
         child.name.includes("Plane") ||
-        (child.type === "Mesh" && child.geometry?.type === "PlaneGeometry")
+        (child.type === "Mesh" && (child as THREE.Mesh).geometry?.type === "PlaneGeometry")
       ) {
         toRemove.push(child);
       }
@@ -264,7 +264,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
           // Dispose of old material if it exists
           if (mesh.material && "dispose" in mesh.material) {
-            (mesh.material as any).dispose();
+            (mesh.material as THREE.Material).dispose();
           }
 
           // Apply clean base material
@@ -289,7 +289,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
             // Dispose of old material
             if (mesh.material && "dispose" in mesh.material) {
-              (mesh.material as any).dispose();
+              (mesh.material as THREE.Material).dispose();
             }
 
             // Apply textured material
