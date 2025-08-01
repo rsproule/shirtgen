@@ -94,5 +94,12 @@ export function useTypingStats(prompt: string) {
     lastActiveCheckRef.current = now;
   };
 
-  return { typingStats, handleInputChange };
+  const setPromptWithoutStats = () => {
+    // This function is called when setting prompt without affecting typing stats
+    // Used when selecting from history or other non-typing actions
+    // The actual prompt value is set directly in the parent component
+    // This function exists to maintain the API consistency but doesn't need to do anything
+  };
+
+  return { typingStats, handleInputChange, setPromptWithoutStats };
 }
