@@ -12,6 +12,7 @@ import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
@@ -93,13 +94,18 @@ export function HomePage() {
       <div className="relative">
         {/* Title */}
         <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <div className="flex items-center justify-start gap-2 mb-3">
+          <div className="flex items-center justify-start gap-0 mb-3">
             <img 
               src="/shirtslop.png" 
               alt="ShirtSlop Logo" 
               className="h-32 w-auto drop-shadow-lg object-contain" 
             />
-            <h1 className="text-7xl font-light text-gray-900 tracking-tight">ShirtSlop</h1>
+            <div className="flex items-center -mt-2">
+              <TextGenerateEffect 
+                words="ShirtSlop" 
+                className="text-7xl font-light text-gray-900 tracking-tight" 
+              />
+            </div>
           </div>
           <p className="text-lg text-gray-600 font-medium">AI-powered shirt design</p>
         </div>
