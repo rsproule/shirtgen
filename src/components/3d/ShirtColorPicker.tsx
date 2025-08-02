@@ -2,12 +2,9 @@ import { useShirtData } from "@/context/ShirtDataContext";
 
 const SHIRT_COLORS = [
   { name: "White", color: "#f8f8f8", description: "Off-white" },
-  { name: "Black", color: "#2a2a2a", description: "Charcoal black" },
+  { name: "Shadow", color: "#2a2a2a", description: "Charcoal black" },
+  { name: "Oatmeal", color: "#d2b48c", description: "Warm oatmeal" },
   { name: "Cream", color: "#f5f5dc", description: "Warm cream" },
-  { name: "Navy", color: "#1a1a2e", description: "Deep navy blue" },
-  { name: "Charcoal", color: "#4a4a4a", description: "Charcoal grey" },
-  { name: "Brown", color: "#3d2817", description: "Dark brown" },
-  { name: "Army Green", color: "#1a2f1a", description: "Military green" },
 ];
 
 export function ShirtColorPicker() {
