@@ -339,11 +339,11 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
               (mesh.material as THREE.Material).dispose();
             }
 
-            // Apply textured material with selected shirt color
+            // Apply textured material without color overlay to preserve image brightness
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
-              color: shirtColor,
-              roughness: 0.8,
+              color: 0xffffff, // Use white to preserve original image colors
+              roughness: 0.6,
               metalness: 0.0,
               transparent: false,
               side: THREE.DoubleSide,
