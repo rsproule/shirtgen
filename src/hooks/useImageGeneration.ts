@@ -1,8 +1,9 @@
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useEchoOpenAI } from "@zdql/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
+import type { ShirtData } from "@/types";
 
-export function useImageGeneration() {
+export function useImageGeneration(onShirtComplete?: (shirtData: ShirtData) => void) {
   const { openai } = useEchoOpenAI();
   const navigate = useNavigate();
   const { setShirtData, setIsLoading } = useShirtData();
@@ -92,6 +93,8 @@ export function useImageGeneration() {
             };
 
             setShirtData(finalShirtData);
+            // Notify parent component that shirt is complete
+            onShirtComplete?.(finalShirtData);
             setIsLoading(false); // Stop loading on final image
           }
         }
@@ -111,6 +114,8 @@ export function useImageGeneration() {
     };
 
     setShirtData(shirtData);
+    // Notify parent component that shirt is complete
+    onShirtComplete?.(shirtData);
     navigate("/view");
   };
 

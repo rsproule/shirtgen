@@ -5,7 +5,7 @@ export function AuthSection() {
   const { isAuthenticated } = useShirtData();
 
   if (isAuthenticated) {
-    // Top right when logged in
+    // Top right when logged in - use redirect mode instead of popup
     return (
       <div className="absolute top-4 right-4">
         <EchoTokenPurchase />
