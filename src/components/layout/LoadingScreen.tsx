@@ -20,7 +20,7 @@ export function LoadingScreen({
   });
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-black p-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-white p-4">
       {/* Dancing Pepe video in top left corner */}
       <div className="absolute top-4 left-4 z-10">
         <video
@@ -94,7 +94,7 @@ export function LoadingScreen({
       </div>
 
       <div className="w-full text-center">
-        <p className="mb-8 text-lg font-light text-white lg:text-xl">
+        <p className="mb-8 text-lg font-light text-black lg:text-xl">
           {message}
         </p>
 
@@ -157,7 +157,7 @@ export function LoadingScreen({
 
         {/* Fallback loading spinner if videos fail */}
         <div className="mt-8 flex justify-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white opacity-50"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-black opacity-50"></div>
         </div>
       </div>
     </div>
