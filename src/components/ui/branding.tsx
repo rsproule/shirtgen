@@ -1,30 +1,30 @@
 interface BrandingProps {
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
   showTagline?: boolean;
   className?: string;
 }
 
-export function Branding({ 
-  size = 'medium', 
-  showTagline = false, 
-  className = '' 
+export function Branding({
+  size = "medium",
+  showTagline = false,
+  className = "",
 }: BrandingProps) {
   const sizeClasses = {
     small: {
-      logo: 'h-12',
-      text: 'text-2xl',
-      tagline: 'text-base'
+      logo: "h-12",
+      text: "text-2xl",
+      tagline: "text-base",
     },
     medium: {
-      logo: 'h-20 sm:h-28',
-      text: 'text-4xl sm:text-6xl',
-      tagline: 'text-lg sm:text-xl'
+      logo: "h-20 sm:h-28",
+      text: "text-4xl sm:text-6xl",
+      tagline: "text-lg sm:text-xl",
     },
     large: {
-      logo: 'h-24 sm:h-32 md:h-40',
-      text: 'text-5xl sm:text-7xl md:text-9xl',
-      tagline: 'text-lg sm:text-2xl'
-    }
+      logo: "h-24 sm:h-32 md:h-40",
+      text: "text-5xl sm:text-7xl md:text-9xl",
+      tagline: "text-lg sm:text-2xl",
+    },
   };
 
   const classes = sizeClasses[size];
@@ -38,16 +38,17 @@ export function Branding({
           className={`${classes.logo} w-auto object-contain drop-shadow-lg`}
         />
         <span
-          className={`${classes.text} font-bold text-gray-900 tracking-tight`}
+          className={`${classes.text} font-bold tracking-tight text-gray-900`}
           style={{
-            fontFamily: "Comic Sans MS, Comic Sans, Chalkboard SE, Comic Neue, cursive",
+            fontFamily:
+              "Comic Sans MS, Comic Sans, Chalkboard SE, Comic Neue, cursive",
           }}
         >
           ShirtSlop
         </span>
       </div>
       {showTagline && (
-        <p className={`${classes.tagline} font-medium text-gray-600 ml-4`}>
+        <p className={`${classes.tagline} ml-4 font-medium text-gray-600`}>
           AI-powered shirt design
         </p>
       )}

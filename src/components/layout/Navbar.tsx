@@ -8,7 +8,7 @@ export function Navbar() {
 
   return (
     <nav className="border-b border-gray-200">
-      <div className="mx-auto max-w-7xl px-8 flex items-center justify-between py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
         <Branding size="small" />
 
         <div className="flex items-center space-x-4">

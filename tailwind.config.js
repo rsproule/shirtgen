@@ -4,7 +4,13 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'comic': ['Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', 'cursive'],
+        comic: [
+          "Comic Sans MS",
+          "Comic Sans",
+          "Chalkboard SE",
+          "Comic Neue",
+          "cursive",
+        ],
       },
     },
   },
