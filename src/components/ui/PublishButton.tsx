@@ -66,7 +66,8 @@ export function PublishButton() {
   const [showModal, setShowModal] = useState(false);
 
   const handlePublish = () => {
-    setShowModal(true);
+    alert("Coming soon!");
+    // setShowModal(true);
   };
 
   const isDisabled =
