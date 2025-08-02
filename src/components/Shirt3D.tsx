@@ -128,20 +128,23 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
         switch (texturePlacement) {
           case "full-shirt": {
-            // Fill the entire UV map but shift left to center on chest
-            const maxWidth = canvas.width;
-            const maxHeight = canvas.height;
+            // Center on front of shirt and extend to sleeves
+            const frontWidth = canvas.width * 0.45; // Slightly larger (45% of canvas)
+            const frontHeight = canvas.height * 0.55; // Slightly larger (55% of canvas)
+            const frontX = canvas.width * 0.3; // Center on front of T-shirt
+            const frontY = canvas.height * 0.35; // Move up slightly (35% instead of 30%)
 
             // Calculate dimensions preserving aspect ratio
-            let drawWidth = maxWidth;
-            let drawHeight = maxWidth / imgAspectRatio;
+            let drawWidth = frontWidth;
+            let drawHeight = frontWidth / imgAspectRatio;
 
-            if (drawHeight > maxHeight) {
-              drawHeight = maxHeight;
-              drawWidth = maxHeight * imgAspectRatio;
+            // If height exceeds front area, scale down proportionally
+            if (drawHeight > frontHeight) {
+              drawHeight = frontHeight;
+              drawWidth = frontHeight * imgAspectRatio;
             }
 
-            ctx.translate(canvas.width * 0.3, canvas.height / 2);
+            ctx.translate(frontX, frontY);
             ctx.rotate(Math.PI);
             ctx.scale(-1, 1); // Flip horizontally to fix mirroring
             ctx.drawImage(
