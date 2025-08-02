@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
 interface EchoStyleWrapperProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function EchoStyleWrapper({ children }: EchoStyleWrapperProps) {
@@ -73,5 +73,5 @@ export function EchoStyleWrapper({ children }: EchoStyleWrapperProps) {
       </style>
       {children}
     </div>
-  )
+  );
 }

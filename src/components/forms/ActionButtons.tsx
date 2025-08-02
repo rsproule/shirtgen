@@ -21,22 +21,22 @@ export function ActionButtons({
   };
 
   return (
-    <div className="flex justify-end mt-8">
+    <div className="mt-8 flex justify-end">
       <PulsatingButton
         onClick={handleGenerate}
         disabled={!isAuthenticated || promptLength < 10}
         disabledAnimation={!isAuthenticated || promptLength < 10}
         className={`text-white ${
           !isAuthenticated || promptLength < 10
-            ? "bg-gray-400 cursor-not-allowed"
+            ? "cursor-not-allowed bg-gray-400"
             : "bg-black"
         }`}
       >
         {!isAuthenticated
           ? "Sign In to Generate"
           : promptLength < 10
-          ? "Enter More Details"
-          : "Generate Design"}
+            ? "Enter More Details"
+            : "Generate Design"}
       </PulsatingButton>
     </div>
   );

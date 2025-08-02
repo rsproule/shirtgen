@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Eye } from "lucide-react";
-import { useShirtHistory, type ShirtHistoryItem } from "@/hooks/useShirtHistory";
+import {
+  useShirtHistory,
+  type ShirtHistoryItem,
+} from "@/hooks/useShirtHistory";
 import { useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
 
@@ -14,8 +17,12 @@ export function ShirtHistory() {
   if (history.length === 0) {
     return (
       <div className="mt-12 border-t border-gray-200 pt-8">
-        <h2 className="text-lg font-medium text-gray-900 mb-6">Recent Designs</h2>
-        <p className="text-gray-500 text-center py-8">No designs yet. Generate your first shirt to see it here!</p>
+        <h2 className="mb-6 text-lg font-medium text-gray-900">
+          Recent Designs
+        </h2>
+        <p className="py-8 text-center text-gray-500">
+          No designs yet. Generate your first shirt to see it here!
+        </p>
       </div>
     );
   }
@@ -30,7 +37,7 @@ export function ShirtHistory() {
       isPartial: false,
       partialIndex: -1,
     };
-    
+
     setShirtData(shirtData);
     navigate("/view");
   };
@@ -52,7 +59,7 @@ export function ShirtHistory() {
 
   return (
     <div className="mt-12 border-t border-gray-200 pt-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-medium text-gray-900">Recent Designs</h2>
         <div className="flex items-center gap-3">
           {history.length > 6 && (
@@ -62,7 +69,7 @@ export function ShirtHistory() {
               onClick={() => setShowAll(!showAll)}
               className="text-gray-600 hover:text-gray-800"
             >
-              {showAll ? 'Show Less' : `Show All ${history.length}`}
+              {showAll ? "Show Less" : `Show All ${history.length}`}
             </Button>
           )}
           <Button
@@ -76,52 +83,55 @@ export function ShirtHistory() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {displayHistory.map((item) => (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        {displayHistory.map(item => (
           <div
             key={item.id}
-            className="group relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors"
+            className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 transition-colors hover:border-gray-300"
           >
             {/* Image */}
-            <div className="aspect-square relative">
+            <div className="relative aspect-square">
               <img
                 src={item.imageUrl}
                 alt={item.prompt}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
                 loading="lazy"
               />
-              
+
               {/* Overlay with actions */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center gap-2">
+              <div className="bg-opacity-0 group-hover:bg-opacity-40 absolute inset-0 flex items-center justify-center gap-2 bg-black transition-opacity">
                 <Button
                   size="sm"
                   onClick={() => handleViewShirt(item)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black hover:bg-gray-100 h-8 w-8 p-0"
+                  className="h-8 w-8 bg-white p-0 text-black opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100"
                   title="View shirt"
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     removeFromHistory(item.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 text-white hover:bg-red-600 h-8 w-8 p-0"
+                  className="h-8 w-8 bg-red-500 p-0 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
                   title="Delete"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             {/* Info */}
             <div className="p-3">
-              <p className="text-xs text-gray-600 mb-1 overflow-hidden" style={{ 
-                display: '-webkit-box', 
-                WebkitLineClamp: 2, 
-                WebkitBoxOrient: 'vertical' 
-              }}>
+              <p
+                className="mb-1 overflow-hidden text-xs text-gray-600"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                }}
+              >
                 {item.prompt}
               </p>
               <p className="text-xs text-gray-400">

@@ -17,7 +17,8 @@ export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const { typingStats, handleInputChange, setPromptWithoutStats } = useTypingStats(prompt);
+  const { typingStats, handleInputChange, setPromptWithoutStats } =
+    useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
@@ -46,7 +47,7 @@ export function HomePage() {
   const handleGenerate = () => {
     // Clear any previous errors
     setError(null);
-    
+
     if (prompt.trim().length >= 10) {
       addPromptToHistory(prompt);
     }
@@ -67,16 +68,17 @@ export function HomePage() {
     setPromptWithoutStats();
   };
 
-
   if (isLoading) {
     return (
       <>
         <LoadingScreen />
         {/* Error Display - Show even during loading */}
-        <ErrorDisplay 
+        <ErrorDisplay
           error={error}
           onDismiss={handleDismissError}
-          onRetry={prompt.trim().length >= 10 ? handleRetryGeneration : undefined}
+          onRetry={
+            prompt.trim().length >= 10 ? handleRetryGeneration : undefined
+          }
           autoHide={false}
         />
       </>
@@ -84,12 +86,12 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="flex min-h-screen flex-col bg-white">
       {/* Header with conditional auth positioning */}
       <div className="relative">
         {/* Title */}
-        <div className="max-w-7xl mx-auto text-left pt-8 pb-4 px-8">
-          <h1 className="text-6xl font-light text-gray-900 mb-2">InstaShirt</h1>
+        <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
+          <h1 className="mb-2 text-6xl font-light text-gray-900">InstaShirt</h1>
           <p className="text-gray-500">AI-powered shirt design</p>
         </div>
 
@@ -98,12 +100,12 @@ export function HomePage() {
       </div>
 
       {/* Main Input Area */}
-      <div className="max-w-7xl mx-auto px-8 mt-8 w-full">
+      <div className="mx-auto mt-8 w-full max-w-7xl px-8">
         {/* History Button - Top Right */}
-        <div className="flex justify-end mb-1">
+        <div className="mb-1 flex justify-end">
           <PromptHistory onSelectPrompt={handleSelectFromHistory} />
         </div>
-        
+
         <PromptInput
           value={prompt}
           onChange={handleTextChange}
@@ -124,7 +126,7 @@ export function HomePage() {
       </div>
 
       {/* Error Display */}
-      <ErrorDisplay 
+      <ErrorDisplay
         error={error}
         onDismiss={handleDismissError}
         onRetry={prompt.trim().length >= 10 ? handleRetryGeneration : undefined}

@@ -24,43 +24,42 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
   const shirtScene = useMemo(() => {
     const cloned = scene.clone();
 
-
     // Remove any existing added geometries from the original
     const toRemove: THREE.Object3D[] = [];
-    cloned.traverse((child) => {
+    cloned.traverse(child => {
       if (
         child.userData.isAddedTexture ||
         child.name.includes("plane") ||
         child.name.includes("Plane") ||
-        (child.type === "Mesh" && (child as THREE.Mesh).geometry?.type === "PlaneGeometry")
+        (child.type === "Mesh" &&
+          (child as THREE.Mesh).geometry?.type === "PlaneGeometry")
       ) {
         toRemove.push(child);
       }
     });
 
-    toRemove.forEach((obj) => {
+    toRemove.forEach(obj => {
       if (obj.parent) {
         obj.parent.remove(obj);
       }
     });
-    
+
     // Try to center the model by offsetting based on its bounding box
     const finalBox = new THREE.Box3().setFromObject(cloned);
     const finalCenter = finalBox.getCenter(new THREE.Vector3());
-    
+
     // Offset the entire scene to center it at origin
     cloned.position.set(-finalCenter.x, -finalCenter.y, -finalCenter.z);
-    
+
     return cloned;
   }, [scene]);
-
 
   // Extract existing base texture from GLB model
   const existingBaseTexture = useMemo((): THREE.Texture | null => {
     if (!shirtScene) return null;
-    
+
     let baseTexture: THREE.Texture | null = null;
-    shirtScene.traverse((child) => {
+    shirtScene.traverse(child => {
       if (child instanceof THREE.Mesh && child.material) {
         const material = child.material as THREE.MeshStandardMaterial;
         if (material.map) {
@@ -82,14 +81,26 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     canvas.width = 2048;
     canvas.height = 2048;
 
-    return new Promise<THREE.CanvasTexture>((resolve) => {
+    return new Promise<THREE.CanvasTexture>(resolve => {
       // First, draw the existing base texture if available
-      if (existingBaseTexture && existingBaseTexture.image instanceof HTMLImageElement) {
+      if (
+        existingBaseTexture &&
+        existingBaseTexture.image instanceof HTMLImageElement
+      ) {
         try {
           // Draw the existing GLB texture as the base
-          ctx.drawImage(existingBaseTexture.image, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(
+            existingBaseTexture.image,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+          );
         } catch (error) {
-          console.warn("Could not draw existing base texture, using solid color fallback", error);
+          console.warn(
+            "Could not draw existing base texture, using solid color fallback",
+            error,
+          );
           // Fallback to solid color background
           ctx.fillStyle = shirtColor;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -120,16 +131,16 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             // Fill the entire UV map but shift left to center on chest
             const maxWidth = canvas.width;
             const maxHeight = canvas.height;
-            
+
             // Calculate dimensions preserving aspect ratio
             let drawWidth = maxWidth;
             let drawHeight = maxWidth / imgAspectRatio;
-            
+
             if (drawHeight > maxHeight) {
               drawHeight = maxHeight;
               drawWidth = maxHeight * imgAspectRatio;
             }
-            
+
             ctx.translate(canvas.width * 0.3, canvas.height / 2);
             ctx.rotate(Math.PI);
             ctx.scale(-1, 1); // Flip horizontally to fix mirroring
@@ -148,16 +159,16 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
             const frontX = canvas.width * 0.2; // Move toward left side of UV
             const frontY = canvas.height * 0.3; // Upper area
-            
+
             // Calculate dimensions preserving aspect ratio
             let drawWidth = maxSize;
             let drawHeight = maxSize / imgAspectRatio;
-            
+
             if (drawHeight > maxSize) {
               drawHeight = maxSize;
               drawWidth = maxSize * imgAspectRatio;
             }
-            
+
             ctx.translate(frontX + maxSize / 2, frontY + maxSize / 2);
             ctx.rotate(Math.PI);
             ctx.scale(-1, 1); // Flip horizontally to fix mirroring
@@ -176,16 +187,16 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
             const backX = canvas.width * 0.84 - maxSize; // Move toward right side of UV
             const backY = canvas.height * 0.3; // Upper area
-            
+
             // Calculate dimensions preserving aspect ratio
             let drawWidth = maxSize;
             let drawHeight = maxSize / imgAspectRatio;
-            
+
             if (drawHeight > maxSize) {
               drawHeight = maxSize;
               drawWidth = maxSize * imgAspectRatio;
             }
-            
+
             ctx.translate(backX + maxSize / 2, backY + maxSize / 2);
             ctx.rotate(Math.PI);
             ctx.scale(-1, 1); // Flip horizontally to fix mirroring
@@ -288,7 +299,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
     const applyTexture = async () => {
       // Reset all materials to clean state first
-      shirtScene.traverse((child) => {
+      shirtScene.traverse(child => {
         if (child instanceof THREE.Mesh && child.material) {
           const mesh = child as THREE.Mesh<
             THREE.BufferGeometry,
@@ -313,7 +324,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
       // Apply texture if available
       if (customTexture) {
         const texture = await customTexture;
-        shirtScene.traverse((child) => {
+        shirtScene.traverse(child => {
           if (child instanceof THREE.Mesh && child.material) {
             const mesh = child as THREE.Mesh<
               THREE.BufferGeometry,
@@ -344,7 +355,11 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
   return (
     <group ref={groupRef}>
-      <primitive object={shirtScene} scale={[2.5, 2.5, 2.5]} position={[0, -3, 0]} />
+      <primitive
+        object={shirtScene}
+        scale={[2.5, 2.5, 2.5]}
+        position={[0, -3, 0]}
+      />
     </group>
   );
 }
