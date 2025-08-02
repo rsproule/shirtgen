@@ -1,10 +1,7 @@
 import { useShirtData } from "@/context/ShirtDataContext";
+import type { ShirtData } from "@/types";
 import { useEchoOpenAI } from "@zdql/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
-import type { ShirtData } from "@/types";
-
-// Toggle this for testing error handling without hitting API
-const FORCE_DUMMY_ERROR = true;
 
 export function useImageGeneration(
   onShirtComplete?: (shirtData: ShirtData) => void,
