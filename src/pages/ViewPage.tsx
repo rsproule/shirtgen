@@ -86,8 +86,8 @@ export function ViewPage() {
         <div className="relative">
           <Header showBackButton />
 
-          {/* Save/Publish buttons - Top right */}
-          <div className="absolute top-4 right-4 flex items-center gap-2">
+          {/* Save/Publish buttons - Top right, aligned with header padding */}
+          <div className="absolute top-6 right-6 flex items-center gap-2">
             <SaveButton />
             <PublishButton />
           </div>
