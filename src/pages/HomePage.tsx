@@ -23,6 +23,7 @@ export function HomePage() {
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
+
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
   const {
     selectedThemes,
@@ -57,7 +58,8 @@ export function HomePage() {
     setError(null);
 
     if (prompt.trim().length >= 10) {
-      addPromptToHistory(prompt);
+      // Add to history asynchronously (don't wait for it)
+      addPromptToHistory(prompt).catch(console.error);
     }
 
     // Enhance prompt with selected themes invisibly
