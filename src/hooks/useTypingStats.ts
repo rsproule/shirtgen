@@ -14,6 +14,7 @@ export function useTypingStats(prompt: string) {
   const lastKeystrokeRef = useRef<number>(Date.now());
   const totalActiveTimeRef = useRef<number>(0);
   const lastActiveCheckRef = useRef<number>(Date.now());
+  const previousValueRef = useRef<string>("");
 
   // Update typing stats
   useEffect(() => {
@@ -49,6 +50,11 @@ export function useTypingStats(prompt: string) {
 
   const handleInputChange = (newValue: string) => {
     const now = Date.now();
+    const previousValue = previousValueRef.current;
+    const lengthDifference = newValue.length - previousValue.length;
+
+    // Detect if this is likely a paste operation (large content addition)
+    const isPaste = lengthDifference > 3; // More than 3 characters added at once
 
     // Reset everything if prompt is completely cleared
     if (newValue.length === 0) {
@@ -62,7 +68,8 @@ export function useTypingStats(prompt: string) {
         correctChars: 0,
         totalChars: 0,
       });
-    } else {
+    } else if (!isPaste) {
+      // Only update typing stats if this is NOT a paste operation
       // Start timing if this is the first character
       if (!typingStartRef.current) {
         typingStartRef.current = now;
@@ -88,10 +95,13 @@ export function useTypingStats(prompt: string) {
         timeTyping: Math.floor(totalActiveTimeRef.current / 1000),
         wpm: activeTimeMin > 0 ? Math.round(wordCount / activeTimeMin) : 0,
       }));
-    }
 
-    lastKeystrokeRef.current = now;
-    lastActiveCheckRef.current = now;
+      lastKeystrokeRef.current = now;
+      lastActiveCheckRef.current = now;
+    }
+    // If it's a paste operation, don't update any timing stats
+
+    previousValueRef.current = newValue;
   };
 
   const setPromptWithoutStats = () => {
