@@ -147,6 +147,30 @@ const themeSuggestions: ThemeSuggestion[] = [
     examples: ["50s cartoon", "UPA style", "Art Deco", "mid-century modern"],
     keyword: "50s cartoon",
   },
+  {
+    theme: "Renaissance",
+    description: "Classical oil painting",
+    promptEnhancers: [
+      "in a Renaissance style with classical oil painting technique, rich colors, dramatic lighting, and masterful brushwork",
+      "Renaissance aesthetic, classical oil painting style, rich colors, dramatic lighting, masterful brushwork",
+      "classical Renaissance, oil painting technique, rich colors, dramatic lighting, masterful brushwork",
+      "Renaissance oil painting style, classical aesthetic, rich colors, dramatic lighting, masterful brushwork",
+    ],
+    examples: ["Renaissance", "oil painting", "classical", "dramatic lighting"],
+    keyword: "renaissance",
+  },
+  {
+    theme: "Engraving",
+    description: "Fine line etching",
+    promptEnhancers: [
+      "in an engraving style with fine line etching technique, detailed cross-hatching, monochromatic tones, and intricate linework",
+      "engraving aesthetic, fine line etching style, detailed cross-hatching, monochromatic tones, intricate linework",
+      "fine line engraving, etching technique, detailed cross-hatching, monochromatic tones, intricate linework",
+      "engraved style, fine line etching aesthetic, detailed cross-hatching, monochromatic tones, intricate linework",
+    ],
+    examples: ["engraving", "etching", "cross-hatching", "fine lines"],
+    keyword: "engraving",
+  },
 ];
 
 export function useThemeSuggestions() {
