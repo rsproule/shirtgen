@@ -23,9 +23,9 @@ export function Scene3D({ children }: Scene3DProps) {
           maxDistance={10}
           target={[0, 0, 0]}
         />
-        <Environment preset="studio" />
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 5, 3]} intensity={0.4} />
+        <Environment preset="apartment" />
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[5, 5, 3]} intensity={0.3} />
         <Suspense fallback={null}>{children}</Suspense>
       </Canvas>
     </div>
