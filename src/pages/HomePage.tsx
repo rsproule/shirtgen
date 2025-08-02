@@ -3,6 +3,7 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import { useTypingStats } from "@/hooks/useTypingStats";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { AuthSection } from "@/components/auth/AuthSection";
 import { PromptInput } from "@/components/forms/PromptInput";
@@ -15,8 +16,9 @@ export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const { typingStats, handleInputChange, setPromptWithoutStats } = useTypingStats(prompt);
-  const { generateImage } = useImageGeneration();
-  const { addToHistory } = usePromptHistory();
+  const { addToHistory: addPromptToHistory } = usePromptHistory();
+  const { addToHistory: addShirtToHistory } = useShirtHistory();
+  const { generateImage } = useImageGeneration(addShirtToHistory);
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -41,7 +43,7 @@ export function HomePage() {
 
   const handleGenerate = () => {
     if (prompt.trim().length >= 10) {
-      addToHistory(prompt);
+      addPromptToHistory(prompt);
     }
     generateImage(prompt);
   };
