@@ -18,7 +18,7 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
     <button
       onClick={() => onClick(theme)}
       className={cn(
-        "px-4 py-2 rounded-lg border transition-all duration-200 text-sm font-medium",
+        "px-2 py-1 rounded-lg border transition-all duration-200 text-xs font-medium",
         "hover:scale-105 hover:shadow-md",
         isSelected
           ? "bg-blue-500 text-white border-blue-500 shadow-md"
@@ -45,27 +45,35 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
   const themes = [
     {
       theme: "Vintage",
-      description: "Retro & classic styles",
+      description: "Retro t-shirt designs",
     },
     {
-      theme: "Minimalist",
-      description: "Clean & simple designs",
+      theme: "Cyberpunk",
+      description: "Neon & futuristic",
     },
     {
-      theme: "Abstract",
-      description: "Geometric & artistic",
+      theme: "Anime",
+      description: "Japanese animation style",
     },
     {
-      theme: "Nature",
-      description: "Floral & organic",
+      theme: "Ultrarealistic",
+      description: "Fine grain film camera",
     },
     {
-      theme: "Urban",
-      description: "Street & city vibes",
+      theme: "80s Glamour",
+      description: "Mall portrait studio",
     },
     {
-      theme: "Tech",
-      description: "Futuristic & digital",
+      theme: "Art Nouveau",
+      description: "Flowing organic elegance",
+    },
+    {
+      theme: "B&W Portrait",
+      description: "High-contrast headshot",
+    },
+    {
+      theme: "50s Cartoon",
+      description: "Retro UPA animation",
     },
   ];
 
@@ -74,7 +82,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       <h3 className="text-sm font-medium text-gray-700 mb-3">
         Design Themes
       </h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div className="flex flex-wrap gap-1">
         {themes.map((themeData, index) => (
           <ThemeButton
             key={`${themeData.theme}-${index}`}
