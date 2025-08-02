@@ -1,12 +1,8 @@
 {
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/"
+      "source": "/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+).*)",
+      "destination": "/"
     }
   ]
 }
