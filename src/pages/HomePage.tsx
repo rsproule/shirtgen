@@ -93,11 +93,15 @@ export function HomePage() {
       <div className="relative">
         {/* Title */}
         <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <div className="flex items-center gap-4 mb-2">
-            <img src="/shirtslop.png" alt="ShirtSlop Logo" className="h-16 w-16" />
-            <h1 className="text-6xl font-light text-gray-900">ShirtSlop</h1>
+          <div className="flex items-center gap-6 mb-3">
+            <img 
+              src="/shirtslop.png" 
+              alt="ShirtSlop Logo" 
+              className="h-20 w-20 drop-shadow-lg" 
+            />
+            <h1 className="text-7xl font-bold text-gray-900 tracking-tight">ShirtSlop</h1>
           </div>
-          <p className="text-gray-500">AI-powered shirt design</p>
+          <p className="text-lg text-gray-600 font-medium">AI-powered shirt design</p>
         </div>
 
         {/* Auth Section */}
