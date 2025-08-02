@@ -12,6 +12,7 @@ import { Shirt3D } from "@/components/Shirt3D";
 import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
 import { SaveButton } from "@/components/ui/SaveButton";
 import { PublishButton } from "@/components/ui/PublishButton";
+import { RippleLoader } from "@/components/ui/ripple-loader";
 import type { ShirtData } from "@/types";
 
 export function ViewPage() {
@@ -105,7 +106,7 @@ export function ViewPage() {
         </div>
 
         {/* 3D Scene - Takes remaining space */}
-        <div className="min-h-0 flex-1">
+        <div className="min-h-0 flex-1 relative">
           <Scene3D>
             {shirtData.imageUrl && (
               <Shirt3D
@@ -114,6 +115,18 @@ export function ViewPage() {
               />
             )}
           </Scene3D>
+          
+          {/* Ripple Loader Overlay - Only show when shirt is partially generating */}
+          {shirtData.isPartial && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-10">
+              <div className="text-center">
+                <RippleLoader />
+                <p className="mt-4 text-sm text-gray-600">
+                  Generating your design...
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom Controls */}
@@ -140,13 +153,22 @@ export function ViewPage() {
                   </p>
                 </button>
                 {shirtData.isPartial && (
-                  <p className="mt-1 animate-pulse text-xs text-blue-500">
-                    Generating... (
-                    {shirtData.partialIndex !== undefined
-                      ? shirtData.partialIndex + 1
-                      : 1}
-                    /3)
-                  </p>
+                  <div className="mt-3">
+                    <div className="mb-2 text-xs text-gray-600">
+                      Generating your design...
+                    </div>
+                    <div className="mx-auto h-2 w-48 rounded-full bg-gray-200">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-300 transition-all duration-500 ease-out"
+                        style={{ 
+                          width: `${((shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1) / 3) * 100}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1} of 3
+                    </div>
+                  </div>
                 )}
               </div>
             )}
