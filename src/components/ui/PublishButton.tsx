@@ -34,28 +34,37 @@ interface PublishModalProps {
   error?: string;
 }
 
-function PublishModal({ isOpen, onClose, designName, variants, options, isPublishing, error }: PublishModalProps) {
+function PublishModal({
+  isOpen,
+  onClose,
+  designName,
+  variants,
+  options,
+  isPublishing,
+  error,
+}: PublishModalProps) {
   const [selectedColor, setSelectedColor] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
 
   if (!isOpen) return null;
 
-  const colorOptions = options?.find(opt => opt.type === 'color')?.values || [];
-  const sizeOptions = options?.find(opt => opt.type === 'size')?.values || [];
+  const colorOptions = options?.find(opt => opt.type === "color")?.values || [];
+  const sizeOptions = options?.find(opt => opt.type === "size")?.values || [];
 
   const getSelectedVariant = () => {
     if (!selectedColor || !selectedSize || !variants) return null;
-    return variants.find(v => 
-      v.options.includes(selectedColor) && v.options.includes(selectedSize)
+    return variants.find(
+      v =>
+        v.options.includes(selectedColor) && v.options.includes(selectedSize),
     );
   };
 
   const handleBuyNow = () => {
     const variant = getSelectedVariant();
     if (!variant?.external?.id) return;
-    
+
     const checkoutUrl = `https://shirt-slop.myshopify.com/cart/${variant.external.id}:1?checkout`;
-    window.open(checkoutUrl, '_blank');
+    window.open(checkoutUrl, "_blank");
   };
 
   return (
@@ -76,65 +85,76 @@ function PublishModal({ isOpen, onClose, designName, variants, options, isPublis
 
         <div className="mb-6">
           <p className="mb-4 text-gray-600">
-            {isPublishing 
+            {isPublishing
               ? `Publishing "${designName}" to your store...`
-              : `Ready to share "${designName}" with the world?`
-            }
+              : `Ready to share "${designName}" with the world?`}
           </p>
 
           {isPublishing && (
             <div className="rounded-lg border bg-blue-50 p-4">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                <span className="text-sm text-blue-800">Creating product on Printify and syncing to Shopify...</span>
+                <span className="text-sm text-blue-800">
+                  Creating product on Printify and syncing to Shopify...
+                </span>
               </div>
             </div>
           )}
 
           {error && (
             <div className="rounded-lg border bg-red-50 p-4">
-              <h4 className="mb-2 font-medium text-red-900">Publishing Failed</h4>
+              <h4 className="mb-2 font-medium text-red-900">
+                Publishing Failed
+              </h4>
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           {variants && options && !isPublishing && (
             <div className="rounded-lg border bg-green-50 p-4">
-              <h4 className="mb-3 font-medium text-green-900">Choose Your Options!</h4>
-              
+              <h4 className="mb-3 font-medium text-green-900">
+                Choose Your Options!
+              </h4>
+
               {/* Color selector */}
               {colorOptions.length > 0 && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Color:</label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Color:
+                  </label>
                   <div className="flex gap-2">
-                    {colorOptions.map((color) => (
+                    {colorOptions.map(color => (
                       <button
                         key={color.id}
                         onClick={() => setSelectedColor(color.id)}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          selectedColor === color.id ? 'border-blue-500' : 'border-gray-300'
+                        className={`h-8 w-8 rounded-full border-2 ${
+                          selectedColor === color.id
+                            ? "border-blue-500"
+                            : "border-gray-300"
                         }`}
-                        style={{ backgroundColor: color.colors?.[0] || '#ccc' }}
+                        style={{ backgroundColor: color.colors?.[0] || "#ccc" }}
                         title={color.title}
                       />
                     ))}
                   </div>
                 </div>
               )}
-              
+
               {/* Size selector */}
               {sizeOptions.length > 0 && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Size:</label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Size:
+                  </label>
                   <div className="flex gap-2">
-                    {sizeOptions.map((size) => (
+                    {sizeOptions.map(size => (
                       <button
                         key={size.id}
                         onClick={() => setSelectedSize(size.id)}
-                        className={`px-3 py-1 text-sm border rounded ${
-                          selectedSize === size.id 
-                            ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                            : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                        className={`rounded border px-3 py-1 text-sm ${
+                          selectedSize === size.id
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-gray-300 text-gray-700 hover:border-gray-400"
                         }`}
                       >
                         {size.title}
@@ -143,7 +163,7 @@ function PublishModal({ isOpen, onClose, designName, variants, options, isPublis
                   </div>
                 </div>
               )}
-              
+
               {/* Price display */}
               {getSelectedVariant() && (
                 <div className="mb-3">
@@ -166,20 +186,27 @@ function PublishModal({ isOpen, onClose, designName, variants, options, isPublis
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                Buy Now {getSelectedVariant() && `- $${(getSelectedVariant()!.price / 100).toFixed(2)}`}
+                Buy Now{" "}
+                {getSelectedVariant() &&
+                  `- $${(getSelectedVariant()!.price / 100).toFixed(2)}`}
               </Button>
-              <Button onClick={onClose} variant="outline" className="flex-1" size="sm">
+              <Button
+                onClick={onClose}
+                variant="outline"
+                className="flex-1"
+                size="sm"
+              >
                 Close
               </Button>
             </>
           ) : (
-            <Button 
-              onClick={onClose} 
-              className="w-full" 
+            <Button
+              onClick={onClose}
+              className="w-full"
               size="sm"
               disabled={isPublishing}
             >
-              {isPublishing ? 'Publishing...' : 'Close'}
+              {isPublishing ? "Publishing..." : "Close"}
             </Button>
           )}
         </div>
@@ -198,7 +225,7 @@ export function PublishButton() {
 
   const handlePublish = async () => {
     if (!shirtData?.imageUrl || !shirtData?.prompt) return;
-    
+
     setShowModal(true);
     setIsPublishing(true);
     setError(undefined);
@@ -208,17 +235,17 @@ export function PublishButton() {
     try {
       const title = shirtData.prompt.substring(0, 50);
       const description = `Custom AI-generated shirt design: ${shirtData.prompt}`;
-      
+
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
         title,
-        description
+        description,
       );
-      
+
       setVariants(result.variants);
       setOptions(result.options);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to publish shirt');
+      setError(err instanceof Error ? err.message : "Failed to publish shirt");
     } finally {
       setIsPublishing(false);
     }
@@ -250,7 +277,11 @@ export function PublishButton() {
         ) : (
           <Share2 className="h-4 w-4" />
         )}
-        {shirtData?.isPartial ? "Generating..." : isPublishing ? "Publishing..." : "Publish"}
+        {shirtData?.isPartial
+          ? "Generating..."
+          : isPublishing
+            ? "Publishing..."
+            : "Publish"}
       </Button>
 
       <PublishModal
