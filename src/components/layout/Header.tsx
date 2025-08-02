@@ -8,10 +8,10 @@ interface HeaderProps {
   onBack?: () => void;
 }
 
-export function Header({ 
-  title = "InstaShirt", 
-  showBackButton = false, 
-  onBack 
+export function Header({
+  title = "InstaShirt",
+  showBackButton = false,
+  onBack,
 }: HeaderProps) {
   const navigate = useNavigate();
 
@@ -24,20 +24,19 @@ export function Header({
   };
 
   return (
-    <div className="flex items-center justify-between p-6 border-b border-gray-200">
+    <div className="flex items-center justify-between border-b border-gray-200 p-6">
       {showBackButton ? (
         <Button
           variant="ghost"
           onClick={handleBack}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
       ) : (
         <div className="w-20" />
       )}
-      
       <h1 className="text-2xl font-light text-gray-900">{title}</h1>
       <div className="w-20" /> {/* Spacer for centering */}
     </div>
