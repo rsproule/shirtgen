@@ -32,6 +32,7 @@ interface PublishModalProps {
   options?: PrintifyOption[];
   isPublishing?: boolean;
   error?: string;
+  shopifyUrl?: string;
 }
 
 function PublishModal({
@@ -42,6 +43,7 @@ function PublishModal({
   options,
   isPublishing,
   error,
+  shopifyUrl,
 }: PublishModalProps) {
   const [selectedColor, setSelectedColor] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
@@ -113,65 +115,11 @@ function PublishModal({
           {variants && options && !isPublishing && (
             <div className="rounded-lg border bg-green-50 p-4">
               <h4 className="mb-3 font-medium text-green-900">
-                Choose Your Options!
+                Product published successfully!
               </h4>
-
-              {/* Color selector */}
-              {colorOptions.length > 0 && (
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Color:
-                  </label>
-                  <div className="flex gap-2">
-                    {colorOptions.map(color => (
-                      <button
-                        key={color.id}
-                        onClick={() => setSelectedColor(color.id)}
-                        className={`h-8 w-8 rounded-full border-2 ${
-                          selectedColor === color.id
-                            ? "border-blue-500"
-                            : "border-gray-300"
-                        }`}
-                        style={{ backgroundColor: color.colors?.[0] || "#ccc" }}
-                        title={color.title}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Size selector */}
-              {sizeOptions.length > 0 && (
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Size:
-                  </label>
-                  <div className="flex gap-2">
-                    {sizeOptions.map(size => (
-                      <button
-                        key={size.id}
-                        onClick={() => setSelectedSize(size.id)}
-                        className={`rounded border px-3 py-1 text-sm ${
-                          selectedSize === size.id
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-300 text-gray-700 hover:border-gray-400"
-                        }`}
-                      >
-                        {size.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Price display */}
-              {getSelectedVariant() && (
-                <div className="mb-3">
-                  <span className="text-lg font-bold text-green-700">
-                    ${(getSelectedVariant()!.price / 100).toFixed(2)}
-                  </span>
-                </div>
-              )}
+              <p className="text-sm text-green-700 mb-3">
+                Your shirt is now available on Shopify. Click below to view the product page.
+              </p>
             </div>
           )}
         </div>
@@ -180,15 +128,12 @@ function PublishModal({
           {variants && options && !isPublishing ? (
             <>
               <Button
-                onClick={handleBuyNow}
-                disabled={!getSelectedVariant()}
+                onClick={() => window.open(shopifyUrl || 'https://shirt-slop.myshopify.com', '_blank')}
                 className="flex-1 bg-green-600 hover:bg-green-700"
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                Buy Now{" "}
-                {getSelectedVariant() &&
-                  `- $${(getSelectedVariant()!.price / 100).toFixed(2)}`}
+                {shopifyUrl ? 'View Product' : 'View Store'}
               </Button>
               <Button
                 onClick={onClose}
@@ -222,6 +167,7 @@ export function PublishButton() {
   const [variants, setVariants] = useState<PrintifyVariant[]>();
   const [options, setOptions] = useState<PrintifyOption[]>();
   const [error, setError] = useState<string>();
+  const [shopifyUrl, setShopifyUrl] = useState<string>();
 
   const handlePublish = async () => {
     if (!shirtData?.imageUrl || !shirtData?.prompt) return;
@@ -231,6 +177,7 @@ export function PublishButton() {
     setError(undefined);
     setVariants(undefined);
     setOptions(undefined);
+    setShopifyUrl(undefined);
 
     try {
       const title = shirtData.prompt.substring(0, 50);
@@ -244,6 +191,12 @@ export function PublishButton() {
 
       setVariants(result.variants);
       setOptions(result.options);
+      
+      // Set the Shopify URL if we have the handle
+      if (result.product.external?.handle) {
+        const url = printifyService.getShopifyUrl(result.product.external.handle);
+        setShopifyUrl(url);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to publish shirt");
     } finally {
@@ -256,6 +209,7 @@ export function PublishButton() {
     setError(undefined);
     setVariants(undefined);
     setOptions(undefined);
+    setShopifyUrl(undefined);
   };
 
   const isDisabled =
@@ -294,6 +248,7 @@ export function PublishButton() {
         options={options}
         isPublishing={isPublishing}
         error={error}
+        shopifyUrl={shopifyUrl}
       />
     </>
   );

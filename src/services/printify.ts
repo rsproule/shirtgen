@@ -91,7 +91,8 @@ class PrintifyService {
     body?: any,
     method: string = "POST",
   ): Promise<T> {
-    const url = `/api/printify?action=${action}`;
+    const baseUrl = import.meta.env.DEV ? 'http://localhost:3000' : '';
+    const url = `${baseUrl}/api/printify?action=${action}`;
     const response = await fetch(url, {
       method,
       headers: {
@@ -169,7 +170,8 @@ class PrintifyService {
   }
 
   async getProduct(productId: string): Promise<PrintifyProduct> {
-    const url = `/api/printify?action=get-product&productId=${productId}`;
+    const baseUrl = import.meta.env.DEV ? 'http://localhost:3000' : '';
+    const url = `${baseUrl}/api/printify?action=get-product&productId=${productId}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -194,16 +196,29 @@ class PrintifyService {
     variants: PrintifyVariant[];
     options: PrintifyOption[];
   }> {
+    console.log("🚀 Starting shirt creation process...");
+    console.log("📝 Title:", title);
+    console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
+    
     try {
       // 1. Convert image URL to blob and upload
+      console.log("📷 Step 1: Fetching and processing image...");
       const imageResponse = await fetch(imageUrl);
+      console.log("✅ Image fetched, size:", imageResponse.headers.get('content-length'), 'bytes');
+      
       const imageBlob = await imageResponse.blob();
+      console.log("🔄 Converting to blob, size:", imageBlob.size, 'bytes');
+      
+      console.log("⬆️ Uploading image to Printify...");
       const uploadedImage = await this.uploadImage(imageBlob);
+      console.log("✅ Image uploaded successfully, ID:", uploadedImage.id);
 
       // 2. Use working values from script - Unisex Oversized Boxy Tee
       const availableVariantIds = [103548, 103547, 103546]; // White L, M, S
+      console.log("📋 Step 2: Using variant IDs:", availableVariantIds);
 
       // 3. Create product with working blueprint/provider
+      console.log("🏭 Step 3: Creating product on Printify...");
       const productPayload: CreateProductPayload = {
         title,
         description: description || `Custom design: ${title}`,
@@ -235,14 +250,31 @@ class PrintifyService {
         ],
       };
 
+      console.log("📦 Product payload prepared with blueprint 1382 and provider 99");
       const product = await this.createProduct(productPayload);
+      console.log("✅ Product created successfully, ID:", product.id);
 
       // 4. Publish to Shopify
+      console.log("🛒 Step 4: Publishing to Shopify...");
       await this.publishProduct(product.id);
+      console.log("✅ Product published to Shopify");
 
       // 5. Wait for sync and get updated product details with variants
+      console.log("⏳ Step 5: Waiting 5 seconds for Shopify sync...");
       await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      console.log("🔄 Fetching updated product details...");
       const updatedProduct = await this.getProduct(product.id);
+      console.log("✅ Updated product fetched, variants count:", updatedProduct.variants?.length || 0);
+      console.log("🔗 Product external data:", updatedProduct.external);
+      
+      if (updatedProduct.external?.handle) {
+        console.log("🛒 Shopify product URL:", this.getShopifyUrl(updatedProduct.external.handle));
+      } else {
+        console.log("⚠️ No Shopify handle found in external data");
+      }
+      
+      console.log("🎉 Shirt creation process completed successfully!");
 
       return {
         product: updatedProduct,
@@ -250,7 +282,7 @@ class PrintifyService {
         options: updatedProduct.options || [],
       };
     } catch (error) {
-      console.error("Failed to create shirt:", error);
+      console.error("❌ Failed to create shirt:", error);
       throw new Error(
         `Failed to create shirt: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
