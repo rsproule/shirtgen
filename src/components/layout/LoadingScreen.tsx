@@ -93,6 +93,30 @@ export function LoadingScreen({
         </video>
       </div>
 
+      {/* Shrek meme video to the right of the cat */}
+      <div className="absolute top-52 right-52 z-10">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="h-40 w-auto rounded-none shadow-lg"
+          onError={e => {
+            console.error("Failed to load Shrek meme video", e);
+            e.currentTarget.style.display = "none";
+          }}
+        >
+          <source
+            src="/Meme_Doy_clases_los_jueves_no_cobro_mucho_Shrek.mp4"
+            type="video/mp4"
+          />
+          <div className="flex h-48 w-full items-center justify-center bg-gray-800">
+            <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
+          </div>
+        </video>
+      </div>
+
       <div className="w-full text-center">
         <p className="mb-8 text-lg font-light text-black lg:text-xl">
           {message}
