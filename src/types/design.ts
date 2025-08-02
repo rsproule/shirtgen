@@ -18,16 +18,16 @@ export interface DesignConfig {
 export interface AutoSaveState {
   currentDesign: DesignConfig | null;
   lastViewedAt: string;
-  autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  autoSaveStatus: "idle" | "saving" | "saved" | "error";
 }
 
 export interface SavedDesignsStorage {
   designs: DesignConfig[];
   maxSize: 50;
-  version: '1.0';
+  version: "1.0";
 }
 
-export type AutoSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+export type AutoSaveStatus = "idle" | "saving" | "saved" | "error";
 
 export interface RecoveryPromptData {
   hasUnsavedWork: boolean;

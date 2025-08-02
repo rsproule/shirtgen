@@ -85,7 +85,7 @@ export function ViewPage() {
         {/* Header with Save/Publish buttons */}
         <div className="relative">
           <Header showBackButton />
-          
+
           {/* Save/Publish buttons - Top right */}
           <div className="absolute top-4 right-4 flex items-center gap-2">
             <SaveButton />
@@ -167,7 +167,7 @@ export function ViewPage() {
       </div>
 
       {/* Auto-save indicator - Bottom right of entire page */}
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed right-4 bottom-4 z-50">
         <AutoSaveIndicator status={autoSaveStatus} lastSavedAt={lastSavedAt} />
       </div>
     </div>

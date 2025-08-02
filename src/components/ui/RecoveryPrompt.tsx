@@ -9,11 +9,11 @@ interface RecoveryPromptProps {
   onDismiss: () => void;
 }
 
-export function RecoveryPrompt({ 
-  recoveryData, 
-  onRecover, 
-  onStartFresh, 
-  onDismiss 
+export function RecoveryPrompt({
+  recoveryData,
+  onRecover,
+  onStartFresh,
+  onDismiss,
 }: RecoveryPromptProps) {
   if (!recoveryData.hasUnsavedWork || !recoveryData.unsavedDesign) {
     return null;
@@ -22,11 +22,11 @@ export function RecoveryPrompt({
   const { unsavedDesign, timeAgo } = recoveryData;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4 w-full">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-            <AlertTriangle className="w-5 h-5 text-orange-600" />
+    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100">
+            <AlertTriangle className="h-5 w-5 text-orange-600" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
@@ -36,29 +36,26 @@ export function RecoveryPrompt({
         </div>
 
         <div className="mb-6">
-          <p className="text-gray-600 mb-3">
-            You have unsaved changes from <span className="font-medium">{timeAgo}</span>
+          <p className="mb-3 text-gray-600">
+            You have unsaved changes from{" "}
+            <span className="font-medium">{timeAgo}</span>
           </p>
-          
-          <div className="bg-gray-50 rounded-lg p-3 border">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-gray-400" />
+
+          <div className="rounded-lg border bg-gray-50 p-3">
+            <div className="mb-2 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">
                 Design: "{unsavedDesign.generatedName}"
               </span>
             </div>
-            <p className="text-xs text-gray-500 line-clamp-2">
+            <p className="line-clamp-2 text-xs text-gray-500">
               {unsavedDesign.prompt}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            onClick={onRecover}
-            className="flex-1"
-            size="sm"
-          >
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button onClick={onRecover} className="flex-1" size="sm">
             Recover Work
           </Button>
           <Button
@@ -74,7 +71,7 @@ export function RecoveryPrompt({
         <div className="mt-3 text-center">
           <button
             onClick={onDismiss}
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-gray-500 transition-colors hover:text-gray-700"
           >
             Remind me later
           </button>
