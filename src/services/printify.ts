@@ -119,18 +119,18 @@ class PrintifyService {
 
   async uploadImage(imageBlob: Blob): Promise<PrintifyImage> {
     // Compress the image before uploading to reduce payload size
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d')!;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
     const img = new Image();
-    
+
     return new Promise((resolve, reject) => {
       img.onload = async () => {
         // Set max dimensions to reduce file size
         const maxWidth = 800;
         const maxHeight = 800;
-        
+
         let { width, height } = img;
-        
+
         // Calculate new dimensions maintaining aspect ratio
         if (width > height) {
           if (width > maxWidth) {
@@ -143,24 +143,26 @@ class PrintifyService {
             height = maxHeight;
           }
         }
-        
+
         canvas.width = width;
         canvas.height = height;
-        
+
         // Draw and compress
         ctx.drawImage(img, 0, 0, width, height);
-        
+
         // Convert to data URL with compression
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // 80% quality
-        
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.8); // 80% quality
+
         try {
-          const result = await this.makeRequest<PrintifyImage>('upload', { imageUrl: dataUrl });
+          const result = await this.makeRequest<PrintifyImage>("upload", {
+            imageUrl: dataUrl,
+          });
           resolve(result);
         } catch (error) {
           reject(error);
         }
       };
-      
+
       img.onerror = reject;
       img.src = URL.createObjectURL(imageBlob);
     });
