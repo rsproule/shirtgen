@@ -12,7 +12,6 @@ import { Shirt3D } from "@/components/Shirt3D";
 import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
 import { SaveButton } from "@/components/ui/SaveButton";
 import { PublishButton } from "@/components/ui/PublishButton";
-import { RippleLoader } from "@/components/ui/ripple-loader";
 import type { ShirtData } from "@/types";
 
 export function ViewPage() {
@@ -106,7 +105,7 @@ export function ViewPage() {
         </div>
 
         {/* 3D Scene - Takes remaining space */}
-        <div className="min-h-0 flex-1 relative">
+        <div className="min-h-0 flex-1">
           <Scene3D>
             {shirtData.imageUrl && (
               <Shirt3D
@@ -115,18 +114,6 @@ export function ViewPage() {
               />
             )}
           </Scene3D>
-          
-          {/* Ripple Loader Overlay - Only show when shirt is partially generating */}
-          {shirtData.isPartial && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-10">
-              <div className="text-center">
-                <RippleLoader />
-                <p className="mt-4 text-sm text-gray-600">
-                  Generating your design...
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Bottom Controls */}
