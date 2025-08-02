@@ -1,5 +1,6 @@
-import React from "react";
+import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 interface ThemeButtonProps {
   theme: string;
@@ -20,7 +21,7 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
         "rounded-lg border px-2 py-1 text-xs font-medium transition-all duration-200",
         "hover:shadow-md",
         isSelected
-          ? "border-blue-500 bg-blue-500 text-white shadow-md"
+          ? "border-blue-300 bg-blue-50 text-gray-700"
           : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
       )}
     >
@@ -34,58 +35,25 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
 
 interface ThemeButtonsProps {
   onThemeSelect: (theme: string) => void;
-  selectedTheme?: string;
+  activeThemes?: string[];
 }
 
 export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
   onThemeSelect,
-  selectedTheme,
+  activeThemes = [],
 }) => {
-  const themes = [
-    {
-      theme: "Vintage",
-      description: "Retro t-shirt designs",
-    },
-    {
-      theme: "Cyberpunk",
-      description: "Neon & futuristic",
-    },
-    {
-      theme: "Anime",
-      description: "Japanese animation style",
-    },
-    {
-      theme: "Ultrarealistic",
-      description: "Fine grain film camera",
-    },
-    {
-      theme: "80s Glamour",
-      description: "Mall portrait studio",
-    },
-    {
-      theme: "Art Nouveau",
-      description: "Flowing organic elegance",
-    },
-    {
-      theme: "B&W Portrait",
-      description: "High-contrast headshot",
-    },
-    {
-      theme: "50s Cartoon",
-      description: "Retro UPA animation",
-    },
-  ];
+  const { themeSuggestions } = useThemeSuggestions();
 
   return (
     <div className="w-full">
       <div className="flex flex-wrap gap-1">
-        {themes.map((themeData, index) => (
+        {themeSuggestions.map((themeData, index) => (
           <ThemeButton
             key={`${themeData.theme}-${index}`}
             theme={themeData.theme}
             description={themeData.description}
             onClick={onThemeSelect}
-            isSelected={selectedTheme === themeData.theme}
+            isSelected={activeThemes.includes(themeData.theme)}
           />
         ))}
       </div>
