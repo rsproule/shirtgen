@@ -24,8 +24,12 @@ export function HomePage() {
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
-  const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
-    useThemeSuggestions();
+  const {
+    selectedThemes,
+    toggleTheme,
+    enhancePromptWithThemes,
+    getThemeSuggestion,
+  } = useThemeSuggestions();
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -82,6 +86,33 @@ export function HomePage() {
     toggleTheme(theme);
   };
 
+  // Create the full prompt that would be sent to the API
+  const createFullPrompt = (userPrompt: string, themes: string[]): string => {
+    if (!userPrompt.trim()) return "";
+
+    // Get the full prompt enhancer strings for selected themes
+    const themeEnhancers = themes
+      .map(themeName => getThemeSuggestion(themeName))
+      .filter(Boolean)
+      .map(theme => theme!.promptEnhancer);
+
+    const styleGuide =
+      themeEnhancers.length > 0
+        ? `Style guide: ${themeEnhancers.join(", ")}`
+        : "";
+
+    const fullPrompt = `Generate an image for: ${userPrompt}.
+     
+${styleGuide}
+
+IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
+      `;
+
+    return fullPrompt;
+  };
+
+  const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
+
   if (isLoading) {
     return (
       <>
@@ -124,6 +155,7 @@ export function HomePage() {
           value={prompt}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
+          fullPrompt={fullPromptPreview}
         />
 
         {/* Stats Bar */}
