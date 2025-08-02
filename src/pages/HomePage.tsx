@@ -93,7 +93,7 @@ export function HomePage() {
       <div className="relative">
         {/* Title */}
         <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <div className="flex items-center gap-6 mb-3">
+          <div className="flex items-center justify-start gap-6 mb-3">
             <img 
               src="/shirtslop.png" 
               alt="ShirtSlop Logo" 
