@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { Branding } from "@/components/ui/branding";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
-  title?: string;
   showBackButton?: boolean;
   onBack?: () => void;
 }
 
 export function Header({
-  title = "InstaShirt",
   showBackButton = false,
   onBack,
 }: HeaderProps) {
@@ -37,7 +36,7 @@ export function Header({
       ) : (
         <div className="w-20" />
       )}
-      <h1 className="text-2xl font-light text-gray-900">{title}</h1>
+      <Branding size="small" />
       <div className="w-20" /> {/* Spacer for centering */}
     </div>
   );
