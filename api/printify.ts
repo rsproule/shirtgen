@@ -1,13 +1,22 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+  );
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
   }
@@ -17,55 +26,62 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const SHOP_ID = process.env.VITE_PRINTIFY_SHOP_ID;
 
   if (!PRINTIFY_TOKEN || !SHOP_ID) {
-    return res.status(500).json({ error: 'Missing Printify credentials' });
+    return res.status(500).json({ error: "Missing Printify credentials" });
   }
 
   try {
     switch (action) {
-      case 'upload':
+      case "upload":
         return await handleUpload(req, res, PRINTIFY_TOKEN);
-      
-      case 'create-product':
+
+      case "create-product":
         return await handleCreateProduct(req, res, PRINTIFY_TOKEN, SHOP_ID);
-      
-      case 'publish':
+
+      case "publish":
         return await handlePublish(req, res, PRINTIFY_TOKEN, SHOP_ID);
-      
-      case 'get-product':
+
+      case "get-product":
         return await handleGetProduct(req, res, PRINTIFY_TOKEN, SHOP_ID);
-      
+
       default:
-        return res.status(400).json({ error: 'Invalid action' });
+        return res.status(400).json({ error: "Invalid action" });
     }
   } catch (error) {
-    console.error('Printify API error:', error);
+    console.error("Printify API error:", error);
     return res.status(500).json({ error: error.message });
   }
 }
 
-async function handleUpload(req: NextApiRequest, res: NextApiResponse, token: string) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+async function handleUpload(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  token: string,
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { imageUrl } = req.body as { imageUrl: string };
-  
+
   // Extract base64 from data URL (data:image/png;base64,...)
-  const base64Data = imageUrl.split(',')[1];
-  
+  const base64Data = imageUrl.split(",")[1];
+
   const payload = {
-    file_name: 'design.png',
-    contents: base64Data
+    file_name: "design.png",
+    contents: base64Data,
   };
 
-  const response = await fetch('https://api.printify.com/v1/uploads/images.json', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    "https://api.printify.com/v1/uploads/images.json",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -76,19 +92,27 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse, token: st
   return res.json(result);
 }
 
-async function handleCreateProduct(req: NextApiRequest, res: NextApiResponse, token: string, shopId: string) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+async function handleCreateProduct(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  token: string,
+  shopId: string,
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const response = await fetch(`https://api.printify.com/v1/shops/${shopId}/products.json`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    `https://api.printify.com/v1/shops/${shopId}/products.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(req.body),
     },
-    body: JSON.stringify(req.body),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -99,9 +123,14 @@ async function handleCreateProduct(req: NextApiRequest, res: NextApiResponse, to
   return res.json(result);
 }
 
-async function handlePublish(req: NextApiRequest, res: NextApiResponse, token: string, shopId: string) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+async function handlePublish(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  token: string,
+  shopId: string,
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { productId } = req.body as { productId: string };
@@ -109,10 +138,10 @@ async function handlePublish(req: NextApiRequest, res: NextApiResponse, token: s
   const response = await fetch(
     `https://api.printify.com/v1/shops/${shopId}/products/${productId}/publish.json`,
     {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         title: true,
@@ -123,7 +152,7 @@ async function handlePublish(req: NextApiRequest, res: NextApiResponse, token: s
         keyFeatures: true,
         shipping_template: true,
       }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -135,16 +164,21 @@ async function handlePublish(req: NextApiRequest, res: NextApiResponse, token: s
   return res.json(result);
 }
 
-async function handleGetProduct(req: NextApiRequest, res: NextApiResponse, token: string, shopId: string) {
+async function handleGetProduct(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  token: string,
+  shopId: string,
+) {
   const { productId } = req.query as { productId: string };
 
   const response = await fetch(
     `https://api.printify.com/v1/shops/${shopId}/products/${productId}.json`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
