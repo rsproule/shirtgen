@@ -22,8 +22,9 @@ export function useShirtHistory() {
       if (stored) {
         const parsedHistory = JSON.parse(stored);
         // Sort by timestamp descending (newest first)
-        const sortedHistory = parsedHistory.sort((a: ShirtHistoryItem, b: ShirtHistoryItem) => 
-          b.timestamp - a.timestamp
+        const sortedHistory = parsedHistory.sort(
+          (a: ShirtHistoryItem, b: ShirtHistoryItem) =>
+            b.timestamp - a.timestamp,
         );
         setHistory(sortedHistory);
       }
@@ -46,18 +47,20 @@ export function useShirtHistory() {
 
     setHistory(prevHistory => {
       // Remove any existing item with the same image URL (avoid duplicates)
-      const filtered = prevHistory.filter(item => item.imageUrl !== newItem.imageUrl);
-      
+      const filtered = prevHistory.filter(
+        item => item.imageUrl !== newItem.imageUrl,
+      );
+
       // Add new item to beginning and limit to MAX_HISTORY_ITEMS
       const newHistory = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
-      
+
       // Save to localStorage
       try {
         localStorage.setItem(SHIRT_HISTORY_KEY, JSON.stringify(newHistory));
       } catch (error) {
         console.error("Failed to save shirt history:", error);
       }
-      
+
       return newHistory;
     });
 

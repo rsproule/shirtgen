@@ -9,11 +9,11 @@ interface PromptInputProps {
   placeholder?: string;
 }
 
-export function PromptInput({ 
-  value, 
-  onChange, 
-  onKeyDown, 
-  placeholder = "Describe your shirt design..." 
+export function PromptInput({
+  value,
+  onChange,
+  onKeyDown,
+  placeholder = "Describe your shirt design...",
 }: PromptInputProps) {
   const { isAuthenticated } = useShirtData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -32,7 +32,7 @@ export function PromptInput({
       onChange={onChange}
       onKeyDown={onKeyDown}
       placeholder={placeholder}
-      className="w-full h-32 text-xl p-4 border-0 rounded-lg resize-none focus:ring-0 shadow-none focus:shadow-[inset_0_4px_12px_rgba(0,0,0,0.3)] bg-gray-50 transition-shadow duration-200"
+      className="h-32 w-full resize-none rounded-lg border-0 bg-gray-50 p-4 text-xl shadow-none transition-shadow duration-200 focus:shadow-[inset_0_4px_12px_rgba(0,0,0,0.3)] focus:ring-0"
       disabled={!isAuthenticated}
     />
   );

@@ -13,12 +13,12 @@ import type { ShirtData } from "@/types";
 export function ViewPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { 
-    shirtData, 
-    setShirtData, 
-    texturePlacement, 
+  const {
+    shirtData,
+    setShirtData,
+    texturePlacement,
     setTexturePlacement,
-    setIsLoading 
+    setIsLoading,
   } = useShirtData();
 
   useEffect(() => {
@@ -42,17 +42,17 @@ export function ViewPage() {
 
   if (!shirtData) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-          <h2 className="text-2xl font-light text-gray-900 mb-4">
+          <h2 className="mb-4 text-2xl font-light text-gray-900">
             No Design Found
           </h2>
-          <p className="text-gray-500 mb-8">
+          <p className="mb-8 text-gray-500">
             Create your first shirt design to see it here.
           </p>
-          <Button 
-            onClick={() => navigate("/")} 
-            className="bg-black text-white hover:bg-gray-800 px-8 py-3"
+          <Button
+            onClick={() => navigate("/")}
+            className="bg-black px-8 py-3 text-white hover:bg-gray-800"
           >
             Create Design
           </Button>
@@ -70,19 +70,18 @@ export function ViewPage() {
     }
   };
 
-
   const handleNewDesign = () => {
     navigate("/");
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col">
-      <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
+    <div className="flex h-screen flex-col bg-white">
+      <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
         {/* Header */}
         <Header showBackButton />
 
         {/* 3D Scene - Takes remaining space */}
-        <div className="flex-1 min-h-0">
+        <div className="min-h-0 flex-1">
           <Scene3D>
             {shirtData.imageUrl && (
               <Shirt3D
@@ -94,22 +93,28 @@ export function ViewPage() {
         </div>
 
         {/* Bottom Controls */}
-        <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
-          <div className="max-w-4xl mx-auto">
+        <div className="flex-shrink-0 border-t border-gray-200 bg-white p-4">
+          <div className="mx-auto max-w-4xl">
             {/* User Prompt Display */}
             {shirtData.prompt && (
               <div className="mb-4 text-center">
-                <p className="text-gray-500 text-sm italic">"{shirtData.prompt}"</p>
+                <p className="text-sm text-gray-500 italic">
+                  "{shirtData.prompt}"
+                </p>
                 {shirtData.isPartial && (
-                  <p className="text-blue-500 text-xs mt-1 animate-pulse">
-                    Generating... ({shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1}/3)
+                  <p className="mt-1 animate-pulse text-xs text-blue-500">
+                    Generating... (
+                    {shirtData.partialIndex !== undefined
+                      ? shirtData.partialIndex + 1
+                      : 1}
+                    /3)
                   </p>
                 )}
               </div>
             )}
 
             {/* Simplified Controls Row */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               {/* Shirt Color Selection */}
               <div className="flex-shrink-0">
                 <ShirtColorPicker />
@@ -133,7 +138,7 @@ export function ViewPage() {
                 onClick={handleDownload}
                 className="flex items-center gap-2"
               >
-                <Download className="w-4 h-4" />
+                <Download className="h-4 w-4" />
                 Download
               </Button>
               <Button
