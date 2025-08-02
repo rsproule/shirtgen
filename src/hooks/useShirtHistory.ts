@@ -8,31 +8,32 @@ const MAX_HISTORY_ITEMS = 100;
 
 export function useShirtHistory() {
   // Use Dexie's useLiveQuery for reactive data
-  const history = useLiveQuery(async () => {
-    const items = await db.shirtHistory
-      .orderBy('timestamp')
-      .reverse()
-      .limit(MAX_HISTORY_ITEMS)
-      .toArray();
-    
-    // Migrate from localStorage on first load if needed
-    if (items.length === 0) {
-      try {
-        const stored = localStorage.getItem("instashirt_history");
-        if (stored) {
-          console.log("Migrating from localStorage...");
-          const parsedHistory = JSON.parse(stored);
-          await db.shirtHistory.bulkAdd(parsedHistory);
-          localStorage.removeItem("instashirt_history");
-          return parsedHistory;
+  const history =
+    useLiveQuery(async () => {
+      const items = await db.shirtHistory
+        .orderBy("timestamp")
+        .reverse()
+        .limit(MAX_HISTORY_ITEMS)
+        .toArray();
+
+      // Migrate from localStorage on first load if needed
+      if (items.length === 0) {
+        try {
+          const stored = localStorage.getItem("instashirt_history");
+          if (stored) {
+            console.log("Migrating from localStorage...");
+            const parsedHistory = JSON.parse(stored);
+            await db.shirtHistory.bulkAdd(parsedHistory);
+            localStorage.removeItem("instashirt_history");
+            return parsedHistory;
+          }
+        } catch (error) {
+          console.warn("Migration failed:", error);
         }
-      } catch (error) {
-        console.warn("Migration failed:", error);
       }
-    }
-    
-    return items;
-  }, []) || [];
+
+      return items;
+    }, []) || [];
 
   const addToHistory = async (shirtData: ShirtData) => {
     if (!shirtData.imageUrl || !shirtData.prompt) return;
@@ -47,12 +48,12 @@ export function useShirtHistory() {
 
     try {
       await db.shirtHistory.add(newItem);
-      
+
       // Cleanup old items if needed
       const count = await db.shirtHistory.count();
       if (count > MAX_HISTORY_ITEMS) {
         const oldest = await db.shirtHistory
-          .orderBy('timestamp')
+          .orderBy("timestamp")
           .limit(count - MAX_HISTORY_ITEMS)
           .toArray();
         await db.shirtHistory.bulkDelete(oldest.map(item => item.id));

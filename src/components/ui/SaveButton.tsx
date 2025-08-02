@@ -10,9 +10,10 @@ export function SaveButton() {
     console.log("Save button clicked", shirtData);
   };
 
-  const isDisabled = !shirtData?.imageUrl || 
-                     !shirtData?.prompt || 
-                     shirtData?.isPartial !== false;
+  const isDisabled =
+    !shirtData?.imageUrl ||
+    !shirtData?.prompt ||
+    shirtData?.isPartial !== false;
   const isProcessing = false;
 
   return (
@@ -28,10 +29,10 @@ export function SaveButton() {
       ) : (
         <Save className="h-4 w-4" />
       )}
-      {isProcessing 
-        ? "Saving..." 
-        : shirtData?.isPartial 
-          ? "Generating..." 
+      {isProcessing
+        ? "Saving..."
+        : shirtData?.isPartial
+          ? "Generating..."
           : "Save"}
     </Button>
   );

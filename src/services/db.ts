@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable } from 'dexie';
+import Dexie, { type EntityTable } from "dexie";
 
 export interface ShirtHistoryItem {
   id: string;
@@ -14,14 +14,14 @@ export interface PromptHistoryItem {
   timestamp: string;
 }
 
-const db = new Dexie('InstashirtDB') as Dexie & {
-  shirtHistory: EntityTable<ShirtHistoryItem, 'id'>;
-  promptHistory: EntityTable<PromptHistoryItem, 'id'>;
+const db = new Dexie("InstashirtDB") as Dexie & {
+  shirtHistory: EntityTable<ShirtHistoryItem, "id">;
+  promptHistory: EntityTable<PromptHistoryItem, "id">;
 };
 
 db.version(1).stores({
-  shirtHistory: 'id, timestamp',
-  promptHistory: 'id, timestamp'
+  shirtHistory: "id, timestamp",
+  promptHistory: "id, timestamp",
 });
 
 export { db };
