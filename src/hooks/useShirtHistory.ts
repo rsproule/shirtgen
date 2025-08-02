@@ -8,32 +8,33 @@ const MAX_HISTORY_ITEMS = 100;
 
 export function useShirtHistory() {
   // Use Dexie's useLiveQuery for reactive data
-  const history =
-    useLiveQuery(async () => {
-      const items = await db.shirtHistory
-        .orderBy("timestamp")
-        .reverse()
-        .limit(MAX_HISTORY_ITEMS)
-        .toArray();
+  const history = useLiveQuery(async () => {
+    const items = await db.shirtHistory
+      .orderBy("timestamp")
+      .reverse()
+      .limit(MAX_HISTORY_ITEMS)
+      .toArray();
 
-      // Migrate from localStorage on first load if needed
-      if (items.length === 0) {
-        try {
-          const stored = localStorage.getItem("instashirt_history");
-          if (stored) {
-            console.log("Migrating from localStorage...");
-            const parsedHistory = JSON.parse(stored);
-            await db.shirtHistory.bulkAdd(parsedHistory);
-            localStorage.removeItem("instashirt_history");
-            return parsedHistory;
-          }
-        } catch (error) {
-          console.warn("Migration failed:", error);
+    // Migrate from localStorage on first load if needed
+    if (items.length === 0) {
+      try {
+        const stored = localStorage.getItem("instashirt_history");
+        if (stored) {
+          console.log("Migrating from localStorage...");
+          const parsedHistory = JSON.parse(stored);
+          await db.shirtHistory.bulkAdd(parsedHistory);
+          localStorage.removeItem("instashirt_history");
+          return parsedHistory;
         }
+      } catch (error) {
+        console.warn("Migration failed:", error);
       }
+    }
 
-      return items;
-    }, []) || [];
+    return items;
+  }, []);
+
+  const isLoading = history === undefined;
 
   const addToHistory = async (shirtData: ShirtData) => {
     if (!shirtData.imageUrl || !shirtData.prompt) return;
@@ -89,7 +90,8 @@ export function useShirtHistory() {
   };
 
   return {
-    history,
+    history: history || [],
+    isLoading,
     addToHistory,
     getShirtById,
     clearHistory,

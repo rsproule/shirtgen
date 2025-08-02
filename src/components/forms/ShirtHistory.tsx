@@ -1,24 +1,56 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Eye } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { useShirtData } from "@/context/ShirtDataContext";
 import {
   useShirtHistory,
   type ShirtHistoryItem,
 } from "@/hooks/useShirtHistory";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { Skeleton } from "../ui/skeleton";
 
 export function ShirtHistory() {
-  const { history, clearHistory, removeFromHistory } = useShirtHistory();
+  const { history, isLoading, clearHistory, removeFromHistory } =
+    useShirtHistory();
   const { setShirtData } = useShirtData();
   const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="mt-12 border-t border-gray-200 pt-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-medium text-gray-900">
+            Your Recent Designs
+          </h2>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card
+              key={i}
+              className="relative overflow-hidden border border-gray-200 bg-gray-100 shadow-sm"
+              style={{ aspectRatio: "1024/1536" }}
+            >
+              <CardContent className="relative h-full p-0">
+                <Skeleton className="absolute inset-0 h-full w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (history.length === 0) {
     return (
       <div className="mt-12 border-t border-gray-200 pt-8">
         <h2 className="mb-6 text-lg font-medium text-gray-900">
-          Recent Designs
+          Your Recent Designs
         </h2>
         <p className="py-8 text-center text-gray-500">
           No designs yet. Generate your first shirt to see it here!
@@ -60,7 +92,9 @@ export function ShirtHistory() {
   return (
     <div className="mt-12 border-t border-gray-200 pt-8">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-900">Recent Designs</h2>
+        <h2 className="text-lg font-medium text-gray-900">
+          Your Recent Designs
+        </h2>
         <div className="flex items-center gap-3">
           {history.length > 6 && (
             <Button
@@ -85,60 +119,46 @@ export function ShirtHistory() {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {displayHistory.map((item: ShirtHistoryItem) => (
-          <div
+          <Card
             key={item.id}
-            className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 transition-colors hover:border-gray-300"
+            className="group relative cursor-pointer overflow-hidden border border-gray-200 bg-white transition-shadow hover:shadow-md"
+            style={{ aspectRatio: "1024/1536" }}
+            onClick={() => handleViewShirt(item)}
           >
-            {/* Image */}
-            <div className="relative aspect-square">
+            <CardContent className="relative h-full p-0">
+              {/* Full-size image */}
               <img
                 src={item.imageUrl}
                 alt={item.prompt}
-                className="h-full w-full object-cover"
-                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+                onLoad={() => console.log("Image loaded:", item.id)}
+                onError={() => console.error("Image failed:", item.id)}
               />
 
-              {/* Overlay with actions */}
-              <div className="bg-opacity-0 group-hover:bg-opacity-40 absolute inset-0 flex items-center justify-center gap-2 bg-black transition-opacity">
-                <Button
-                  size="sm"
-                  onClick={() => handleViewShirt(item)}
-                  className="h-8 w-8 bg-white p-0 text-black opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100"
-                  title="View shirt"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation();
-                    removeFromHistory(item.id);
-                  }}
-                  className="h-8 w-8 bg-red-500 p-0 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Info */}
-            <div className="p-3">
-              <p
-                className="mb-1 overflow-hidden text-xs text-gray-600"
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
+              {/* Delete button - top right */}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={e => {
+                  e.stopPropagation();
+                  removeFromHistory(item.id);
                 }}
+                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-black/20 p-0 text-white transition-all hover:bg-red-500 hover:text-white"
               >
-                {item.prompt}
-              </p>
-              <p className="text-xs text-gray-400">
-                {formatTimestamp(item.timestamp)}
-              </p>
-            </div>
-          </div>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+
+              {/* Info overlay - bottom */}
+              <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                <p className="mb-1 truncate text-xs text-white">
+                  {item.prompt}
+                </p>
+                <p className="text-xs text-white/70">
+                  {formatTimestamp(item.timestamp)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

@@ -146,7 +146,17 @@ export function useImageGeneration(
             streamEvent.type === "response.image_generation_call.partial_image"
           ) {
             const imageBase64 = streamEvent.partial_image_b64;
+            console.log(
+              "Received partial image data:",
+              typeof imageBase64,
+              imageBase64?.length || 0,
+            );
             const imageUrl = `data:image/png;base64,${imageBase64}`;
+            console.log("Created partial image URL length:", imageUrl.length);
+            console.log(
+              "Partial image URL preview:",
+              imageUrl.substring(0, 100) + "...",
+            );
             const partialIndex = streamEvent.partial_image_index ?? 0;
 
             // Track the latest image URL for final saving
@@ -197,8 +207,18 @@ export function useImageGeneration(
           ) {
             // Legacy handler - keeping for backward compatibility
             const imageData = streamEvent.result;
+            console.log(
+              "Received image data:",
+              typeof imageData,
+              imageData?.length || 0,
+            );
             if (imageData) {
               const imageUrl = `data:image/png;base64,${imageData}`;
+              console.log("Created image URL length:", imageUrl.length);
+              console.log(
+                "Image URL preview:",
+                imageUrl.substring(0, 100) + "...",
+              );
 
               const finalShirtData = {
                 prompt,
