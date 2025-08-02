@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/services/db";
 
-const PROMPT_HISTORY_KEY = "instashirt_prompt_history";
-const MAX_HISTORY_ITEMS = 10;
+const MAX_HISTORY_ITEMS = 50;
 
 export interface PromptHistoryItem {
   id: string;
@@ -10,70 +10,59 @@ export interface PromptHistoryItem {
 }
 
 export function usePromptHistory() {
-  const [history, setHistory] = useState<PromptHistoryItem[]>([]);
+  // Use Dexie's useLiveQuery for reactive data
+  const history = useLiveQuery(async () => {
+    const items = await db.promptHistory
+      .orderBy('timestamp')
+      .reverse()
+      .limit(MAX_HISTORY_ITEMS)
+      .toArray();
+    return items;
+  }, []) || [];
 
-  // Load history from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(PROMPT_HISTORY_KEY);
-      if (stored) {
-        const parsedHistory = JSON.parse(stored);
-        setHistory(parsedHistory);
-      }
-    } catch (error) {
-      console.error("Failed to load prompt history:", error);
-    }
-  }, []);
-
-  // Save prompt to history
-  const addToHistory = (prompt: string) => {
+  const addToHistory = async (prompt: string) => {
     if (!prompt.trim() || prompt.length < 10) return;
 
     const newItem: PromptHistoryItem = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       text: prompt.trim(),
       timestamp: new Date().toISOString(),
     };
 
-    setHistory(prevHistory => {
-      // Remove duplicate if exists
-      const filtered = prevHistory.filter(item => item.text !== newItem.text);
-
-      // Add new item to beginning and limit to MAX_HISTORY_ITEMS
-      const newHistory = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
-
-      // Save to localStorage
-      try {
-        localStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(newHistory));
-      } catch (error) {
-        console.error("Failed to save prompt history:", error);
-      }
-
-      return newHistory;
-    });
-  };
-
-  // Clear all history
-  const clearHistory = () => {
-    setHistory([]);
     try {
-      localStorage.removeItem(PROMPT_HISTORY_KEY);
+      await db.promptHistory.add(newItem);
+      
+      // Cleanup old items if needed
+      const count = await db.promptHistory.count();
+      if (count > MAX_HISTORY_ITEMS) {
+        const oldest = await db.promptHistory
+          .orderBy('timestamp')
+          .limit(count - MAX_HISTORY_ITEMS)
+          .toArray();
+        await db.promptHistory.bulkDelete(oldest.map(item => item.id));
+      }
     } catch (error) {
-      console.error("Failed to clear prompt history:", error);
+      console.error("Failed to save prompt history:", error);
+      throw error;
     }
   };
 
-  // Remove specific item from history
-  const removeFromHistory = (id: string) => {
-    setHistory(prevHistory => {
-      const newHistory = prevHistory.filter(item => item.id !== id);
-      try {
-        localStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(newHistory));
-      } catch (error) {
-        console.error("Failed to update prompt history:", error);
-      }
-      return newHistory;
-    });
+  const clearHistory = async () => {
+    try {
+      await db.promptHistory.clear();
+    } catch (error) {
+      console.error("Failed to clear prompt history:", error);
+      throw error;
+    }
+  };
+
+  const removeFromHistory = async (id: string) => {
+    try {
+      await db.promptHistory.delete(id);
+    } catch (error) {
+      console.error("Failed to remove from prompt history:", error);
+      throw error;
+    }
   };
 
   return {
@@ -81,5 +70,6 @@ export function usePromptHistory() {
     addToHistory,
     clearHistory,
     removeFromHistory,
+    isLoading: false,
   };
 }

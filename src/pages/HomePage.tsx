@@ -12,6 +12,7 @@ import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import type { ShirtData } from "@/types";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
@@ -21,7 +22,13 @@ export function HomePage() {
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
-  const { generateImage } = useImageGeneration(addShirtToHistory, setError);
+  
+  // Wrap addShirtToHistory to handle async nature
+  const handleShirtComplete = (shirtData: ShirtData) => {
+    addShirtToHistory(shirtData).catch(console.error);
+  };
+  
+  const { generateImage } = useImageGeneration(handleShirtComplete, setError);
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -49,7 +56,8 @@ export function HomePage() {
     setError(null);
 
     if (prompt.trim().length >= 10) {
-      addPromptToHistory(prompt);
+      // Add to history asynchronously (don't wait for it)
+      addPromptToHistory(prompt).catch(console.error);
     }
     generateImage(prompt);
   };
