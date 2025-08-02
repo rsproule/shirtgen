@@ -20,9 +20,9 @@ export function LoadingScreen({
   });
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-black p-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-white p-4">
       {/* Dancing Pepe video in top left corner */}
-      <div className="absolute left-4 top-4 z-10">
+      <div className="absolute top-4 left-4 z-10">
         <video
           autoPlay
           loop
@@ -35,7 +35,10 @@ export function LoadingScreen({
             e.currentTarget.style.display = "none";
           }}
         >
-          <source src="/Dancing_Pepe_1_with_Galaxy_Background_Free_Video_Background.mp4" type="video/mp4" />
+          <source
+            src="/Dancing_Pepe_1_with_Galaxy_Background_Free_Video_Background.mp4"
+            type="video/mp4"
+          />
           <div className="flex h-48 w-full items-center justify-center bg-gray-800">
             <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
           </div>
@@ -43,7 +46,7 @@ export function LoadingScreen({
       </div>
 
       {/* Fortnite Default Dance video in top right corner */}
-      <div className="absolute right-4 top-4 z-10">
+      <div className="absolute top-4 right-4 z-10">
         <video
           autoPlay
           loop
@@ -56,7 +59,10 @@ export function LoadingScreen({
             e.currentTarget.style.display = "none";
           }}
         >
-          <source src="/FORTNITE_DEFAULT_DANCE_BASS_BOOSTED.mp4" type="video/mp4" />
+          <source
+            src="/FORTNITE_DEFAULT_DANCE_BASS_BOOSTED.mp4"
+            type="video/mp4"
+          />
           <div className="flex h-48 w-full items-center justify-center bg-gray-800">
             <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
           </div>
@@ -64,7 +70,7 @@ export function LoadingScreen({
       </div>
 
       {/* Cat is shooting video underneath Fortnite dance */}
-      <div className="absolute right-4 top-52 z-10">
+      <div className="absolute top-52 right-4 z-10">
         <video
           autoPlay
           loop
@@ -77,15 +83,18 @@ export function LoadingScreen({
             e.currentTarget.style.display = "none";
           }}
         >
-          <source src="/The_cat_is_shooting_from_AK_47_2023_3d_meme_gun.mp4" type="video/mp4" />
+          <source
+            src="/The_cat_is_shooting_from_AK_47_2023_3d_meme_gun.mp4"
+            type="video/mp4"
+          />
           <div className="flex h-48 w-full items-center justify-center bg-gray-800">
             <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
           </div>
         </video>
       </div>
-      
+
       <div className="w-full text-center">
-        <p className="mb-8 text-lg font-light text-white lg:text-xl">
+        <p className="mb-8 text-lg font-light text-black lg:text-xl">
           {message}
         </p>
 
@@ -148,7 +157,7 @@ export function LoadingScreen({
 
         {/* Fallback loading spinner if videos fail */}
         <div className="mt-8 flex justify-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white opacity-50"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-black opacity-50"></div>
         </div>
       </div>
     </div>
