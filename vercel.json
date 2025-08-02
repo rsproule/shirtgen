@@ -2,10 +2,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "headers": {
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-      }
+      "dest": "/api/$1"
     }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
