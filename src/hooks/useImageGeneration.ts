@@ -60,6 +60,7 @@ export function useImageGeneration(
               size: "1024x1536",
               partial_images: 3,
               moderation: "low",
+              background: "opaque",
             },
           ],
         });
