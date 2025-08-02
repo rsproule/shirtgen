@@ -99,7 +99,7 @@ export function HomePage() {
               alt="ShirtSlop Logo" 
               className="h-32 w-auto drop-shadow-lg object-contain" 
             />
-            <h1 className="text-7xl font-bold text-gray-900 tracking-tight">ShirtSlop</h1>
+            <h1 className="text-7xl font-light text-gray-900 tracking-tight">ShirtSlop</h1>
           </div>
           <p className="text-lg text-gray-600 font-medium">AI-powered shirt design</p>
         </div>
