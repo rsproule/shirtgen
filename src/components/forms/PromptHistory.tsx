@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Clock, X } from "lucide-react";
-import { usePromptHistory, type PromptHistoryItem } from "@/hooks/usePromptHistory";
+import {
+  usePromptHistory,
+  type PromptHistoryItem,
+} from "@/hooks/usePromptHistory";
 
 interface PromptHistoryProps {
   onSelectPrompt: (prompt: string) => void;
@@ -39,41 +42,46 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-8 h-8 p-0 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-0 transition-colors"
+        className="flex h-8 w-8 items-center justify-center border-0 p-0 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
         title={`Recent prompts (${history.length})`}
       >
-        <Clock className="w-4 h-4" />
+        <Clock className="h-4 w-4" />
       </Button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
-          <div className="p-3 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">Recent Prompts</h3>
+        <div className="absolute top-full right-0 z-50 mt-2 max-h-80 w-80 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+          <div className="flex items-center justify-between border-b border-gray-100 p-3">
+            <h3 className="text-sm font-medium text-gray-900">
+              Recent Prompts
+            </h3>
             <Button
               variant="ghost"
               size="sm"
               onClick={clearHistory}
-              className="text-xs text-red-500 hover:text-red-700 h-auto p-1"
+              className="h-auto p-1 text-xs text-red-500 hover:text-red-700"
             >
               Clear All
             </Button>
           </div>
-          
+
           <div className="max-h-64 overflow-y-auto">
-            {history.map((item) => (
+            {history.map(item => (
               <div
                 key={item.id}
-                className="group flex items-start gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-b-0"
+                className="group flex items-start gap-3 border-b border-gray-50 p-3 last:border-b-0 hover:bg-gray-50"
               >
                 <button
                   onClick={() => handleSelectPrompt(item)}
                   className="flex-1 text-left"
                 >
-                  <p className="text-sm text-gray-900 mb-1 overflow-hidden" style={{ 
-                    display: '-webkit-box', 
-                    WebkitLineClamp: 2, 
-                    WebkitBoxOrient: 'vertical' 
-                  }}>
+                  <p
+                    className="mb-1 overflow-hidden text-sm text-gray-900"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
                     {item.text}
                   </p>
                   <p className="text-xs text-gray-500">
@@ -81,13 +89,13 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
                   </p>
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     removeFromHistory(item.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded"
+                  className="rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-200"
                 >
-                  <X className="w-3 h-3 text-gray-400 hover:text-gray-600" />
+                  <X className="h-3 w-3 text-gray-400 hover:text-gray-600" />
                 </button>
               </div>
             ))}

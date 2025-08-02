@@ -4,7 +4,9 @@ interface LoadingScreenProps {
   message?: string;
 }
 
-export function LoadingScreen({ message = "Creating your design... This may take a few seconds." }: LoadingScreenProps) {
+export function LoadingScreen({
+  message = "Creating your design... This may take a few seconds.",
+}: LoadingScreenProps) {
   // All loading videos to display
   const loadingVideos = [
     "/loading-video-ss.mp4",
@@ -18,15 +20,15 @@ export function LoadingScreen({ message = "Creating your design... This may take
   });
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="text-center w-full">
-        <p className="text-white text-lg lg:text-xl font-light mb-8">
+    <div className="flex min-h-screen items-center justify-center bg-black p-4">
+      <div className="w-full text-center">
+        <p className="mb-8 text-lg font-light text-white lg:text-xl">
           {message}
         </p>
 
         {/* Desktop: Show all 3 videos */}
-        <div className="hidden lg:flex flex-row items-center justify-center gap-8 max-w-6xl mx-auto">
-          {loadingVideos.map((videoSrc) => (
+        <div className="mx-auto hidden max-w-6xl flex-row items-center justify-center gap-8 lg:flex">
+          {loadingVideos.map(videoSrc => (
             <video
               key={videoSrc}
               autoPlay
@@ -34,56 +36,56 @@ export function LoadingScreen({ message = "Creating your design... This may take
               muted
               playsInline
               preload="auto"
-              className={`max-w-md w-full h-auto rounded-none shadow-lg ${
+              className={`h-auto w-full max-w-md rounded-none shadow-lg ${
                 videoSrc === "/loading-video-3.mp4"
                   ? "border-1 border-white"
                   : ""
               }`}
-              onError={(e) => {
+              onError={e => {
                 console.error(`Failed to load video: ${videoSrc}`, e);
                 // Hide the video element if it fails to load
-                e.currentTarget.style.display = 'none';
+                e.currentTarget.style.display = "none";
               }}
             >
               <source src={videoSrc} type="video/mp4" />
               {/* Fallback content */}
-              <div className="w-full h-48 bg-gray-800 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white"></div>
+              <div className="flex h-48 w-full items-center justify-center bg-gray-800">
+                <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
               </div>
             </video>
           ))}
         </div>
 
         {/* Mobile: Show 1 random video */}
-        <div className="lg:hidden flex justify-center">
+        <div className="flex justify-center lg:hidden">
           <video
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            className={`w-full max-w-sm h-auto rounded-none shadow-lg ${
+            className={`h-auto w-full max-w-sm rounded-none shadow-lg ${
               mobileVideo === "/loading-video-3.mp4"
                 ? "border-1 border-white"
                 : ""
             }`}
-            onError={(e) => {
+            onError={e => {
               console.error(`Failed to load mobile video: ${mobileVideo}`, e);
               // Hide the video element if it fails to load
-              e.currentTarget.style.display = 'none';
+              e.currentTarget.style.display = "none";
             }}
           >
             <source src={mobileVideo} type="video/mp4" />
             {/* Fallback content */}
-            <div className="w-full h-48 bg-gray-800 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white"></div>
+            <div className="flex h-48 w-full items-center justify-center bg-gray-800">
+              <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
             </div>
           </video>
         </div>
 
         {/* Fallback loading spinner if videos fail */}
-        <div className="flex justify-center mt-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white opacity-50"></div>
+        <div className="mt-8 flex justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white opacity-50"></div>
         </div>
       </div>
     </div>

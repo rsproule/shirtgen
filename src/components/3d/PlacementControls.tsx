@@ -6,9 +6,12 @@ interface PlacementControlsProps {
   onPlacementChange: (placement: TexturePlacement) => void;
 }
 
-export function PlacementControls({ placement, onPlacementChange }: PlacementControlsProps) {
+export function PlacementControls({
+  placement,
+  onPlacementChange,
+}: PlacementControlsProps) {
   return (
-    <div className="flex justify-center mb-4">
+    <div className="mb-4 flex justify-center">
       <div className="flex space-x-2">
         <Button
           variant={placement === "front" ? "default" : "outline"}
