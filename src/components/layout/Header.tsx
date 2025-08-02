@@ -19,6 +19,10 @@ export function Header({ showBackButton = false, onBack }: HeaderProps) {
     }
   };
 
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
   return (
     <div className="flex items-center justify-between border-b border-gray-200 p-6">
       {showBackButton ? (
@@ -33,7 +37,7 @@ export function Header({ showBackButton = false, onBack }: HeaderProps) {
       ) : (
         <div className="w-20" />
       )}
-      <Branding size="small" />
+      <Branding size="small" onClick={handleLogoClick} />
       <div className="w-20" /> {/* Spacer for centering */}
     </div>
   );
