@@ -12,11 +12,13 @@ import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import FileUploadDemo from "@/components/file-upload-demo";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
@@ -51,12 +53,12 @@ export function HomePage() {
     if (prompt.trim().length >= 10) {
       addPromptToHistory(prompt);
     }
-    generateImage(prompt);
+    generateImage(prompt, uploadedImage);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
-    generateImage(prompt);
+    generateImage(prompt, uploadedImage);
   };
 
   const handleDismissError = () => {
@@ -66,6 +68,10 @@ export function HomePage() {
   const handleSelectFromHistory = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
     setPromptWithoutStats();
+  };
+
+  const handleImageUpload = (file: File | null) => {
+    setUploadedImage(file);
   };
 
   if (isLoading) {
@@ -120,6 +126,11 @@ export function HomePage() {
           onGenerate={handleGenerate}
           promptLength={prompt.length}
         />
+
+        {/* File Upload Demo */}
+        <div className="mt-6 flex justify-start">
+          <FileUploadDemo onImageUpload={handleImageUpload} />
+        </div>
 
         {/* Shirt History */}
         <ShirtHistory />

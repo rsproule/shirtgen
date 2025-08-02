@@ -3,6 +3,21 @@ import type { ShirtData } from "@/types";
 import { useEchoOpenAI } from "@zdql/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
 
+// Helper function to convert File to base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove the data:image/...;base64, prefix
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = error => reject(error);
+  });
+};
+
 export function useImageGeneration(
   onShirtComplete?: (shirtData: ShirtData) => void,
   onError?: (error: string) => void,
@@ -31,7 +46,7 @@ export function useImageGeneration(
     }
   };
 
-  const generateImage = async (prompt: string) => {
+  const generateImage = async (prompt: string, uploadedImage?: File | null) => {
     if (prompt.length < 10) {
       alert("Please write at least 10 characters to describe your design");
       return;
@@ -41,13 +56,34 @@ export function useImageGeneration(
 
     try {
       // Create a detailed prompt for image generation
-      const imagePrompt = `Generate an image for: ${prompt}.
+      let imagePrompt = `Generate an image for: ${prompt}.
      
       IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
       `;
 
+      // If there's an uploaded image, modify the prompt to reference it
+      if (uploadedImage) {
+        imagePrompt = `Generate an image based on this reference image and the description: ${prompt}.
+        
+        Use the uploaded image as inspiration and reference for style, composition, or elements.
+        IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
+        `;
+      }
+
       let stream;
       try {
+        // Convert uploaded image to base64 if it exists
+        let imageInput = undefined;
+        if (uploadedImage) {
+          const base64Image = await fileToBase64(uploadedImage);
+          imageInput = {
+            type: "image_url",
+            image_url: {
+              url: base64Image,
+            },
+          };
+        }
+
         // Use streaming OpenAI responses API via Echo SDK for partial images
         stream = await openai.responses.create({
           model: "gpt-4o",
@@ -62,6 +98,7 @@ export function useImageGeneration(
               moderation: "low",
             },
           ],
+          ...(imageInput && { images: [imageInput] }),
         });
       } catch (apiError: unknown) {
         let errorMessage =
