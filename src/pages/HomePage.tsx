@@ -5,19 +5,18 @@ import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
-import { AuthSection } from "@/components/auth/AuthSection";
+import { Navbar } from "@/components/layout/Navbar";
 import { PromptInput } from "@/components/forms/PromptInput";
 import { PromptHistory } from "@/components/forms/PromptHistory";
 import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 
 export function HomePage() {
-  const { isLoading, setIsLoading } = useShirtData();
+  const { isLoading, setIsLoading, isAuthLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
@@ -116,6 +115,11 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
+  // Show blank page while auth state is being determined
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-white" />;
+  }
+
   if (isLoading) {
     return (
       <>
@@ -135,44 +139,8 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      {/* Header with conditional auth positioning */}
-      <div className="relative">
-        {/* Title */}
-        <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <div className="mb-3 flex items-center justify-start gap-0">
-            <img
-              src="/shirtslop.png"
-              alt="ShirtSlop Logo"
-              className="h-32 w-auto object-contain drop-shadow-lg"
-            />
-            <div
-              className="-mt-2 flex items-center"
-              style={{
-                fontFamily:
-                  "Comic Sans MS, Comic Sans, Chalkboard SE, Comic Neue, cursive",
-              }}
-            >
-              <TypewriterEffect
-                cursorClassName="hidden"
-                words={[
-                  {
-                    text: "ShirtSlop",
-                    className:
-                      "text-7xl font-comic text-gray-900 tracking-tight",
-                  },
-                ]}
-                className="font-comic text-7xl tracking-tight text-gray-900"
-              />
-            </div>
-          </div>
-          <p className="text-lg font-medium text-gray-600">
-            AI-powered shirt design
-          </p>
-        </div>
-
-        {/* Auth Section */}
-        <AuthSection />
-      </div>
+      {/* Navbar */}
+      <Navbar />
 
       {/* Main Input Area */}
       <div className="mx-auto mt-8 w-full max-w-7xl px-8">
