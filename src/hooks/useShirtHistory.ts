@@ -1,40 +1,40 @@
-import { useState, useEffect } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db, type ShirtHistoryItem } from "@/services/db";
 import type { ShirtData } from "@/types";
 
-const SHIRT_HISTORY_KEY = "instashirt_history";
-const MAX_HISTORY_ITEMS = 20;
+export type { ShirtHistoryItem };
 
-export interface ShirtHistoryItem {
-  id: string;
-  prompt: string;
-  imageUrl: string;
-  generatedAt: string;
-  timestamp: number;
-}
+const MAX_HISTORY_ITEMS = 100;
 
 export function useShirtHistory() {
-  const [history, setHistory] = useState<ShirtHistoryItem[]>([]);
-
-  // Load history from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(SHIRT_HISTORY_KEY);
-      if (stored) {
-        const parsedHistory = JSON.parse(stored);
-        // Sort by timestamp descending (newest first)
-        const sortedHistory = parsedHistory.sort(
-          (a: ShirtHistoryItem, b: ShirtHistoryItem) =>
-            b.timestamp - a.timestamp,
-        );
-        setHistory(sortedHistory);
+  // Use Dexie's useLiveQuery for reactive data
+  const history = useLiveQuery(async () => {
+    const items = await db.shirtHistory
+      .orderBy('timestamp')
+      .reverse()
+      .limit(MAX_HISTORY_ITEMS)
+      .toArray();
+    
+    // Migrate from localStorage on first load if needed
+    if (items.length === 0) {
+      try {
+        const stored = localStorage.getItem("instashirt_history");
+        if (stored) {
+          console.log("Migrating from localStorage...");
+          const parsedHistory = JSON.parse(stored);
+          await db.shirtHistory.bulkAdd(parsedHistory);
+          localStorage.removeItem("instashirt_history");
+          return parsedHistory;
+        }
+      } catch (error) {
+        console.warn("Migration failed:", error);
       }
-    } catch (error) {
-      console.error("Failed to load shirt history:", error);
     }
-  }, []);
+    
+    return items;
+  }, []) || [];
 
-  // Add shirt to history
-  const addToHistory = (shirtData: ShirtData) => {
+  const addToHistory = async (shirtData: ShirtData) => {
     if (!shirtData.imageUrl || !shirtData.prompt) return;
 
     const newItem: ShirtHistoryItem = {
@@ -45,54 +45,46 @@ export function useShirtHistory() {
       timestamp: Date.now(),
     };
 
-    setHistory(prevHistory => {
-      // Remove any existing item with the same image URL (avoid duplicates)
-      const filtered = prevHistory.filter(
-        item => item.imageUrl !== newItem.imageUrl,
-      );
-
-      // Add new item to beginning and limit to MAX_HISTORY_ITEMS
-      const newHistory = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
-
-      // Save to localStorage
-      try {
-        localStorage.setItem(SHIRT_HISTORY_KEY, JSON.stringify(newHistory));
-      } catch (error) {
-        console.error("Failed to save shirt history:", error);
+    try {
+      await db.shirtHistory.add(newItem);
+      
+      // Cleanup old items if needed
+      const count = await db.shirtHistory.count();
+      if (count > MAX_HISTORY_ITEMS) {
+        const oldest = await db.shirtHistory
+          .orderBy('timestamp')
+          .limit(count - MAX_HISTORY_ITEMS)
+          .toArray();
+        await db.shirtHistory.bulkDelete(oldest.map(item => item.id));
       }
 
-      return newHistory;
-    });
-
-    return newItem.id;
-  };
-
-  // Get shirt by ID
-  const getShirtById = (id: string): ShirtHistoryItem | null => {
-    return history.find(item => item.id === id) || null;
-  };
-
-  // Clear all history
-  const clearHistory = () => {
-    setHistory([]);
-    try {
-      localStorage.removeItem(SHIRT_HISTORY_KEY);
+      return newItem.id;
     } catch (error) {
-      console.error("Failed to clear shirt history:", error);
+      console.error("Failed to save shirt history:", error);
+      throw error;
     }
   };
 
-  // Remove specific item from history
-  const removeFromHistory = (id: string) => {
-    setHistory(prevHistory => {
-      const newHistory = prevHistory.filter(item => item.id !== id);
-      try {
-        localStorage.setItem(SHIRT_HISTORY_KEY, JSON.stringify(newHistory));
-      } catch (error) {
-        console.error("Failed to update shirt history:", error);
-      }
-      return newHistory;
-    });
+  const clearHistory = async () => {
+    try {
+      await db.shirtHistory.clear();
+    } catch (error) {
+      console.error("Failed to clear shirt history:", error);
+      throw error;
+    }
+  };
+
+  const removeFromHistory = async (id: string) => {
+    try {
+      await db.shirtHistory.delete(id);
+    } catch (error) {
+      console.error("Failed to remove from shirt history:", error);
+      throw error;
+    }
+  };
+
+  const getShirtById = (id: string): ShirtHistoryItem | null => {
+    return history.find((item: ShirtHistoryItem) => item.id === id) || null;
   };
 
   return {
