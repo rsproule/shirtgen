@@ -10,6 +10,7 @@ interface ShirtDataContextType {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   shirtColor: string;
   setShirtColor: (color: string) => void;
 }
@@ -26,7 +27,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   const [shirtColor, setShirtColor] = useState("#f8f8f8"); // Off-white default
 
   // Centralize authentication state to prevent multiple useEcho calls
-  const { isAuthenticated } = useEcho();
+  const { isAuthenticated, isLoading: isAuthLoading } = useEcho();
 
   return (
     <ShirtDataContext.Provider
@@ -38,6 +39,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
         isLoading,
         setIsLoading,
         isAuthenticated,
+        isAuthLoading,
         shirtColor,
         setShirtColor,
       }}
