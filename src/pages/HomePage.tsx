@@ -12,7 +12,7 @@ import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
@@ -54,12 +54,12 @@ export function HomePage() {
       addPromptToHistory(prompt);
     }
     
-    generateImage(prompt, uploadedImage);
+    generateImage(prompt);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
-    generateImage(prompt, uploadedImage);
+    generateImage(prompt);
   };
 
   const handleDismissError = () => {
@@ -100,10 +100,15 @@ export function HomePage() {
               alt="ShirtSlop Logo" 
               className="h-32 w-auto drop-shadow-lg object-contain" 
             />
-            <div className="flex items-center -mt-2">
-              <TextGenerateEffect 
-                words="ShirtSlop" 
-                className="text-7xl font-light text-gray-900 tracking-tight" 
+            <div className="flex items-center -mt-2" style={{ fontFamily: 'Comic Sans MS, Comic Sans, Chalkboard SE, Comic Neue, cursive' }}>
+              <TypewriterEffect 
+                words={[
+                  {
+                    text: "ShirtSlop",
+                    className: "text-7xl font-comic text-gray-900 tracking-tight"
+                  }
+                ]}
+                className="text-7xl font-comic text-gray-900 tracking-tight"
               />
             </div>
           </div>
