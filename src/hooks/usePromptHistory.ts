@@ -11,14 +11,15 @@ export interface PromptHistoryItem {
 
 export function usePromptHistory() {
   // Use Dexie's useLiveQuery for reactive data
-  const history = useLiveQuery(async () => {
-    const items = await db.promptHistory
-      .orderBy('timestamp')
-      .reverse()
-      .limit(MAX_HISTORY_ITEMS)
-      .toArray();
-    return items;
-  }, []) || [];
+  const history =
+    useLiveQuery(async () => {
+      const items = await db.promptHistory
+        .orderBy("timestamp")
+        .reverse()
+        .limit(MAX_HISTORY_ITEMS)
+        .toArray();
+      return items;
+    }, []) || [];
 
   const addToHistory = async (prompt: string) => {
     if (!prompt.trim() || prompt.length < 10) return;
@@ -31,12 +32,12 @@ export function usePromptHistory() {
 
     try {
       await db.promptHistory.add(newItem);
-      
+
       // Cleanup old items if needed
       const count = await db.promptHistory.count();
       if (count > MAX_HISTORY_ITEMS) {
         const oldest = await db.promptHistory
-          .orderBy('timestamp')
+          .orderBy("timestamp")
           .limit(count - MAX_HISTORY_ITEMS)
           .toArray();
         await db.promptHistory.bulkDelete(oldest.map(item => item.id));

@@ -11,9 +11,10 @@ export function useNameGeneration(): NameGenerationService {
   const generateName = async (prompt: string): Promise<string> => {
     try {
       // Fallback to truncated prompt if anything goes wrong
-      const fallbackName = prompt.length > 30 
-        ? prompt.substring(0, 30).trim() + "..."
-        : prompt.trim();
+      const fallbackName =
+        prompt.length > 30
+          ? prompt.substring(0, 30).trim() + "..."
+          : prompt.trim();
 
       // Create a concise name generation prompt
       const namePrompt = `Generate a short, creative project name (3-5 words max) for this t-shirt design description: "${prompt}"
@@ -38,14 +39,14 @@ Just return the name, nothing else:`;
       });
 
       const generatedName = response.choices[0]?.message?.content?.trim();
-      
+
       if (generatedName && generatedName.length > 0) {
         // Clean up the generated name (remove quotes, extra punctuation)
         const cleanName = generatedName
-          .replace(/^["']|["']$/g, '') // Remove surrounding quotes
-          .replace(/[.!?]+$/, '') // Remove trailing punctuation
+          .replace(/^["']|["']$/g, "") // Remove surrounding quotes
+          .replace(/[.!?]+$/, "") // Remove trailing punctuation
           .trim();
-        
+
         return cleanName.length > 0 ? cleanName : fallbackName;
       }
 
@@ -53,7 +54,7 @@ Just return the name, nothing else:`;
     } catch (error) {
       console.warn("Name generation failed, using fallback:", error);
       // Return truncated prompt as fallback
-      return prompt.length > 30 
+      return prompt.length > 30
         ? prompt.substring(0, 30).trim() + "..."
         : prompt.trim();
     }

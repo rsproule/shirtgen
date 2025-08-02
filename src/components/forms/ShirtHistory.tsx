@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Eye } from "lucide-react";
-import { useShirtHistory, type ShirtHistoryItem } from "@/hooks/useShirtHistory";
+import {
+  useShirtHistory,
+  type ShirtHistoryItem,
+} from "@/hooks/useShirtHistory";
 import { useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
 

@@ -12,7 +12,13 @@ const echoConfig = {
 };
 
 function AppContent() {
-  const { showRecoveryPrompt, recoveryData, recoverWork, startFresh, dismissRecovery } = useRecoveryPrompt();
+  const {
+    showRecoveryPrompt,
+    recoveryData,
+    recoverWork,
+    startFresh,
+    dismissRecovery,
+  } = useRecoveryPrompt();
 
   return (
     <>

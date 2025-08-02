@@ -37,83 +37,98 @@ export function useDesignPersistence() {
   }, []);
 
   // Save a design (manual save)
-  const saveDesign = useCallback(async (design: DesignConfig): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const existingDesigns = getSavedDesigns();
-      
-      // Update timestamps
-      const now = new Date().toISOString();
-      const updatedDesign: DesignConfig = {
-        ...design,
-        isSaved: true,
-        lastModified: now,
-        lastAccessed: now,
-      };
+  const saveDesign = useCallback(
+    async (design: DesignConfig): Promise<void> => {
+      setIsLoading(true);
+      try {
+        const existingDesigns = getSavedDesigns();
 
-      // Check if design already exists (update) or is new (add)
-      const existingIndex = existingDesigns.findIndex(d => d.id === design.id);
-      
-      let newDesigns: DesignConfig[];
-      if (existingIndex >= 0) {
-        // Update existing design
-        newDesigns = [...existingDesigns];
-        newDesigns[existingIndex] = updatedDesign;
-      } else {
-        // Add new design
-        newDesigns = [updatedDesign, ...existingDesigns];
-      }
+        // Update timestamps
+        const now = new Date().toISOString();
+        const updatedDesign: DesignConfig = {
+          ...design,
+          isSaved: true,
+          lastModified: now,
+          lastAccessed: now,
+        };
 
-      // Apply LRU eviction if over limit
-      if (newDesigns.length > MAX_SAVED_DESIGNS) {
-        // Sort by lastAccessed (oldest first) and remove excess
-        newDesigns.sort((a, b) => 
-          new Date(a.lastAccessed).getTime() - new Date(b.lastAccessed).getTime()
+        // Check if design already exists (update) or is new (add)
+        const existingIndex = existingDesigns.findIndex(
+          d => d.id === design.id,
         );
-        newDesigns = newDesigns.slice(newDesigns.length - MAX_SAVED_DESIGNS);
+
+        let newDesigns: DesignConfig[];
+        if (existingIndex >= 0) {
+          // Update existing design
+          newDesigns = [...existingDesigns];
+          newDesigns[existingIndex] = updatedDesign;
+        } else {
+          // Add new design
+          newDesigns = [updatedDesign, ...existingDesigns];
+        }
+
+        // Apply LRU eviction if over limit
+        if (newDesigns.length > MAX_SAVED_DESIGNS) {
+          // Sort by lastAccessed (oldest first) and remove excess
+          newDesigns.sort(
+            (a, b) =>
+              new Date(a.lastAccessed).getTime() -
+              new Date(b.lastAccessed).getTime(),
+          );
+          newDesigns = newDesigns.slice(newDesigns.length - MAX_SAVED_DESIGNS);
+        }
+
+        // Sort by lastAccessed (newest first) for display
+        newDesigns.sort(
+          (a, b) =>
+            new Date(b.lastAccessed).getTime() -
+            new Date(a.lastAccessed).getTime(),
+        );
+
+        saveSavedDesigns(newDesigns);
+      } finally {
+        setIsLoading(false);
       }
-
-      // Sort by lastAccessed (newest first) for display
-      newDesigns.sort((a, b) => 
-        new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime()
-      );
-
-      saveSavedDesigns(newDesigns);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [getSavedDesigns, saveSavedDesigns]);
+    },
+    [getSavedDesigns, saveSavedDesigns],
+  );
 
   // Load a design and update lastAccessed
-  const loadDesign = useCallback((designId: string): DesignConfig | null => {
-    const designs = getSavedDesigns();
-    const design = designs.find(d => d.id === designId);
-    
-    if (design) {
-      // Update lastAccessed timestamp
-      const updatedDesign = {
-        ...design,
-        lastAccessed: new Date().toISOString(),
-      };
-      
-      // Update in storage
-      const updatedDesigns = designs.map(d => 
-        d.id === designId ? updatedDesign : d
-      );
-      saveSavedDesigns(updatedDesigns);
-      
-      return updatedDesign;
-    }
-    
-    return null;
-  }, [getSavedDesigns, saveSavedDesigns]);
+  const loadDesign = useCallback(
+    (designId: string): DesignConfig | null => {
+      const designs = getSavedDesigns();
+      const design = designs.find(d => d.id === designId);
+
+      if (design) {
+        // Update lastAccessed timestamp
+        const updatedDesign = {
+          ...design,
+          lastAccessed: new Date().toISOString(),
+        };
+
+        // Update in storage
+        const updatedDesigns = designs.map(d =>
+          d.id === designId ? updatedDesign : d,
+        );
+        saveSavedDesigns(updatedDesigns);
+
+        return updatedDesign;
+      }
+
+      return null;
+    },
+    [getSavedDesigns, saveSavedDesigns],
+  );
 
   // Delete a design
-  const deleteDesign = useCallback((designId: string): void => {
-    const designs = getSavedDesigns();
-    const filteredDesigns = designs.filter(d => d.id !== designId);
-    saveSavedDesigns(filteredDesigns);
-  }, [getSavedDesigns, saveSavedDesigns]);
+  const deleteDesign = useCallback(
+    (designId: string): void => {
+      const designs = getSavedDesigns();
+      const filteredDesigns = designs.filter(d => d.id !== designId);
+      saveSavedDesigns(filteredDesigns);
+    },
+    [getSavedDesigns, saveSavedDesigns],
+  );
 
   // Get storage info (for debugging/UI)
   const getStorageInfo = useCallback(() => {

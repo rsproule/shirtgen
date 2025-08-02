@@ -22,12 +22,12 @@ export function HomePage() {
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
-  
+
   // Wrap addShirtToHistory to handle async nature
   const handleShirtComplete = (shirtData: ShirtData) => {
     addShirtToHistory(shirtData).catch(console.error);
   };
-  
+
   const { generateImage } = useImageGeneration(handleShirtComplete, setError);
 
   // Reset loading state when component unmounts
