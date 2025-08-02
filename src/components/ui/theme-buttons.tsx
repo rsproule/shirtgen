@@ -10,7 +10,6 @@ interface ThemeButtonProps {
 
 const ThemeButton: React.FC<ThemeButtonProps> = ({
   theme,
-  description,
   onClick,
   isSelected = false,
 }) => {
@@ -18,16 +17,16 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
     <button
       onClick={() => onClick(theme)}
       className={cn(
-        "px-2 py-1 rounded-lg border transition-all duration-200 text-xs font-medium",
-        "hover:scale-105 hover:shadow-md",
+        "rounded-lg border px-2 py-1 text-xs font-medium transition-all duration-200",
+        "hover:shadow-md",
         isSelected
-          ? "bg-blue-500 text-white border-blue-500 shadow-md"
-          : "bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+          ? "border-blue-500 bg-blue-500 text-white shadow-md"
+          : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
       )}
     >
       <div className="text-center">
         <div className="font-semibold">{theme}</div>
-        <div className="text-xs opacity-80 mt-1">{description}</div>
+        {/* <div className="mt-1 text-xs opacity-80">{description}</div> */}
       </div>
     </button>
   );
@@ -79,9 +78,6 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
 
   return (
     <div className="w-full">
-      <h3 className="text-sm font-medium text-gray-700 mb-3">
-        Design Themes
-      </h3>
       <div className="flex flex-wrap gap-1">
         {themes.map((themeData, index) => (
           <ThemeButton
@@ -95,4 +91,4 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       </div>
     </div>
   );
-}; 
+};
