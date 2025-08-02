@@ -11,14 +11,16 @@ import { PromptHistory } from "@/components/forms/PromptHistory";
 import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } = useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
-  const { generateImage } = useImageGeneration(addShirtToHistory);
+  const { generateImage } = useImageGeneration(addShirtToHistory, setError);
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -42,10 +44,22 @@ export function HomePage() {
   };
 
   const handleGenerate = () => {
+    // Clear any previous errors
+    setError(null);
+    
     if (prompt.trim().length >= 10) {
       addPromptToHistory(prompt);
     }
     generateImage(prompt);
+  };
+
+  const handleRetryGeneration = () => {
+    setError(null);
+    generateImage(prompt);
+  };
+
+  const handleDismissError = () => {
+    setError(null);
   };
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
@@ -55,7 +69,18 @@ export function HomePage() {
 
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <>
+        <LoadingScreen />
+        {/* Error Display - Show even during loading */}
+        <ErrorDisplay 
+          error={error}
+          onDismiss={handleDismissError}
+          onRetry={prompt.trim().length >= 10 ? handleRetryGeneration : undefined}
+          autoHide={false}
+        />
+      </>
+    );
   }
 
   return (
@@ -97,6 +122,14 @@ export function HomePage() {
         {/* Shirt History */}
         <ShirtHistory />
       </div>
+
+      {/* Error Display */}
+      <ErrorDisplay 
+        error={error}
+        onDismiss={handleDismissError}
+        onRetry={prompt.trim().length >= 10 ? handleRetryGeneration : undefined}
+        autoHide={false}
+      />
     </div>
   );
 }
