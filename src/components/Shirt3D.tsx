@@ -340,7 +340,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     };
 
     applyTexture();
-  }, [shirtScene, customTexture, texturePlacement]);
+  }, [shirtScene, customTexture, texturePlacement, shirtColor]);
 
   return (
     <group ref={groupRef}>
