@@ -5,7 +5,7 @@ import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
-import { AuthSection } from "@/components/auth/AuthSection";
+import { Navbar } from "@/components/layout/Navbar";
 import { PromptInput } from "@/components/forms/PromptInput";
 import { PromptHistory } from "@/components/forms/PromptHistory";
 import { TypingStats } from "@/components/forms/TypingStats";
@@ -16,7 +16,7 @@ import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 
 export function HomePage() {
-  const { isLoading, setIsLoading } = useShirtData();
+  const { isLoading, setIsLoading, isAuthLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
@@ -115,6 +115,11 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
+  // Show blank page while auth state is being determined
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-white" />;
+  }
+
   if (isLoading) {
     return (
       <>
@@ -134,17 +139,8 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      {/* Header with conditional auth positioning */}
-      <div className="relative">
-        {/* Title */}
-        <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <h1 className="mb-2 text-6xl font-light text-gray-900">InstaShirt</h1>
-          <p className="text-gray-500">AI-powered shirt design</p>
-        </div>
-
-        {/* Auth Section */}
-        <AuthSection />
-      </div>
+      {/* Navbar */}
+      <Navbar />
 
       {/* Main Input Area */}
       <div className="mx-auto mt-8 w-full max-w-7xl px-8">

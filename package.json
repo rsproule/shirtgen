@@ -23,6 +23,7 @@
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "lucide-react": "^0.536.0",
+    "motion": "^12.23.12",
     "openai": "^5.11.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
