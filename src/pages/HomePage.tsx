@@ -13,17 +13,25 @@ import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import { TypewriterEffect } from "@/components/ui/typewriter-effect";
+import { ThemeButtons } from "@/components/ui/theme-buttons";
+import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
+
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
+  const {
+    selectedThemes,
+    toggleTheme,
+    enhancePromptWithThemes,
+    getThemeSuggestion,
+  } = useThemeSuggestions();
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -51,15 +59,21 @@ export function HomePage() {
     setError(null);
 
     if (prompt.trim().length >= 10) {
-      addPromptToHistory(prompt);
+      // Add to history asynchronously (don't wait for it)
+      addPromptToHistory(prompt).catch(console.error);
     }
-    
-    generateImage(prompt);
+
+    // Enhance prompt with selected themes invisibly
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
+    generateImage(enhancedPrompt);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
-    generateImage(prompt);
+
+    // Enhance prompt with selected themes invisibly
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
+    generateImage(enhancedPrompt);
   };
 
   const handleDismissError = () => {
@@ -71,7 +85,36 @@ export function HomePage() {
     setPromptWithoutStats();
   };
 
+  const handleThemeSelect = (theme: string) => {
+    toggleTheme(theme);
+  };
 
+  // Create the full prompt that would be sent to the API
+  const createFullPrompt = (userPrompt: string, themes: string[]): string => {
+    if (!userPrompt.trim()) return "";
+
+    // Get the full prompt enhancer strings for selected themes
+    const themeEnhancers = themes
+      .map(themeName => getThemeSuggestion(themeName))
+      .filter(Boolean)
+      .map(theme => theme!.promptEnhancer);
+
+    const styleGuide =
+      themeEnhancers.length > 0
+        ? `Style guide: ${themeEnhancers.join(", ")}`
+        : "";
+
+    const fullPrompt = `Generate an image for: ${userPrompt}.
+     
+${styleGuide}
+
+IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
+      `;
+
+    return fullPrompt;
+  };
+
+  const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
   if (isLoading) {
     return (
@@ -96,25 +139,35 @@ export function HomePage() {
       <div className="relative">
         {/* Title */}
         <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <div className="flex items-center justify-start gap-0 mb-3">
-            <img 
-              src="/shirtslop.png" 
-              alt="ShirtSlop Logo" 
-              className="h-32 w-auto drop-shadow-lg object-contain" 
+          <div className="mb-3 flex items-center justify-start gap-0">
+            <img
+              src="/shirtslop.png"
+              alt="ShirtSlop Logo"
+              className="h-32 w-auto object-contain drop-shadow-lg"
             />
-            <div className="flex items-center -mt-2" style={{ fontFamily: 'Comic Sans MS, Comic Sans, Chalkboard SE, Comic Neue, cursive' }}>
-              <TypewriterEffect 
+            <div
+              className="-mt-2 flex items-center"
+              style={{
+                fontFamily:
+                  "Comic Sans MS, Comic Sans, Chalkboard SE, Comic Neue, cursive",
+              }}
+            >
+              <TypewriterEffect
+                cursorClassName="hidden"
                 words={[
                   {
                     text: "ShirtSlop",
-                    className: "text-7xl font-comic text-gray-900 tracking-tight"
-                  }
+                    className:
+                      "text-7xl font-comic text-gray-900 tracking-tight",
+                  },
                 ]}
-                className="text-7xl font-comic text-gray-900 tracking-tight"
+                className="font-comic text-7xl tracking-tight text-gray-900"
               />
             </div>
           </div>
-          <p className="text-lg text-gray-600 font-medium">AI-powered shirt design</p>
+          <p className="text-lg font-medium text-gray-600">
+            AI-powered shirt design
+          </p>
         </div>
 
         {/* Auth Section */}
@@ -132,18 +185,25 @@ export function HomePage() {
           value={prompt}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
+          fullPrompt={fullPromptPreview}
         />
 
         {/* Stats Bar */}
         <TypingStats stats={typingStats} promptLength={prompt.length} />
+
+        {/* Theme Buttons */}
+        <div className="mt-4">
+          <ThemeButtons
+            onThemeSelect={handleThemeSelect}
+            activeThemes={selectedThemes}
+          />
+        </div>
 
         {/* Action Buttons */}
         <ActionButtons
           onGenerate={handleGenerate}
           promptLength={prompt.length}
         />
-
-
 
         {/* Shirt History */}
         <ShirtHistory />
