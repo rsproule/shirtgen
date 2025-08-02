@@ -128,11 +128,11 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
         switch (texturePlacement) {
           case "full-shirt": {
-            // Center on front of shirt and scale to fill front area
-            const frontWidth = canvas.width * 0.4; // Front area width (40% of canvas)
-            const frontHeight = canvas.height * 0.6; // Front area height (60% of canvas)
+            // Center on front of shirt and extend to sleeves
+            const frontWidth = canvas.width * 0.45; // Slightly larger (45% of canvas)
+            const frontHeight = canvas.height * 0.55; // Slightly larger (55% of canvas)
             const frontX = canvas.width * 0.3; // Center on front of T-shirt
-            const frontY = canvas.height * 0.4; // Move down (40% instead of 60%)
+            const frontY = canvas.height * 0.35; // Move up slightly (35% instead of 30%)
 
             // Calculate dimensions preserving aspect ratio
             let drawWidth = frontWidth;
