@@ -12,7 +12,6 @@ import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import FileUploadDemo from "@/components/file-upload-demo";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 
@@ -20,13 +19,13 @@ export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
-  const { selectedTheme, selectTheme, enhancePromptWithTheme } = useThemeSuggestions();
+  const { selectedTheme, selectTheme, enhancePromptWithTheme } =
+    useThemeSuggestions();
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -56,24 +55,24 @@ export function HomePage() {
     if (prompt.trim().length >= 10) {
       addPromptToHistory(prompt);
     }
-    
+
     // Enhance prompt with selected theme if any
-    const enhancedPrompt = selectedTheme 
+    const enhancedPrompt = selectedTheme
       ? enhancePromptWithTheme(prompt, selectedTheme)
       : prompt;
-    
-    generateImage(enhancedPrompt, uploadedImage);
+
+    generateImage(enhancedPrompt);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
-    
+
     // Enhance prompt with selected theme if any
-    const enhancedPrompt = selectedTheme 
+    const enhancedPrompt = selectedTheme
       ? enhancePromptWithTheme(prompt, selectedTheme)
       : prompt;
-    
-    generateImage(enhancedPrompt, uploadedImage);
+
+    generateImage(enhancedPrompt);
   };
 
   const handleDismissError = () => {
@@ -83,10 +82,6 @@ export function HomePage() {
   const handleSelectFromHistory = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
     setPromptWithoutStats();
-  };
-
-  const handleImageUpload = (file: File | null) => {
-    setUploadedImage(file);
   };
 
   if (isLoading) {
@@ -138,7 +133,7 @@ export function HomePage() {
 
         {/* Theme Buttons */}
         <div className="mt-4">
-          <ThemeButtons 
+          <ThemeButtons
             onThemeSelect={selectTheme}
             selectedTheme={selectedTheme || undefined}
           />
@@ -149,11 +144,6 @@ export function HomePage() {
           onGenerate={handleGenerate}
           promptLength={prompt.length}
         />
-
-        {/* File Upload Demo */}
-        <div className="mt-6 flex justify-start">
-          <FileUploadDemo onImageUpload={handleImageUpload} />
-        </div>
 
         {/* Shirt History */}
         <ShirtHistory />
