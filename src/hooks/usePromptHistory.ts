@@ -38,17 +38,17 @@ export function usePromptHistory() {
     setHistory(prevHistory => {
       // Remove duplicate if exists
       const filtered = prevHistory.filter(item => item.text !== newItem.text);
-      
+
       // Add new item to beginning and limit to MAX_HISTORY_ITEMS
       const newHistory = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
-      
+
       // Save to localStorage
       try {
         localStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(newHistory));
       } catch (error) {
         console.error("Failed to save prompt history:", error);
       }
-      
+
       return newHistory;
     });
   };

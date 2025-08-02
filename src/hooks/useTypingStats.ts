@@ -34,9 +34,9 @@ export function useTypingStats(prompt: string) {
         const activeTimeMin = totalActiveTimeRef.current / 60000;
         const wordCount = prompt
           .split(" ")
-          .filter((word) => word.length > 0).length;
+          .filter(word => word.length > 0).length;
 
-        setTypingStats((prev) => ({
+        setTypingStats(prev => ({
           ...prev,
           timeTyping: Math.floor(totalActiveTimeRef.current / 1000), // active time in seconds
           wpm: activeTimeMin > 0 ? Math.round(wordCount / activeTimeMin) : 0,
@@ -81,9 +81,9 @@ export function useTypingStats(prompt: string) {
       const activeTimeMin = totalActiveTimeRef.current / 60000;
       const wordCount = newValue
         .split(" ")
-        .filter((word) => word.length > 0).length;
+        .filter(word => word.length > 0).length;
 
-      setTypingStats((prev) => ({
+      setTypingStats(prev => ({
         ...prev,
         timeTyping: Math.floor(totalActiveTimeRef.current / 1000),
         wpm: activeTimeMin > 0 ? Math.round(wordCount / activeTimeMin) : 0,

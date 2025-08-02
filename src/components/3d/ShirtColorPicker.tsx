@@ -9,15 +9,15 @@ export function ShirtColorPicker() {
   const { shirtColor, setShirtColor } = useShirtData();
 
   return (
-    <div className="flex justify-center mb-4">
+    <div className="mb-4 flex justify-center">
       <div className="flex space-x-2">
-        {SHIRT_COLORS.map((colorOption) => (
+        {SHIRT_COLORS.map(colorOption => (
           <button
             key={colorOption.color}
             onClick={() => setShirtColor(colorOption.color)}
-            className={`w-8 h-8 rounded-full border-2 transition-all ${
+            className={`h-8 w-8 rounded-full border-2 transition-all ${
               shirtColor === colorOption.color
-                ? "border-gray-800 scale-110"
+                ? "scale-110 border-gray-800"
                 : "border-gray-300 hover:border-gray-500"
             }`}
             style={{ backgroundColor: colorOption.color }}
