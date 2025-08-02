@@ -76,22 +76,26 @@ class PrintifyService {
     this.shopifyStore = import.meta.env.VITE_SHOPIFY_STORE;
 
     if (!this.token) {
-      throw new Error('VITE_PRINTIFY_TOKEN environment variable is required');
+      throw new Error("VITE_PRINTIFY_TOKEN environment variable is required");
     }
     if (!this.shopId) {
-      throw new Error('VITE_PRINTIFY_SHOP_ID environment variable is required');
+      throw new Error("VITE_PRINTIFY_SHOP_ID environment variable is required");
     }
     if (!this.shopifyStore) {
-      throw new Error('VITE_SHOPIFY_STORE environment variable is required');
+      throw new Error("VITE_SHOPIFY_STORE environment variable is required");
     }
   }
 
-  private async makeRequest<T>(action: string, body?: any, method: string = 'POST'): Promise<T> {
+  private async makeRequest<T>(
+    action: string,
+    body?: any,
+    method: string = "POST",
+  ): Promise<T> {
     const url = `/api/printify?action=${action}`;
     const response = await fetch(url, {
       method,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: body ? JSON.stringify(body) : undefined,
     });
@@ -115,21 +119,21 @@ class PrintifyService {
 
   async uploadImage(imageBlob: Blob): Promise<PrintifyImage> {
     const dataUrl = await this.blobToDataUrl(imageBlob);
-    return this.makeRequest<PrintifyImage>('upload', { imageUrl: dataUrl });
+    return this.makeRequest<PrintifyImage>("upload", { imageUrl: dataUrl });
   }
 
   async createProduct(payload: CreateProductPayload): Promise<PrintifyProduct> {
-    return this.makeRequest<PrintifyProduct>('create-product', payload);
+    return this.makeRequest<PrintifyProduct>("create-product", payload);
   }
 
   async publishProduct(productId: string): Promise<void> {
-    await this.makeRequest('publish', { productId });
+    await this.makeRequest("publish", { productId });
   }
 
   async getProduct(productId: string): Promise<PrintifyProduct> {
     const url = `/api/printify?action=get-product&productId=${productId}`;
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`API error: ${response.status} - ${error}`);
@@ -145,9 +149,13 @@ class PrintifyService {
   async createShirtFromDesign(
     imageUrl: string,
     title: string,
-    description: string = '',
-    price: number = 3500 // $35.00 in cents
-  ): Promise<{ product: PrintifyProduct; variants: PrintifyVariant[]; options: PrintifyOption[] }> {
+    description: string = "",
+    price: number = 3500, // $35.00 in cents
+  ): Promise<{
+    product: PrintifyProduct;
+    variants: PrintifyVariant[];
+    options: PrintifyOption[];
+  }> {
     try {
       // 1. Convert image URL to blob and upload
       const imageResponse = await fetch(imageUrl);
@@ -156,24 +164,24 @@ class PrintifyService {
 
       // 2. Use working values from script - Unisex Oversized Boxy Tee
       const availableVariantIds = [103548, 103547, 103546]; // White L, M, S
-      
+
       // 3. Create product with working blueprint/provider
       const productPayload: CreateProductPayload = {
         title,
         description: description || `Custom design: ${title}`,
         blueprint_id: 1382, // Unisex Oversized Boxy Tee
         print_provider_id: 99, // Working provider from your products
-        variants: availableVariantIds.map((variantId) => ({
+        variants: availableVariantIds.map(variantId => ({
           id: variantId,
           price: price,
-          is_enabled: true
+          is_enabled: true,
         })),
         print_areas: [
           {
             variant_ids: availableVariantIds,
             placeholders: [
               {
-                position: 'front',
+                position: "front",
                 images: [
                   {
                     id: uploadedImage.id,
@@ -201,11 +209,13 @@ class PrintifyService {
       return {
         product: updatedProduct,
         variants: updatedProduct.variants || [],
-        options: updatedProduct.options || []
+        options: updatedProduct.options || [],
       };
     } catch (error) {
-      console.error('Failed to create shirt:', error);
-      throw new Error(`Failed to create shirt: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Failed to create shirt:", error);
+      throw new Error(
+        `Failed to create shirt: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   }
 }
