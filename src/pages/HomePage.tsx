@@ -17,6 +17,7 @@ export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
@@ -51,12 +52,13 @@ export function HomePage() {
     if (prompt.trim().length >= 10) {
       addPromptToHistory(prompt);
     }
-    generateImage(prompt);
+    
+    generateImage(prompt, uploadedImage);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
-    generateImage(prompt);
+    generateImage(prompt, uploadedImage);
   };
 
   const handleDismissError = () => {
@@ -91,7 +93,10 @@ export function HomePage() {
       <div className="relative">
         {/* Title */}
         <div className="mx-auto max-w-7xl px-8 pt-8 pb-4 text-left">
-          <h1 className="mb-2 text-6xl font-light text-gray-900">InstaShirt</h1>
+          <div className="flex items-center gap-4 mb-2">
+            <img src="/shirtslop.png" alt="ShirtSlop Logo" className="h-16 w-16" />
+            <h1 className="text-6xl font-light text-gray-900">ShirtSlop</h1>
+          </div>
           <p className="text-gray-500">AI-powered shirt design</p>
         </div>
 
