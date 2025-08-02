@@ -133,6 +133,9 @@ export function HomePage() {
           onKeyDown={handleKeyDown}
         />
 
+        {/* Stats Bar */}
+        <TypingStats stats={typingStats} promptLength={prompt.length} />
+
         {/* Theme Buttons */}
         <div className="mt-4">
           <ThemeButtons 
@@ -140,9 +143,6 @@ export function HomePage() {
             selectedTheme={selectedTheme || undefined}
           />
         </div>
-
-        {/* Stats Bar */}
-        <TypingStats stats={typingStats} promptLength={prompt.length} />
 
         {/* Action Buttons */}
         <ActionButtons
