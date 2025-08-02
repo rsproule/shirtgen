@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: VercelRequest,
+  res: VercelResponse,
 ) {
   // Enable CORS
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -53,8 +53,8 @@ export default async function handler(
 }
 
 async function handleUpload(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: VercelRequest,
+  res: VercelResponse,
   token: string,
 ) {
   if (req.method !== "POST") {
@@ -93,8 +93,8 @@ async function handleUpload(
 }
 
 async function handleCreateProduct(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: VercelRequest,
+  res: VercelResponse,
   token: string,
   shopId: string,
 ) {
@@ -124,8 +124,8 @@ async function handleCreateProduct(
 }
 
 async function handlePublish(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: VercelRequest,
+  res: VercelResponse,
   token: string,
   shopId: string,
 ) {
@@ -165,8 +165,8 @@ async function handlePublish(
 }
 
 async function handleGetProduct(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: VercelRequest,
+  res: VercelResponse,
   token: string,
   shopId: string,
 ) {
