@@ -24,7 +24,7 @@ export function HomePage() {
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
-  const { selectedTheme, selectTheme, enhancePromptWithTheme } =
+  const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
     useThemeSuggestions();
 
   // Reset loading state when component unmounts
@@ -56,22 +56,16 @@ export function HomePage() {
       addPromptToHistory(prompt);
     }
 
-    // Enhance prompt with selected theme if any
-    const enhancedPrompt = selectedTheme
-      ? enhancePromptWithTheme(prompt, selectedTheme)
-      : prompt;
-
+    // Enhance prompt with selected themes invisibly
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     generateImage(enhancedPrompt);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
 
-    // Enhance prompt with selected theme if any
-    const enhancedPrompt = selectedTheme
-      ? enhancePromptWithTheme(prompt, selectedTheme)
-      : prompt;
-
+    // Enhance prompt with selected themes invisibly
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     generateImage(enhancedPrompt);
   };
 
@@ -82,6 +76,10 @@ export function HomePage() {
   const handleSelectFromHistory = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
     setPromptWithoutStats();
+  };
+
+  const handleThemeSelect = (theme: string) => {
+    toggleTheme(theme);
   };
 
   if (isLoading) {
@@ -134,8 +132,8 @@ export function HomePage() {
         {/* Theme Buttons */}
         <div className="mt-4">
           <ThemeButtons
-            onThemeSelect={selectTheme}
-            selectedTheme={selectedTheme || undefined}
+            onThemeSelect={handleThemeSelect}
+            activeThemes={selectedThemes}
           />
         </div>
 
