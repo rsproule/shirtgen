@@ -5,7 +5,7 @@ interface LoadingScreenProps {
 }
 
 export function LoadingScreen({
-  message = "Creating your design... This may take a few seconds.",
+  message = "Creating your design... This may take a minute... enjoy the show!",
 }: LoadingScreenProps) {
   // All loading videos to display
   const loadingVideos = [

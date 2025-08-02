@@ -3,11 +3,15 @@ import { Download } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
+import { useAutoSave } from "@/hooks/useAutoSave";
 import { Header } from "@/components/layout/Header";
 import { Scene3D } from "@/components/3d/Scene3D";
 import { PlacementControls } from "@/components/3d/PlacementControls";
 import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
 import { Shirt3D } from "@/components/Shirt3D";
+import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
+import { SaveButton } from "@/components/ui/SaveButton";
+import { PublishButton } from "@/components/ui/PublishButton";
 import type { ShirtData } from "@/types";
 
 export function ViewPage() {
@@ -20,6 +24,7 @@ export function ViewPage() {
     setTexturePlacement,
     setIsLoading,
   } = useShirtData();
+  const { autoSaveStatus, lastSavedAt } = useAutoSave();
 
   useEffect(() => {
     // Only reset loading when component mounts if we don't have partial data
@@ -77,8 +82,16 @@ export function ViewPage() {
   return (
     <div className="flex h-screen flex-col bg-white">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
-        {/* Header */}
-        <Header showBackButton />
+        {/* Header with Save/Publish buttons */}
+        <div className="relative">
+          <Header showBackButton />
+
+          {/* Save/Publish buttons - Top right */}
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            <SaveButton />
+            <PublishButton />
+          </div>
+        </div>
 
         {/* 3D Scene - Takes remaining space */}
         <div className="min-h-0 flex-1">
@@ -151,6 +164,11 @@ export function ViewPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Auto-save indicator - Bottom right of entire page */}
+      <div className="fixed right-4 bottom-4 z-50">
+        <AutoSaveIndicator status={autoSaveStatus} lastSavedAt={lastSavedAt} />
       </div>
     </div>
   );
