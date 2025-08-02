@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Eye } from "lucide-react";
-import {
-  useShirtHistory,
-  type ShirtHistoryItem,
-} from "@/hooks/useShirtHistory";
+import { useShirtHistory, type ShirtHistoryItem } from "@/hooks/useShirtHistory";
 import { useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
 
@@ -84,7 +81,7 @@ export function ShirtHistory() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {displayHistory.map(item => (
+        {displayHistory.map((item: ShirtHistoryItem) => (
           <div
             key={item.id}
             className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 transition-colors hover:border-gray-300"
