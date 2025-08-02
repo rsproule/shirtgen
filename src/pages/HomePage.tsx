@@ -12,6 +12,8 @@ import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { ThemeButtons } from "@/components/ui/theme-buttons";
+import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 
 export function HomePage() {
   const { isLoading, setIsLoading } = useShirtData();
@@ -22,6 +24,12 @@ export function HomePage() {
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
+  const {
+    selectedThemes,
+    toggleTheme,
+    enhancePromptWithThemes,
+    getThemeSuggestion,
+  } = useThemeSuggestions();
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -51,12 +59,18 @@ export function HomePage() {
     if (prompt.trim().length >= 10) {
       addPromptToHistory(prompt);
     }
-    generateImage(prompt);
+
+    // Enhance prompt with selected themes invisibly
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
+    generateImage(enhancedPrompt);
   };
 
   const handleRetryGeneration = () => {
     setError(null);
-    generateImage(prompt);
+
+    // Enhance prompt with selected themes invisibly
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
+    generateImage(enhancedPrompt);
   };
 
   const handleDismissError = () => {
@@ -67,6 +81,37 @@ export function HomePage() {
     setPrompt(selectedPrompt);
     setPromptWithoutStats();
   };
+
+  const handleThemeSelect = (theme: string) => {
+    toggleTheme(theme);
+  };
+
+  // Create the full prompt that would be sent to the API
+  const createFullPrompt = (userPrompt: string, themes: string[]): string => {
+    if (!userPrompt.trim()) return "";
+
+    // Get the full prompt enhancer strings for selected themes
+    const themeEnhancers = themes
+      .map(themeName => getThemeSuggestion(themeName))
+      .filter(Boolean)
+      .map(theme => theme!.promptEnhancer);
+
+    const styleGuide =
+      themeEnhancers.length > 0
+        ? `Style guide: ${themeEnhancers.join(", ")}`
+        : "";
+
+    const fullPrompt = `Generate an image for: ${userPrompt}.
+     
+${styleGuide}
+
+IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
+      `;
+
+    return fullPrompt;
+  };
+
+  const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
   if (isLoading) {
     return (
@@ -110,10 +155,19 @@ export function HomePage() {
           value={prompt}
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
+          fullPrompt={fullPromptPreview}
         />
 
         {/* Stats Bar */}
         <TypingStats stats={typingStats} promptLength={prompt.length} />
+
+        {/* Theme Buttons */}
+        <div className="mt-4">
+          <ThemeButtons
+            onThemeSelect={handleThemeSelect}
+            activeThemes={selectedThemes}
+          />
+        </div>
 
         {/* Action Buttons */}
         <ActionButtons
