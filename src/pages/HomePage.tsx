@@ -97,7 +97,7 @@ export function HomePage() {
             <img 
               src="/shirtslop.png" 
               alt="ShirtSlop Logo" 
-              className="h-20 w-20 drop-shadow-lg" 
+              className="h-32 w-auto drop-shadow-lg object-contain" 
             />
             <h1 className="text-7xl font-bold text-gray-900 tracking-tight">ShirtSlop</h1>
           </div>
