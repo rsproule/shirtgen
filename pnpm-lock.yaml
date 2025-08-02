@@ -31,6 +31,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      dexie:
+        specifier: ^4.0.11
+        version: 4.0.11
+      dexie-react-hooks:
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react@19.1.9)(dexie@4.0.11)(react@19.1.1)
       lucide-react:
         specifier: ^0.536.0
         version: 0.536.0(react@19.1.1)
@@ -1612,6 +1618,22 @@ packages:
         integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==,
       }
     engines: { node: ">=8" }
+
+  dexie-react-hooks@1.1.7:
+    resolution:
+      {
+        integrity: sha512-Lwv5W0Hk+uOW3kGnsU9GZoR1er1B7WQ5DSdonoNG+focTNeJbHW6vi6nBoX534VKI3/uwHebYzSw1fwY6a7mTw==,
+      }
+    peerDependencies:
+      "@types/react": ">=16"
+      dexie: ^3.2 || ^4.0.1-alpha
+      react: ">=16"
+
+  dexie@4.0.11:
+    resolution:
+      {
+        integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==,
+      }
 
   dompurify@3.2.6:
     resolution:
@@ -4004,6 +4026,14 @@ snapshots:
       webgl-constants: 1.1.1
 
   detect-libc@2.0.4: {}
+
+  dexie-react-hooks@1.1.7(@types/react@19.1.9)(dexie@4.0.11)(react@19.1.1):
+    dependencies:
+      "@types/react": 19.1.9
+      dexie: 4.0.11
+      react: 19.1.1
+
+  dexie@4.0.11: {}
 
   dompurify@3.2.6:
     optionalDependencies:
