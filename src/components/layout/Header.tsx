@@ -8,10 +8,7 @@ interface HeaderProps {
   onBack?: () => void;
 }
 
-export function Header({
-  showBackButton = false,
-  onBack,
-}: HeaderProps) {
+export function Header({ showBackButton = false, onBack }: HeaderProps) {
   const navigate = useNavigate();
 
   const handleBack = () => {
