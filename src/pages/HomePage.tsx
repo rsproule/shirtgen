@@ -71,6 +71,8 @@ export function HomePage() {
     setPromptWithoutStats();
   };
 
+
+
   if (isLoading) {
     return (
       <>
@@ -140,6 +142,8 @@ export function HomePage() {
           onGenerate={handleGenerate}
           promptLength={prompt.length}
         />
+
+
 
         {/* Shirt History */}
         <ShirtHistory />
