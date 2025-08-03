@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { useEcho } from "@zdql/echo-react-sdk";
 import type { ShirtData, TexturePlacement } from "@/types";
 
@@ -29,6 +35,27 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
 
   // Centralize authentication state to prevent multiple useEcho calls
   const { isAuthenticated, isLoading: isAuthLoading, signIn } = useEcho();
+
+  // Prevent navigation/refresh during loading
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isLoading) {
+        event.preventDefault();
+        // Modern browsers require returnValue to be set
+        event.returnValue =
+          "Your design is still generating. Are you sure you want to leave?";
+        return "Your design is still generating. Are you sure you want to leave?";
+      }
+    };
+
+    if (isLoading) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isLoading]);
 
   return (
     <ShirtDataContext.Provider

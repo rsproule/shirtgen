@@ -131,6 +131,27 @@ export function ViewPage() {
     loadTitle();
   }, [shirtData?.imageUrl, shirtData?.prompt, getByHash, isEditingTitle]);
 
+  // Prevent navigation/refresh during progressive generation
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (shirtData?.isPartial) {
+        event.preventDefault();
+        // Modern browsers require returnValue to be set
+        event.returnValue =
+          "Your design is still generating. Are you sure you want to leave?";
+        return "Your design is still generating. Are you sure you want to leave?";
+      }
+    };
+
+    if (shirtData?.isPartial) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [shirtData?.isPartial]);
+
   if (!shirtData) {
     // Show loading while history is still loading
     if (isHistoryLoading) {
