@@ -2,7 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { EchoProvider } from "@zdql/echo-react-sdk";
 import { ShirtDataProvider } from "@/context/ShirtDataContext";
 import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
+import { useEchoErrorToast } from "@/hooks/useEchoErrorToast";
 import { RecoveryPrompt } from "@/components/ui/RecoveryPrompt";
+import { Toast } from "@/components/ui/Toast";
 import { HomePage } from "@/pages/HomePage";
 import { ViewPage } from "@/pages/ViewPage";
 import { Analytics } from "@vercel/analytics/react";
@@ -20,6 +22,8 @@ function AppContent() {
     startFresh,
     dismissRecovery,
   } = useRecoveryPrompt();
+  
+  const { toast, hideToast } = useEchoErrorToast();
 
   return (
     <>
@@ -39,6 +43,14 @@ function AppContent() {
           onDismiss={dismissRecovery}
         />
       )}
+      
+      {/* Echo Error Toast */}
+      <Toast
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+        duration={4000}
+      />
     </>
   );
 }
