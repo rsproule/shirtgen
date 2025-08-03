@@ -119,45 +119,65 @@ class PrintifyService {
   }
 
   async uploadImage(imageBlob: Blob): Promise<PrintifyImage> {
-    // Compress image if it's too large
-    return new Promise(async (resolve, reject) => {
+    // Try uploading with different compression levels
+    const qualityLevels = [1.0, 0.9, 0.75]; // 100%, 90%, 75%
+    
+    for (let i = 0; i < qualityLevels.length; i++) {
+      const quality = qualityLevels[i];
+      
       try {
         let processedBlob = imageBlob;
 
-        // If image is larger than 2MB, compress it
-        if (imageBlob.size > 2 * 1024 * 1024) {
+        // If image is larger than 2MB or not the first attempt, compress it
+        if (imageBlob.size > 2 * 1024 * 1024 || i > 0) {
           console.log(
-            `🗜️ Compressing image from ${(imageBlob.size / 1024 / 1024).toFixed(2)}MB`,
+            `🗜️ Compressing image from ${(imageBlob.size / 1024 / 1024).toFixed(2)}MB at ${(quality * 100)}% quality`,
           );
-          processedBlob = await this.compressImage(imageBlob);
+          processedBlob = await this.compressImage(imageBlob, quality);
           console.log(
             `✅ Compressed to ${(processedBlob.size / 1024 / 1024).toFixed(2)}MB`,
           );
         }
 
-        const reader = new FileReader();
+        const result = await new Promise<PrintifyImage>((resolve, reject) => {
+          const reader = new FileReader();
 
-        reader.onload = async () => {
-          try {
-            const dataUrl = reader.result as string;
-            const result = await this.makeRequest<PrintifyImage>("upload", {
-              imageUrl: dataUrl,
-            });
-            resolve(result);
-          } catch (error) {
-            reject(error);
-          }
-        };
+          reader.onload = async () => {
+            try {
+              const dataUrl = reader.result as string;
+              const uploadResult = await this.makeRequest<PrintifyImage>("upload", {
+                imageUrl: dataUrl,
+              });
+              resolve(uploadResult);
+            } catch (error) {
+              reject(error);
+            }
+          };
 
-        reader.onerror = reject;
-        reader.readAsDataURL(processedBlob);
+          reader.onerror = reject;
+          reader.readAsDataURL(processedBlob);
+        });
+
+        return result; // Success, return the result
+        
       } catch (error) {
-        reject(error);
+        const isLastAttempt = i === qualityLevels.length - 1;
+        const is413Error = error instanceof Error && error.message.includes('413');
+        
+        if (is413Error && !isLastAttempt) {
+          console.log(`⚠️ Upload failed with 413 at ${(quality * 100)}% quality, trying lower quality...`);
+          continue; // Try next quality level
+        } else {
+          // Either not a 413 error, or this was the last attempt
+          throw error;
+        }
       }
-    });
+    }
+    
+    throw new Error("Failed to upload image after trying all compression levels");
   }
 
-  private async compressImage(blob: Blob): Promise<Blob> {
+  private async compressImage(blob: Blob, quality: number = 0.9): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -191,7 +211,7 @@ class PrintifyService {
             }
           },
           "image/jpeg",
-          0.9, // 90% quality
+          quality, // Use passed quality parameter
         );
       };
 
