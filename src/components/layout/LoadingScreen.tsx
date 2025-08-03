@@ -41,7 +41,7 @@ export function LoadingScreen({
   return (
     <div className="relative container mx-auto flex min-h-screen items-center justify-center bg-white p-4">
       {/* Random GIF/Video in top left corner */}
-      <div className="absolute top-32 left-8 z-10 hidden lg:block">
+      <div className="absolute top-8 left-4 z-10 hidden lg:block">
         {randomGif.endsWith(".mp4") ? (
           <video
             autoPlay
@@ -88,7 +88,7 @@ export function LoadingScreen({
               muted
               playsInline
               preload="auto"
-              className={`h-auto w-full max-w-md rounded-none shadow-lg ${
+              className={`h-auto w-full max-w-md max-h-[650px] rounded-none shadow-lg ${
                 videoSrc === "/loading-video-3.mp4"
                   ? "border-1 border-white"
                   : ""
