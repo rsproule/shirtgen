@@ -27,7 +27,6 @@ function PublishModal({
 }: PublishModalProps) {
   if (!isOpen) return null;
 
-
   return (
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
@@ -76,8 +75,9 @@ function PublishModal({
               <h4 className="mb-3 font-medium text-green-900">
                 Product published successfully!
               </h4>
-              <p className="text-sm text-green-700 mb-3">
-                Your shirt is now available on Shopify. Click below to view the product page.
+              <p className="mb-3 text-sm text-green-700">
+                Your shirt is now available on Shopify. Click below to view the
+                product page.
               </p>
             </div>
           )}
@@ -87,12 +87,17 @@ function PublishModal({
           {isPublished && !isPublishing ? (
             <>
               <Button
-                onClick={() => window.open(shopifyUrl || 'https://shirt-slop.myshopify.com', '_blank')}
+                onClick={() =>
+                  window.open(
+                    shopifyUrl || "https://shirt-slop.myshopify.com",
+                    "_blank",
+                  )
+                }
                 className="flex-1 bg-green-600 hover:bg-green-700"
                 size="sm"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                {shopifyUrl ? 'View Product' : 'View Store'}
+                {shopifyUrl ? "View Product" : "View Store"}
               </Button>
               <Button
                 onClick={onClose}
@@ -142,9 +147,12 @@ export function PublishButton() {
       try {
         const imageHash = await generateDataUrlHash(shirtData.imageUrl);
         const publishedProduct = getPublishedProduct(imageHash);
-        
+
         if (publishedProduct) {
-          console.log("📦 Found already published product:", publishedProduct.productName);
+          console.log(
+            "📦 Found already published product:",
+            publishedProduct.productName,
+          );
           setAlreadyPublished({
             shopifyUrl: publishedProduct.shopifyUrl,
             productName: publishedProduct.productName,
@@ -181,17 +189,19 @@ export function PublishButton() {
 
       // Set the Shopify URL if we have the handle
       if (result.product.external?.handle) {
-        const url = printifyService.getShopifyUrl(result.product.external.handle);
+        const url = printifyService.getShopifyUrl(
+          result.product.external.handle,
+        );
         setShopifyUrl(url);
       }
 
       // Update IndexedDB with published product info
       try {
         const existingItems = await db.shirtHistory
-          .where('prompt')
+          .where("prompt")
           .equals(shirtData.prompt)
           .toArray();
-        
+
         if (existingItems.length > 0) {
           // Update existing record
           await db.shirtHistory.update(existingItems[0].id, {
@@ -229,12 +239,17 @@ export function PublishButton() {
   if (alreadyPublished) {
     return (
       <Button
-        onClick={() => window.open(alreadyPublished.shopifyUrl || 'https://shirt-slop.myshopify.com', '_blank')}
+        onClick={() =>
+          window.open(
+            alreadyPublished.shopifyUrl || "https://shirt-slop.myshopify.com",
+            "_blank",
+          )
+        }
         size="sm"
         className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
       >
         <ExternalLink className="h-4 w-4" />
-        {alreadyPublished.shopifyUrl ? 'View Product' : 'View Store'}
+        {alreadyPublished.shopifyUrl ? "View Product" : "View Store"}
       </Button>
     );
   }
