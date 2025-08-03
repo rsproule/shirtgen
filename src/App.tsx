@@ -22,7 +22,7 @@ function AppContent() {
     startFresh,
     dismissRecovery,
   } = useRecoveryPrompt();
-  
+
   const { toast, hideToast } = useEchoErrorToast();
 
   return (
@@ -43,7 +43,7 @@ function AppContent() {
           onDismiss={dismissRecovery}
         />
       )}
-      
+
       {/* Echo Error Toast */}
       <Toast
         message={toast.message}

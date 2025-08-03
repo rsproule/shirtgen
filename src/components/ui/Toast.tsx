@@ -38,17 +38,17 @@ export function Toast({
           : "-translate-x-full opacity-0"
       }`}
     >
-      <div className="max-w-xs rounded-lg border border-border bg-background px-3 py-2 shadow-lg">
+      <div className="border-border bg-background max-w-xs rounded-lg border px-3 py-2 shadow-lg">
         <div className="flex items-center gap-2">
           <div className="flex-1">
-            <p className="text-sm text-foreground">{message}</p>
+            <p className="text-foreground text-sm">{message}</p>
           </div>
           <button
             onClick={() => {
               setIsAnimating(false);
               setTimeout(onClose, 200);
             }}
-            className="flex-shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors"
           >
             <X className="h-3 w-3" />
           </button>
