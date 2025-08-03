@@ -1,11 +1,3 @@
-import { useState, useEffect } from "react";
-import {
-  Share2,
-  ExternalLink,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,9 +9,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useShirtData } from "@/context/ShirtDataContext";
-import { printifyService } from "@/services/printify";
 import { db } from "@/services/db";
 import { generateDataUrlHash, getPublishedProduct } from "@/services/imageHash";
+import { printifyService } from "@/services/printify";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ExternalLink,
+  Loader2,
+  Share2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PublishModalProps {
   isOpen: boolean;
@@ -327,9 +327,7 @@ export function PublishButton() {
         isOpen={showModal}
         onClose={handleCloseModal}
         designName={
-          shirtData?.productName ||
-          shirtData?.prompt?.substring(0, 30) + "..." ||
-          "Untitled Design"
+          shirtData?.prompt?.substring(0, 30) + "..." || "Untitled Design"
         }
         isPublishing={isPublishing}
         error={error}
