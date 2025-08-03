@@ -37,26 +37,59 @@ export function ViewPage() {
     setIsLoading,
   } = useShirtData();
   const { autoSaveStatus, lastSavedAt } = useAutoSave();
-  const { updateExternalIds, getByHash } = useShirtHistory();
+  const { updateExternalIds, getByHash, getLastViewed, setLastViewed, history, isLoading: isHistoryLoading } = useShirtHistory();
 
   useEffect(() => {
-    // Only reset loading when component mounts if we don't have partial data
-    // Let the image generation hook control loading state for partial images
-    if (!shirtData || !shirtData.isPartial) {
-      setIsLoading(false);
-    }
-
-    // Check if data was passed via router state (fallback for direct navigation)
-    if (location.state && !shirtData) {
-      setShirtData(location.state as ShirtData);
-    } else if (!shirtData) {
-      // Fallback to localStorage for backward compatibility
-      const stored = localStorage.getItem("shirtGenData");
-      if (stored) {
-        setShirtData(JSON.parse(stored));
+    const loadShirtData = async () => {
+      // Only reset loading when component mounts if we don't have partial data
+      if (!shirtData || !shirtData.isPartial) {
+        setIsLoading(false);
       }
-    }
-  }, [location.state, shirtData, setShirtData, setIsLoading]);
+
+      // Check if data was passed via router state (highest priority)
+      if (location.state && !shirtData) {
+        const stateData = location.state as ShirtData;
+        setShirtData(stateData);
+        // Track this as last viewed if it has an imageUrl
+        if (stateData.imageUrl) {
+          try {
+            const hash = await generateDataUrlHash(stateData.imageUrl);
+            await setLastViewed(hash);
+          } catch (error) {
+            console.warn("Failed to track last viewed:", error);
+          }
+        }
+        return;
+      }
+
+      // If no shirt data, try to load last viewed
+      if (!shirtData) {
+        try {
+          const lastViewed = await getLastViewed();
+          if (lastViewed) {
+            const shirtDataFromHistory: ShirtData = {
+              prompt: lastViewed.originalPrompt,
+              imageUrl: lastViewed.imageUrl,
+              generatedAt: lastViewed.createdAt,
+              isPartial: false,
+            };
+            setShirtData(shirtDataFromHistory);
+            return;
+          }
+        } catch (error) {
+          console.warn("Failed to load last viewed:", error);
+        }
+
+        // Final fallback to localStorage for backward compatibility
+        const stored = localStorage.getItem("shirtGenData");
+        if (stored) {
+          setShirtData(JSON.parse(stored));
+        }
+      }
+    };
+
+    loadShirtData();
+  }, [location.state, shirtData, setShirtData, setIsLoading, getLastViewed, setLastViewed]);
 
   // Load title from database when shirtData changes (but not when editing)
   useEffect(() => {
@@ -85,21 +118,44 @@ export function ViewPage() {
   }, [shirtData?.imageUrl, shirtData?.prompt, getByHash, isEditingTitle]);
 
   if (!shirtData) {
+    // Show loading while history is still loading
+    if (isHistoryLoading) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-white">
+          <div className="text-center">
+            <p className="text-gray-500">Loading...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    // Only show empty state if no shirts exist in history at all
+    if (history.length === 0) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-white">
+          <div className="text-center">
+            <h2 className="mb-4 text-2xl font-light text-gray-900">
+              No Design Found
+            </h2>
+            <p className="mb-8 text-gray-500">
+              Create your first shirt design to see it here.
+            </p>
+            <Button
+              onClick={() => navigate("/")}
+              className="bg-black px-8 py-3 text-white hover:bg-gray-800"
+            >
+              Create Design
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    
+    // If we have history but no shirt data loaded yet, show loading
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-          <h2 className="mb-4 text-2xl font-light text-gray-900">
-            No Design Found
-          </h2>
-          <p className="mb-8 text-gray-500">
-            Create your first shirt design to see it here.
-          </p>
-          <Button
-            onClick={() => navigate("/")}
-            className="bg-black px-8 py-3 text-white hover:bg-gray-800"
-          >
-            Create Design
-          </Button>
+          <p className="text-gray-500">Loading your last design...</p>
         </div>
       </div>
     );

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../ui/skeleton";
 
 export function ShirtHistory() {
-  const { history, isLoading, clearHistory, removeFromHistory } =
+  const { history, isLoading, clearHistory, removeFromHistory, setLastViewed } =
     useShirtHistory();
   const { setShirtData } = useShirtData();
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export function ShirtHistory() {
 
   const displayHistory = showAll ? history : history.slice(0, 6);
 
-  const handleViewShirt = (item: ShirtHistoryItem) => {
+  const handleViewShirt = async (item: ShirtHistoryItem) => {
     const shirtData = {
       prompt: item.originalPrompt || item.prompt || "",
       imageUrl: item.imageUrl,
@@ -61,6 +61,13 @@ export function ShirtHistory() {
       isPartial: false,
       partialIndex: -1,
     };
+
+    // Track this as the last viewed shirt
+    try {
+      await setLastViewed(item.hash);
+    } catch (error) {
+      console.warn("Failed to track last viewed:", error);
+    }
 
     setShirtData(shirtData);
     navigate("/view");
