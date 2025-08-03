@@ -165,8 +165,9 @@ class PrintifyService {
 
       img.onload = () => {
         // Calculate new dimensions while maintaining aspect ratio
-        const maxWidth = 1024;
-        const maxHeight = 1536;
+        // More aggressive sizing for large files
+        const maxWidth = 800;
+        const maxHeight = 1200;
         let { width, height } = img;
 
         if (width > maxWidth || height > maxHeight) {
@@ -189,8 +190,8 @@ class PrintifyService {
               reject(new Error("Failed to compress image"));
             }
           },
-          "image/png",
-          0.9, // 90% quality
+          "image/jpeg",
+          0.7, // 70% quality for better compression
         );
       };
 
