@@ -81,10 +81,15 @@ function PublishModal({
           const sizeInMB = actualSizeInBytes / (1024 * 1024);
           setFileSizeMB(Math.round(sizeInMB * 100) / 100); // Round to 2 decimal places
 
-          // Calculate compressed size (estimate using gzip compression ratio for images ~20-30%)
-          const compressionRatio = 0.25; // Assume 25% compression for typical PNG/JPEG
-          const compressedSizeInMB = sizeInMB * compressionRatio;
-          setCompressedSizeMB(Math.round(compressedSizeInMB * 100) / 100);
+          // Calculate compressed size if image will be compressed (>2MB)
+          if (sizeInMB > 2) {
+            // Estimate compression based on resize to 1024x1536 max + 90% PNG quality
+            const compressionRatio = 0.3; // Conservative estimate for resize + quality compression
+            const compressedSizeInMB = sizeInMB * compressionRatio;
+            setCompressedSizeMB(Math.round(compressedSizeInMB * 100) / 100);
+          } else {
+            setCompressedSizeMB(null); // No compression for images <2MB
+          }
         }
       } catch (error) {
         console.warn('Failed to calculate file size:', error);
@@ -121,8 +126,10 @@ function PublishModal({
               {fileSizeMB && (
                 <div className="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">
                   <div>Image size: {fileSizeMB} MB</div>
-                  {compressedSizeMB && (
-                    <div>Compressed: ~{compressedSizeMB} MB</div>
+                  {compressedSizeMB ? (
+                    <div>Upload size: ~{compressedSizeMB} MB (resized to 1024x1536 max)</div>
+                  ) : (
+                    <div>Upload size: {fileSizeMB} MB (no resizing needed)</div>
                   )}
                 </div>
               )}
