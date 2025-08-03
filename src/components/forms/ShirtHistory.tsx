@@ -13,7 +13,7 @@ import { Skeleton } from "../ui/skeleton";
 export function ShirtHistory() {
   const { history, isLoading, clearHistory, removeFromHistory } =
     useShirtHistory();
-  const { setShirtData } = useShirtData();
+  const { setShirtData, isAuthenticated } = useShirtData();
   const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
 
@@ -47,6 +47,11 @@ export function ShirtHistory() {
   }
 
   if (history.length === 0) {
+    // Don't show empty history section if user is not authenticated
+    if (!isAuthenticated) {
+      return null;
+    }
+    
     return (
       <div className="mt-12 border-t border-gray-200 pt-8">
         <h2 className="mb-6 text-lg font-medium text-gray-900">
