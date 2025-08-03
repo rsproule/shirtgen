@@ -7,9 +7,9 @@ import {
 import { useShirtData } from "@/context/ShirtDataContext";
 
 const SHIRT_COLORS = [
-  { name: "White", color: "#f8f8f8", description: "Off-white" },
-  { name: "Shadow", color: "#2a2a2a", description: "Charcoal black" },
-  { name: "Oatmeal", color: "#d2b48c", description: "Warm oatmeal" },
+  { name: "White", color: "#f8f9fa", description: "Off-white" },
+  { name: "Shadow", color: "#343a40", description: "Charcoal black" },
+  { name: "Oatmeal", color: "#d4b896", description: "Warm oatmeal" },
   { name: "Cream", color: "#f5f5dc", description: "Warm cream" },
 ];
 
@@ -30,10 +30,10 @@ export function ShirtColorPicker() {
                 <button
                   type="button"
                   onClick={() => handleColorClick(colorOption.color)}
-                  className={`h-8 w-8 rounded transition-all ${
+                  className={`h-8 w-8 rounded border-2 transition-all ${
                     shirtColor === colorOption.color
-                      ? "ring-2 ring-gray-800 ring-offset-1"
-                      : ""
+                      ? "border-foreground ring-2 ring-foreground ring-offset-1"
+                      : "border-border hover:border-muted-foreground"
                   }`}
                   style={{ backgroundColor: colorOption.color }}
                   aria-label={`Select ${colorOption.name} shirt color`}

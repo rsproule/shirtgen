@@ -19,8 +19,8 @@ const FavoriteThemeButton: React.FC<{
         "rounded-lg border px-2 py-1 text-xs font-medium transition-all duration-200",
         "hover:shadow-md",
         isSelected
-          ? "border-blue-300 bg-blue-50 text-gray-700"
-          : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
+          ? "border-primary bg-primary/10 text-foreground"
+          : "border-border bg-background text-foreground hover:border-primary hover:bg-primary/10",
       )}
     >
       <div className="text-center">

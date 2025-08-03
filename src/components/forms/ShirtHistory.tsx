@@ -19,9 +19,9 @@ export function ShirtHistory() {
 
   if (isLoading) {
     return (
-      <div className="mt-12 border-t border-gray-200 pt-8">
+      <div className="mt-12 border-t border-border pt-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900">
+          <h2 className="text-lg font-medium text-foreground">
             Your Recent Designs
           </h2>
           <div className="flex items-center gap-3">
@@ -33,7 +33,7 @@ export function ShirtHistory() {
           {Array.from({ length: 6 }).map((_, i) => (
             <Card
               key={i}
-              className="relative overflow-hidden border border-gray-200 bg-gray-100 shadow-sm"
+              className="relative overflow-hidden border border-border bg-muted shadow-sm"
               style={{ aspectRatio: "1024/1536" }}
             >
               <CardContent className="relative h-full p-0">
@@ -89,9 +89,9 @@ export function ShirtHistory() {
   };
 
   return (
-    <div className="mt-12 border-t border-gray-200 pt-8">
+    <div className="mt-12 border-t border-border pt-8">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-900">
+        <h2 className="text-lg font-medium text-foreground">
           Your Recent Designs
         </h2>
         <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export function ShirtHistory() {
               variant="ghost"
               size="sm"
               onClick={() => setShowAll(!showAll)}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-muted-foreground hover:text-foreground"
             >
               {showAll ? "Show Less" : `Show All ${history.length}`}
             </Button>
@@ -109,7 +109,7 @@ export function ShirtHistory() {
             variant="ghost"
             size="sm"
             onClick={clearHistory}
-            className="text-red-500 hover:text-red-700"
+            className="text-destructive hover:text-destructive/80"
           >
             Clear All
           </Button>
@@ -120,7 +120,7 @@ export function ShirtHistory() {
         {displayHistory.map((item: ShirtHistoryItem) => (
           <Card
             key={item.id}
-            className="group relative cursor-pointer overflow-hidden border border-gray-200 bg-white transition-shadow hover:shadow-md"
+            className="group relative cursor-pointer overflow-hidden border border-border bg-background transition-shadow hover:shadow-md"
             style={{ aspectRatio: "1024/1536" }}
             onClick={() => handleViewShirt(item)}
           >
@@ -142,7 +142,7 @@ export function ShirtHistory() {
                   e.stopPropagation();
                   removeFromHistory(item.hash || item.id || "");
                 }}
-                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-black/20 p-0 text-white transition-all hover:bg-red-500 hover:text-white"
+                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-black/20 p-0 text-white transition-all hover:bg-destructive hover:text-white"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>

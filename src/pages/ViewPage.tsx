@@ -37,7 +37,14 @@ export function ViewPage() {
     setIsLoading,
   } = useShirtData();
   const { autoSaveStatus, lastSavedAt } = useAutoSave();
-  const { updateExternalIds, getByHash, getLastViewed, setLastViewed, history, isLoading: isHistoryLoading } = useShirtHistory();
+  const {
+    updateExternalIds,
+    getByHash,
+    getLastViewed,
+    setLastViewed,
+    history,
+    isLoading: isHistoryLoading,
+  } = useShirtHistory();
 
   useEffect(() => {
     const loadShirtData = async () => {
@@ -89,7 +96,14 @@ export function ViewPage() {
     };
 
     loadShirtData();
-  }, [location.state, shirtData, setShirtData, setIsLoading, getLastViewed, setLastViewed]);
+  }, [
+    location.state,
+    shirtData,
+    setShirtData,
+    setIsLoading,
+    getLastViewed,
+    setLastViewed,
+  ]);
 
   // Load title from database when shirtData changes (but not when editing)
   useEffect(() => {
@@ -121,28 +135,28 @@ export function ViewPage() {
     // Show loading while history is still loading
     if (isHistoryLoading) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="bg-background flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <p className="text-gray-500">Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       );
     }
-    
+
     // Only show empty state if no shirts exist in history at all
     if (history.length === 0) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <h2 className="mb-4 text-2xl font-light text-gray-900">
+            <h2 className="text-foreground mb-4 text-2xl font-light">
               No Design Found
             </h2>
-            <p className="mb-8 text-gray-500">
+            <p className="text-muted-foreground mb-8">
               Create your first shirt design to see it here.
             </p>
             <Button
               onClick={() => navigate("/")}
-              className="bg-black px-8 py-3 text-white hover:bg-gray-800"
+              className="bg-primary text-primary-foreground hover:bg-primary/80 px-8 py-3"
             >
               Create Design
             </Button>
@@ -150,17 +164,16 @@ export function ViewPage() {
         </div>
       );
     }
-    
+
     // If we have history but no shirt data loaded yet, show loading
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Loading your last design...</p>
+          <p className="text-muted-foreground">Loading your last design...</p>
         </div>
       </div>
     );
   }
-
 
   const handleCopyPrompt = async () => {
     try {
@@ -206,7 +219,7 @@ export function ViewPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="bg-background flex h-screen flex-col">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
         {/* Header with Navigation and Publish button */}
         <div className="relative">
@@ -219,7 +232,7 @@ export function ViewPage() {
         </div>
 
         {/* Separate Title Section */}
-        <div className="flex-shrink-0 border-b border-gray-100 bg-white px-2 py-1">
+        <div className="border-border bg-background flex-shrink-0 border-b px-2 py-1">
           <div className="text-center">
             {isEditingTitle ? (
               <div className="mx-auto flex w-full max-w-lg items-center justify-center gap-2">
@@ -233,7 +246,7 @@ export function ViewPage() {
                       handleCancelEdit();
                     }
                   }}
-                  className="h-auto min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-left text-sm font-semibold text-gray-900 shadow-none focus-visible:ring-0"
+                  className="h-auto min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-left text-sm font-semibold text-foreground shadow-none focus-visible:ring-0"
                   maxLength={30}
                   placeholder="Enter design title..."
                   autoFocus
@@ -241,7 +254,7 @@ export function ViewPage() {
                 <button
                   onClick={handleSaveTitle}
                   disabled={isSavingTitle}
-                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-gray-100"
+                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-muted"
                   title="Save"
                 >
                   {isSavingTitle ? (
@@ -253,7 +266,7 @@ export function ViewPage() {
                 <button
                   onClick={handleCancelEdit}
                   disabled={isSavingTitle}
-                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-gray-100"
+                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-muted"
                   title="Cancel"
                 >
                   <X className="h-3 w-3" />
@@ -262,13 +275,13 @@ export function ViewPage() {
             ) : (
               <button
                 onClick={() => setIsEditingTitle(true)}
-                className="group flex w-full items-center gap-2 rounded px-2 py-1 text-left transition-all hover:bg-gray-50"
+                className="group flex w-full items-center gap-2 rounded px-2 py-1 text-left transition-all hover:bg-muted/50"
                 title="Click to edit title"
               >
-                <h1 className="text-sm font-semibold text-gray-900 group-hover:text-gray-700">
+                <h1 className="text-sm font-semibold text-foreground group-hover:text-muted-foreground">
                   {title || "Untitled Design"}
                 </h1>
-                <Edit3 className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+                <Edit3 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
               </button>
             )}
           </div>
@@ -287,7 +300,7 @@ export function ViewPage() {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex-shrink-0 border-t border-gray-200 bg-white p-2 sm:p-4">
+        <div className="border-border bg-background flex-shrink-0 border-t p-2 sm:p-4">
           <div className="mx-auto max-w-4xl">
             {/* User Prompt Display */}
             {shirtData.prompt && (
@@ -297,14 +310,14 @@ export function ViewPage() {
                     <TooltipTrigger asChild>
                       <button
                         onClick={handleCopyPrompt}
-                        className="group max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors hover:bg-gray-100"
+                        className="group max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors hover:bg-muted"
                       >
                         <div className="flex items-center justify-center gap-2">
-                          <p className="max-w-md truncate text-sm text-gray-500 italic group-hover:text-gray-700">
+                          <p className="max-w-md truncate text-sm text-muted-foreground italic group-hover:text-foreground">
                             "{shirtData.prompt}"
                           </p>
                           {copied && (
-                            <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
+                            <Check className="h-4 w-4 flex-shrink-0 text-green-600" />
                           )}
                         </div>
                       </button>
@@ -319,10 +332,10 @@ export function ViewPage() {
                 </TooltipProvider>
                 {shirtData.isPartial && (
                   <div className="mt-3">
-                    <div className="mb-2 text-xs text-gray-600">
+                    <div className="mb-2 text-xs text-muted-foreground">
                       Generating your design...
                     </div>
-                    <div className="mx-auto h-2 w-48 rounded-full bg-gray-200">
+                    <div className="mx-auto h-2 w-48 rounded-full bg-muted">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-300 transition-all duration-500 ease-out"
                         style={{
@@ -330,7 +343,7 @@ export function ViewPage() {
                         }}
                       ></div>
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {shirtData.partialIndex !== undefined
                         ? shirtData.partialIndex + 1
                         : 1}{" "}
