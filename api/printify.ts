@@ -19,8 +19,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const { action } = req.query as { action: string };
-  const PRINTIFY_TOKEN = process.env.VITE_PRINTIFY_TOKEN;
-  const SHOP_ID = process.env.VITE_PRINTIFY_SHOP_ID;
+  const PRINTIFY_TOKEN = process.env.PRINTIFY_TOKEN;
+  const SHOP_ID = process.env.PRINTIFY_SHOP_ID;
 
   if (!PRINTIFY_TOKEN || !SHOP_ID) {
     return res.status(500).json({ error: "Missing Printify credentials" });
