@@ -31,6 +31,7 @@ interface PublishModalProps {
   shopifyUrl?: string;
   isPublished?: boolean;
   onPublish?: (productName: string) => void;
+  imageUrl?: string;
 }
 
 function PublishModal({
@@ -42,9 +43,12 @@ function PublishModal({
   shopifyUrl,
   isPublished,
   onPublish,
+  imageUrl,
 }: PublishModalProps) {
   const [productName, setProductName] = useState("");
   const [hasUserEdited, setHasUserEdited] = useState(false);
+  const [fileSizeMB, setFileSizeMB] = useState<number | null>(null);
+  const [compressedSizeMB, setCompressedSizeMB] = useState<number | null>(null);
 
   // Initialize product name when modal opens, but don't override user edits
   useEffect(() => {
@@ -60,6 +64,38 @@ function PublishModal({
       setProductName("");
     }
   }, [isOpen]);
+
+  // Calculate file size from data URL
+  useEffect(() => {
+    if (imageUrl && imageUrl.startsWith('data:')) {
+      try {
+        // Extract the base64 part after the comma
+        const base64Data = imageUrl.split(',')[1];
+        if (base64Data) {
+          // Calculate size: base64 is ~4/3 the size of the original binary data
+          // Each base64 character represents 6 bits, so 4 chars = 3 bytes
+          const sizeInBytes = (base64Data.length * 3) / 4;
+          // Account for padding characters
+          const padding = (imageUrl.match(/=/g) || []).length;
+          const actualSizeInBytes = sizeInBytes - padding;
+          const sizeInMB = actualSizeInBytes / (1024 * 1024);
+          setFileSizeMB(Math.round(sizeInMB * 100) / 100); // Round to 2 decimal places
+
+          // Calculate compressed size (estimate using gzip compression ratio for images ~20-30%)
+          const compressionRatio = 0.25; // Assume 25% compression for typical PNG/JPEG
+          const compressedSizeInMB = sizeInMB * compressionRatio;
+          setCompressedSizeMB(Math.round(compressedSizeInMB * 100) / 100);
+        }
+      } catch (error) {
+        console.warn('Failed to calculate file size:', error);
+        setFileSizeMB(null);
+        setCompressedSizeMB(null);
+      }
+    } else {
+      setFileSizeMB(null);
+      setCompressedSizeMB(null);
+    }
+  }, [imageUrl]);
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProductName(e.target.value);
@@ -82,6 +118,14 @@ function PublishModal({
         <div className="space-y-4">
           {!isPublishing && !isPublished && !error && (
             <div className="space-y-3">
+              {fileSizeMB && (
+                <div className="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">
+                  <div>Image size: {fileSizeMB} MB</div>
+                  {compressedSizeMB && (
+                    <div>Compressed: ~{compressedSizeMB} MB</div>
+                  )}
+                </div>
+              )}
               <div>
                 <Label htmlFor="productName" className="text-sm font-medium">
                   Product Name
@@ -419,6 +463,7 @@ export function PublishButton() {
         shopifyUrl={shopifyUrl}
         isPublished={isPublished}
         onPublish={handleConfirmPublish}
+        imageUrl={shirtData?.imageUrl}
       />
     </>
   );
