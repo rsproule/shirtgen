@@ -16,9 +16,10 @@ import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
+import { PulsatingButton } from "@/components/magicui/pulsating-button";
 
 export function HomePage() {
-  const { isLoading, setIsLoading, isAuthLoading } = useShirtData();
+  const { isLoading, setIsLoading, isAuthLoading, isAuthenticated, signIn } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
@@ -164,33 +165,52 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
           <PromptHistory onSelectPrompt={handleSelectFromHistory} />
         </div>
 
-        <PromptInput
-          value={prompt}
-          onChange={handleTextChange}
-          onKeyDown={handleKeyDown}
-          fullPrompt={fullPromptPreview}
-          activeThemes={selectedThemes}
-          onThemeRemove={handleThemeSelect}
-        />
+        {/* Chat UI Container - with blur overlay when not authenticated */}
+        <div className="relative">
+          {/* Main Chat UI */}
+          <div className={`${!isAuthenticated ? 'blur-sm pointer-events-none' : ''}`}>
+            <PromptInput
+              value={prompt}
+              onChange={handleTextChange}
+              onKeyDown={handleKeyDown}
+              fullPrompt={fullPromptPreview}
+              activeThemes={selectedThemes}
+              onThemeRemove={handleThemeSelect}
+            />
 
-        {/* Stats Bar */}
-        <TypingStats stats={typingStats} promptLength={prompt.length} />
+            {/* Stats Bar */}
+            <TypingStats stats={typingStats} promptLength={prompt.length} />
 
-        {/* Action Buttons */}
-        <ActionButtons
-          onGenerate={handleGenerate}
-          promptLength={prompt.length}
-        />
+            {/* Action Buttons */}
+            <ActionButtons
+              onGenerate={handleGenerate}
+              promptLength={prompt.length}
+            />
 
-        {/* Theme Buttons */}
-        <div className="mt-4">
-          <ThemeButtons
-            onThemeSelect={handleThemeSelect}
-            activeThemes={selectedThemes}
-          />
+            {/* Theme Buttons */}
+            <div className="mt-4">
+              <ThemeButtons
+                onThemeSelect={handleThemeSelect}
+                activeThemes={selectedThemes}
+              />
+            </div>
+          </div>
+
+          {/* Sign-in overlay for non-authenticated users */}
+          {!isAuthenticated && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <PulsatingButton 
+                onClick={signIn}
+                className="bg-black text-white hover:bg-gray-800"
+                pulseColor="#4a4a4a"
+              >
+                Sign in to create a shirt
+              </PulsatingButton>
+            </div>
+          )}
         </div>
 
-        {/* Shirt History */}
+        {/* Shirt History - always show */}
         <ShirtHistory />
       </div>
 
