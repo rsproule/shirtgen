@@ -96,7 +96,11 @@ export function useImageGeneration(
         let errorMessage =
           "Failed to start image generation. Please try again.";
 
-        const error = apiError as { message?: string };
+        const error = apiError as { 
+          message?: string; 
+          error?: { message?: string }; 
+          status?: number; 
+        };
         if (error?.message?.includes("safety system")) {
           errorMessage =
             "Your request was blocked by content safety filters. Please try a different prompt that doesn't involve potentially harmful content.";
@@ -113,7 +117,7 @@ export function useImageGeneration(
         } else if (error?.status === 429) {
           errorMessage =
             "Rate limit exceeded. Please wait a moment and try again.";
-        } else if (error?.status >= 500) {
+        } else if (error?.status && error.status >= 500) {
           errorMessage = "Server error. Please try again in a few moments.";
         }
 
