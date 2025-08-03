@@ -92,6 +92,8 @@ export function useShirtHistory() {
           // Update legacy timestamp for compatibility
           timestamp: Date.now(),
         });
+        // Set as last viewed
+        localStorage.setItem("last_viewed_shirt", hash);
         return hash;
       }
 
@@ -113,6 +115,9 @@ export function useShirtHistory() {
       };
 
       await db.shirtHistory.put(newItem);
+
+      // Set as last viewed since this is a new shirt
+      localStorage.setItem("last_viewed_shirt", hash);
 
       // Cleanup old items if needed
       const count = await db.shirtHistory.count();

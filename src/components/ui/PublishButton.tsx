@@ -9,10 +9,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { db, ImageLifecycleState } from "@/services/db";
 import { generateDataUrlHash, getPublishedProduct } from "@/services/imageHash";
 import { printifyService } from "@/services/printify";
-import { useShirtHistory } from "@/hooks/useShirtHistory";
 import {
   AlertCircle,
   CheckCircle2,
@@ -176,16 +176,45 @@ function PublishModal({
 
 export function PublishButton() {
   const { shirtData } = useShirtData();
-  const { updateLifecycle, updateExternalIds } = useShirtHistory();
+  const { updateLifecycle, updateExternalIds, getByHash } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string>();
   const [shopifyUrl, setShopifyUrl] = useState<string>();
   const [isPublished, setIsPublished] = useState(false);
+  const [designTitle, setDesignTitle] = useState<string>("");
   const [alreadyPublished, setAlreadyPublished] = useState<{
     shopifyUrl?: string;
     productName: string;
   } | null>(null);
+
+  // Load design title from database
+  useEffect(() => {
+    const loadDesignTitle = async () => {
+      if (!shirtData?.imageUrl) {
+        setDesignTitle("");
+        return;
+      }
+
+      try {
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        const record = await getByHash(imageHash);
+        if (record?.generatedTitle) {
+          setDesignTitle(record.generatedTitle);
+        } else {
+          // Fallback to a truncated prompt if no generated title yet
+          setDesignTitle(
+            shirtData.prompt?.substring(0, 30) || "Untitled Design",
+          );
+        }
+      } catch (error) {
+        console.warn("Failed to load design title:", error);
+        setDesignTitle(shirtData.prompt?.substring(0, 30) || "Untitled Design");
+      }
+    };
+
+    loadDesignTitle();
+  }, [shirtData?.imageUrl, shirtData?.prompt, getByHash]);
 
   // Check if this image is already published when shirtData changes
   useEffect(() => {
@@ -361,9 +390,7 @@ export function PublishButton() {
       <PublishModal
         isOpen={showModal}
         onClose={handleCloseModal}
-        designName={
-          shirtData?.prompt?.substring(0, 30) + "..." || "Untitled Design"
-        }
+        designName={designTitle || "Untitled Design"}
         isPublishing={isPublishing}
         error={error}
         shopifyUrl={shopifyUrl}
