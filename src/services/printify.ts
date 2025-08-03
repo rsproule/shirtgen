@@ -314,7 +314,7 @@ class PrintifyService {
                     id: uploadedImage.id,
                     x: 0.5, // Center horizontally
                     y: 0.5, // Center vertically
-                    scale: 0.6, // Full size (same as bash script)
+                    scale: 0.8, // Full size (same as bash script)
                     angle: 0,
                   },
                 ],
