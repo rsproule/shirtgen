@@ -17,7 +17,7 @@ export function AutoSaveIndicator({ status }: AutoSaveIndicatorProps) {
         return {
           icon: <Loader2 className="h-3 w-3 animate-spin" />,
           text: "Saving...",
-          className: "text-blue-600 bg-blue-50 border-blue-200",
+          className: "text-primary bg-primary/10 border-primary/20",
         };
       case "saved":
         return {
@@ -29,7 +29,7 @@ export function AutoSaveIndicator({ status }: AutoSaveIndicatorProps) {
         return {
           icon: <AlertCircle className="h-3 w-3" />,
           text: "Save failed",
-          className: "text-red-600 bg-red-50 border-red-200",
+          className: "text-destructive bg-destructive/10 border-destructive/20",
         };
       default:
         return null;

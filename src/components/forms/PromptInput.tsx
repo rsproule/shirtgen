@@ -53,7 +53,7 @@ export function PromptInput({
           onChange={onChange}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
-          className="min-h-32 w-full resize-none overflow-hidden rounded-lg border-0 bg-gray-50 p-4 text-base shadow-none transition-shadow duration-200 focus:shadow-[inset_0_4px_12px_rgba(0,0,0,0.3)] focus:ring-0 sm:text-xl"
+          className="min-h-32 w-full resize-none overflow-hidden rounded-lg border-0 bg-muted/50 p-4 text-base shadow-none transition-shadow duration-200 focus:ring-0 sm:text-xl"
           disabled={!isAuthenticated}
         />
 
@@ -66,13 +66,13 @@ export function PromptInput({
                 <button
                   key={theme}
                   onClick={() => onThemeRemove?.(theme)}
-                  className="rounded-lg border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 transition-all duration-200 hover:border-blue-400 hover:bg-blue-100 hover:shadow-md"
+                  className="rounded-lg border border-primary bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-all duration-200 hover:border-primary hover:bg-primary/20 hover:shadow-md"
                 >
                   {theme}
                 </button>
               ))}
               {activeThemes.length > 3 && (
-                <div className="rounded-lg border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+                <div className="rounded-lg border border-primary bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
                   +{activeThemes.length - 3} more
                 </div>
               )}
@@ -80,7 +80,7 @@ export function PromptInput({
 
             {/* Mobile: Show simple +n indicator */}
             <div className="absolute right-3 bottom-3 sm:hidden">
-              <span className="text-xs font-medium text-blue-600">
+              <span className="text-xs font-medium text-primary">
                 +{activeThemes.length}
               </span>
             </div>
@@ -96,14 +96,14 @@ export function PromptInput({
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
                 onClick={() => setShowTooltip(!showTooltip)}
-                className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-800 sm:hidden"
+                className="text-xs font-medium text-primary transition-colors hover:text-primary/80 sm:hidden"
               >
                 +{activeThemes.length}
               </button>
 
               {showTooltip && (
                 <div className="fixed inset-x-4 top-4 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:bottom-8 sm:w-96">
-                  <div className="max-h-64 overflow-y-auto rounded-lg bg-gray-800 p-3 text-xs text-white shadow-xl">
+                  <div className="max-h-64 overflow-y-auto rounded-lg bg-background border p-3 text-xs text-foreground shadow-xl">
                     <div className="mb-2 font-semibold">
                       Full Prompt Preview:
                     </div>
@@ -111,7 +111,7 @@ export function PromptInput({
                       {fullPrompt}
                     </div>
                     {/* Arrow pointing down - only on desktop */}
-                    <div className="absolute right-4 -bottom-1 hidden h-2 w-2 rotate-45 bg-gray-800 sm:block"></div>
+                    <div className="absolute right-4 -bottom-1 hidden h-2 w-2 rotate-45 bg-background border sm:block"></div>
                   </div>
                 </div>
               )}

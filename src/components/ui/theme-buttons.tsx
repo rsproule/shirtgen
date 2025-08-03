@@ -23,8 +23,8 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
         "rounded-lg border px-2 py-1 text-xs font-medium transition-all duration-200",
         "hover:shadow-md",
         isSelected
-          ? "border-blue-300 bg-blue-50 text-gray-700"
-          : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
+          ? "border-primary bg-primary/10 text-foreground"
+          : "border-border bg-background text-foreground hover:border-primary hover:bg-primary/10",
       )}
     >
       <div className="text-center">
@@ -158,12 +158,12 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
             className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex-shrink-0 border-b border-gray-200 bg-white p-4 sm:p-6">
+            <div className="flex-shrink-0 border-b border-border bg-background p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Select Themes</h3>
                 <button
                   onClick={handleCloseModal}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -171,7 +171,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
 
               {/* Error Message in Modal */}
               {favoritesError && (
-                <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                <div className="mt-3 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
                   {favoritesError}
                 </div>
               )}
@@ -187,8 +187,8 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                       "h-14 rounded-lg border p-3 text-left transition-all duration-200",
                       "relative flex flex-col justify-center hover:shadow-md",
                       activeThemes.includes(themeData.theme)
-                        ? "border-blue-300 bg-blue-50 text-gray-700"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary hover:bg-primary/10",
                     )}
                   >
                     <div className="truncate pr-6 text-xs leading-tight font-semibold">

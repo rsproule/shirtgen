@@ -102,8 +102,8 @@ function PublishModal({
           )}
 
           {isPublishing && (
-            <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4">
-              <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+            <div className="flex items-center gap-3 rounded-lg bg-primary/10 p-4">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
               <div>
                 <p className="font-medium">Publishing...</p>
                 <p className="text-muted-foreground text-sm">
@@ -114,11 +114,11 @@ function PublishModal({
           )}
 
           {error && (
-            <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 text-red-600" />
+            <div className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
               <div>
-                <p className="font-medium text-red-900">Publishing Failed</p>
-                <p className="mt-1 text-sm text-red-700">{error}</p>
+                <p className="font-medium text-destructive">Publishing Failed</p>
+                <p className="mt-1 text-sm text-destructive/80">{error}</p>
               </div>
             </div>
           )}
@@ -373,7 +373,7 @@ export function PublishButton() {
         onClick={handleOpenModal}
         disabled={isDisabled}
         size="sm"
-        className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+        className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/80"
       >
         {isPublishing ? (
           <Loader2 className="h-4 w-4 animate-spin" />
