@@ -43,7 +43,6 @@ function PublishModal({
   shopifyUrl,
   isPublished,
   onPublish,
-  imageUrl,
 }: PublishModalProps) {
   const [productName, setProductName] = useState("");
   const [hasUserEdited, setHasUserEdited] = useState(false);
@@ -62,7 +61,6 @@ function PublishModal({
       setProductName("");
     }
   }, [isOpen]);
-
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProductName(e.target.value);
