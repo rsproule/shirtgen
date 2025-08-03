@@ -14,6 +14,7 @@ import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
+import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 
 export function HomePage() {
   const { isLoading, setIsLoading, isAuthLoading } = useShirtData();
@@ -31,6 +32,7 @@ export function HomePage() {
     enhancePromptWithThemes,
     getThemeSuggestion,
   } = useThemeSuggestions();
+  const { addToFavorites } = useFavoriteThemes();
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -62,6 +64,9 @@ export function HomePage() {
       addPromptToHistory(prompt).catch(console.error);
     }
 
+    // Add selected themes to favorites when used
+    selectedThemes.forEach(theme => addToFavorites(theme));
+
     // Enhance prompt with selected themes invisibly
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     generateImage(enhancedPrompt);
@@ -69,6 +74,9 @@ export function HomePage() {
 
   const handleRetryGeneration = () => {
     setError(null);
+
+    // Add selected themes to favorites when used
+    selectedThemes.forEach(theme => addToFavorites(theme));
 
     // Enhance prompt with selected themes invisibly
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
