@@ -6,7 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Download, Check, Edit3, Save, X } from "lucide-react";
+import { Check, Edit3, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
@@ -161,18 +161,6 @@ export function ViewPage() {
     );
   }
 
-  const handleDownload = () => {
-    if (shirtData.imageUrl) {
-      const link = document.createElement("a");
-      link.href = shirtData.imageUrl;
-      link.download = `shirt_design_${Date.now()}.png`;
-      link.click();
-    }
-  };
-
-  const handleNewDesign = () => {
-    navigate("/");
-  };
 
   const handleCopyPrompt = async () => {
     try {
