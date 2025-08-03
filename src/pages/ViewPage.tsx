@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Download, Check, Edit3, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -242,21 +248,31 @@ export function ViewPage() {
             {/* User Prompt Display */}
             {shirtData.prompt && (
               <div className="mb-4 text-center">
-                <button
-                  onClick={handleCopyPrompt}
-                  className="group cursor-pointer rounded-lg px-3 py-2 transition-colors hover:bg-gray-100"
-                  title="Click to copy prompt"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <p className="text-sm text-gray-500 italic group-hover:text-gray-700">
-                      "{shirtData.prompt}"
-                    </p>
-                    {copied && <Check className="h-4 w-4 text-green-500" />}
-                  </div>
-                  <p className="mt-1 text-xs text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
-                    {copied ? "Copied!" : "Click to copy"}
-                  </p>
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={handleCopyPrompt}
+                        className="group max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors hover:bg-gray-100"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <p className="max-w-md truncate text-sm text-gray-500 italic group-hover:text-gray-700">
+                            "{shirtData.prompt}"
+                          </p>
+                          {copied && (
+                            <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
+                          )}
+                        </div>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">"{shirtData.prompt}"</p>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Click to copy
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 {shirtData.isPartial && (
                   <div className="mt-3">
                     <div className="mb-2 text-xs text-gray-600">
