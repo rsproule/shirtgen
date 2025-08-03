@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 
 const FAVORITE_THEMES_KEY = "instashirt_favorite_themes";
-const MAX_FAVORITE_THEMES = 3;
+const MAX_FAVORITE_THEMES = 10;
 
 interface FavoriteTheme {
   theme: string;
@@ -18,7 +18,7 @@ interface FavoriteThemesStorage {
 export function useFavoriteThemes() {
   const [favoriteThemes, setFavoriteThemes] = useState<FavoriteTheme[]>([]);
 
-  // Load favorite themes from localStorage on mount
+  // Load favorite themes from localStorage on mount and listen for changes
   useEffect(() => {
     const loadFavorites = () => {
       try {
@@ -33,6 +33,16 @@ export function useFavoriteThemes() {
     };
 
     loadFavorites();
+
+    // Listen for custom events
+    const handleFavoritesUpdated = (e: CustomEvent) => {
+      setFavoriteThemes(e.detail);
+    };
+
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdated as EventListener);
+    return () => {
+      window.removeEventListener('favoritesUpdated', handleFavoritesUpdated as EventListener);
+    };
   }, []);
 
   // Save favorite themes to localStorage
@@ -45,6 +55,9 @@ export function useFavoriteThemes() {
       };
       localStorage.setItem(FAVORITE_THEMES_KEY, JSON.stringify(storage));
       setFavoriteThemes(themes);
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: themes }));
     } catch (error) {
       console.error("Failed to save favorite themes:", error);
     }
