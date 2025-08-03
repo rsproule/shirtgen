@@ -211,6 +211,39 @@ export function useShirtHistory() {
     }
   };
 
+  const setLastViewed = async (hash: string) => {
+    try {
+      localStorage.setItem("last_viewed_shirt", hash);
+      // Update the viewed timestamp in the database
+      await db.shirtHistory.update(hash, {
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Failed to set last viewed:", error);
+    }
+  };
+
+  const getLastViewed = async (): Promise<ShirtHistoryItem | null> => {
+    try {
+      const lastViewedHash = localStorage.getItem("last_viewed_shirt");
+      if (lastViewedHash) {
+        return await getByHash(lastViewedHash);
+      }
+      
+      // Fallback to most recent shirt if no last viewed is set
+      const recentShirts = await db.shirtHistory
+        .orderBy("updatedAt")
+        .reverse()
+        .limit(1)
+        .toArray();
+      
+      return recentShirts[0] || null;
+    } catch (error) {
+      console.error("Failed to get last viewed:", error);
+      return null;
+    }
+  };
+
   return {
     history: history || [],
     isLoading,
@@ -222,5 +255,8 @@ export function useShirtHistory() {
     updateLifecycle,
     updateExternalIds,
     getByHash,
+    // Last viewed tracking
+    setLastViewed,
+    getLastViewed,
   };
 }
