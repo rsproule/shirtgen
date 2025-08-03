@@ -2,6 +2,9 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import type { ShirtData } from "@/types";
 import { useEchoOpenAI } from "@zdql/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
+import { useNameGeneration } from "@/services/nameGeneration";
+import { generateDataUrlHash } from "@/services/imageHash";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
 
 export function useImageGeneration(
   onShirtComplete?: (shirtData: ShirtData) => void,
@@ -10,6 +13,31 @@ export function useImageGeneration(
   const { openai } = useEchoOpenAI();
   const navigate = useNavigate();
   const { setShirtData, setIsLoading } = useShirtData();
+  const { generateName } = useNameGeneration();
+  const { updateExternalIds } = useShirtHistory();
+
+  // Generate smart title in background and update database
+  const generateSmartTitle = async (prompt: string, imageUrl: string) => {
+    try {
+      console.log("🎯 Generating smart title for:", prompt);
+      
+      // Generate hash to identify the image record
+      const imageHash = await generateDataUrlHash(imageUrl);
+      
+      // Generate the smart title using AI
+      const generatedTitle = await generateName(prompt);
+      console.log("✨ Generated title:", generatedTitle);
+      
+      // Update the database with the generated title
+      await updateExternalIds(imageHash, {
+        generatedTitle: generatedTitle,
+      });
+      
+      console.log("💾 Updated database with generated title");
+    } catch (error) {
+      console.warn("Failed to generate smart title:", error);
+    }
+  };
 
   const handleError = (error: string, originalError?: unknown) => {
     console.error("Image generation error:", originalError || error);
@@ -200,6 +228,9 @@ export function useImageGeneration(
               setShirtData(finalShirtData);
               // Save to history
               onShirtComplete?.(finalShirtData);
+
+              // Generate smart title in background
+              generateSmartTitle(prompt, finalImageUrl);
             }
 
             setIsLoading(false);
@@ -231,6 +262,10 @@ export function useImageGeneration(
 
               setShirtData(finalShirtData);
               onShirtComplete?.(finalShirtData);
+
+              // Generate smart title in background
+              generateSmartTitle(prompt, imageUrl);
+              
               setIsLoading(false);
             }
           }
