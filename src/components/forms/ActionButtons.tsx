@@ -26,10 +26,11 @@ export function ActionButtons({
         onClick={handleGenerate}
         disabled={!isAuthenticated || promptLength < 10}
         disabledAnimation={!isAuthenticated || promptLength < 10}
-        className={`text-white ${
+        pulseColor="var(--primary-light)"
+        className={`text-primary-foreground ${
           !isAuthenticated || promptLength < 10
             ? "bg-muted cursor-not-allowed"
-            : "bg-black"
+            : "bg-primary"
         }`}
       >
         Generate Design
