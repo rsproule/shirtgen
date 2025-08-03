@@ -14,6 +14,12 @@ export function LoadingScreen({
     "/loading-video-3.mp4",
   ];
 
+  // Mobile-only videos (excluding bouncing DVD)
+  const mobileVideos = [
+    "/parkour.mp4",
+    "/subwaysurfers.mp4",
+  ];
+
   // All GIFs and videos to randomize
   const loadingGifs = [
     "/Sad Arrested Development GIF.gif",
@@ -24,10 +30,8 @@ export function LoadingScreen({
     "/Meme_Doy_clases_los_jueves_no_cobro_mucho_Shrek.mp4",
   ];
 
-  // Random video for mobile
-  const [mobileVideo] = useState(() => {
-    return loadingVideos[Math.floor(Math.random() * loadingVideos.length)];
-  });
+  // Random video for mobile - select fresh each time
+  const mobileVideo = mobileVideos[Math.floor(Math.random() * mobileVideos.length)];
 
   // Random GIF to show
   const [randomGif] = useState(() => {
@@ -105,14 +109,14 @@ export function LoadingScreen({
         </div>
 
         {/* Mobile: Show 1 random video */}
-        <div className="flex justify-center lg:hidden">
+        <div className="lg:hidden">
           <video
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            className={`h-auto w-full max-w-sm rounded-none shadow-lg ${
+            className={`h-auto w-full max-h-96 rounded-none ${
               mobileVideo === "/loading-video-3.mp4"
                 ? "border-1 border-white"
                 : ""
