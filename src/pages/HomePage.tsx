@@ -278,8 +278,8 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
             <div className="absolute inset-0 flex items-center justify-center">
               <PulsatingButton
                 onClick={signIn}
-                className="bg-black text-white hover:bg-gray-800"
-                pulseColor="#4a4a4a"
+                className="bg-primary text-primary-foreground hover:bg-primary/80"
+                pulseColor="hsl(var(--muted-foreground))"
               >
                 Sign in to create a shirt
               </PulsatingButton>
