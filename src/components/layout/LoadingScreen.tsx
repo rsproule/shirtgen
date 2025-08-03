@@ -37,7 +37,7 @@ export function LoadingScreen({
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-white p-4 container mx-auto">
       {/* Random GIF/Video in top left corner */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-32 left-4 z-10 hidden md:block">
         {randomGif.endsWith('.mp4') ? (
           <video
             autoPlay
@@ -84,11 +84,7 @@ export function LoadingScreen({
               muted
               playsInline
               preload="auto"
-              className={`h-auto w-full max-w-md rounded-none shadow-lg ${
-                videoSrc === "/loading-video-3.mp4"
-                  ? "border-1 border-white"
-                  : ""
-              }`}
+              className="h-auto w-full max-w-md rounded-none shadow-lg"
               onError={e => {
                 console.error(`Failed to load video: ${videoSrc}`, e);
                 // Hide the video element if it fails to load
@@ -112,11 +108,7 @@ export function LoadingScreen({
             muted
             playsInline
             preload="auto"
-            className={`h-auto w-full max-w-sm rounded-none shadow-lg ${
-              mobileVideo === "/loading-video-3.mp4"
-                ? "border-1 border-white"
-                : ""
-            }`}
+            className="h-auto w-full max-w-sm rounded-none shadow-lg"
             onError={e => {
               console.error(`Failed to load mobile video: ${mobileVideo}`, e);
               // Hide the video element if it fails to load
