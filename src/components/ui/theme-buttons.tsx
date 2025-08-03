@@ -2,7 +2,8 @@ import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
-import { X, Star } from "lucide-react";
+import { X, Star, Palette } from "lucide-react";
+import { Button } from "./button";
 
 interface ThemeButtonProps {
   theme: string;
@@ -98,54 +99,74 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
 
   return (
     <div className="w-full">
-      {/* Scrolling Themes Section */}
-      <div
-        className="relative w-full overflow-hidden"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => setIsHovered(true)}
-        onTouchEnd={() => setIsHovered(false)}
-        onTouchCancel={() => setIsHovered(false)}
-      >
-        <div
-          className={cn(
-            "flex min-w-max gap-1 whitespace-nowrap",
-            "animate-scroll",
-            isHovered && "animate-scroll-paused",
-          )}
+      {/* Mobile: Minimal Button */}
+      <div className="block sm:hidden flex justify-center">
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          variant="outline"
+          size="sm"
+          className="justify-start gap-2"
         >
-          {/* Duplicate many times for infinite loop */}
-          {[
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-            ...themeSuggestions,
-          ].map((themeData, index) => (
-            <ThemeButton
-              key={`${themeData.theme}-${index}`}
-              theme={themeData.theme}
-              description={themeData.description}
-              onClick={handleThemeClick}
-              isSelected={activeThemes.includes(themeData.theme)}
-            />
-          ))}
-        </div>
+          <Palette className="h-4 w-4" />
+          <span>Choose Themes</span>
+          {activeThemes.length > 0 && (
+            <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+              {activeThemes.length}
+            </span>
+          )}
+        </Button>
       </div>
 
-      {/* View Full List Button */}
-      <div className="mt-2 text-left">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="text-xs text-gray-500 underline hover:text-gray-700"
+      {/* Desktop: Scrolling Themes Section */}
+      <div className="hidden sm:block">
+        <div
+          className="relative w-full overflow-hidden"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={() => setIsHovered(true)}
+          onTouchEnd={() => setIsHovered(false)}
+          onTouchCancel={() => setIsHovered(false)}
         >
-          View Full List
-        </button>
+          <div
+            className={cn(
+              "flex min-w-max gap-1 whitespace-nowrap",
+              "animate-scroll",
+              isHovered && "animate-scroll-paused",
+            )}
+          >
+            {/* Duplicate many times for infinite loop */}
+            {[
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+              ...themeSuggestions,
+            ].map((themeData, index) => (
+              <ThemeButton
+                key={`${themeData.theme}-${index}`}
+                theme={themeData.theme}
+                description={themeData.description}
+                onClick={handleThemeClick}
+                isSelected={activeThemes.includes(themeData.theme)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* View Full List Button */}
+        <div className="mt-2 text-left">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="text-xs text-gray-500 underline hover:text-gray-700"
+          >
+            View Full List
+          </button>
+        </div>
       </div>
 
       {/* Modal */}
@@ -197,9 +218,9 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                     <div className="truncate pr-6 text-xs leading-tight text-gray-500">
                       {themeData.description}
                     </div>
-                    <button
+                    <div
                       onClick={e => handleFavoriteToggle(themeData.theme, e)}
-                      className="absolute top-1 right-1 rounded p-1 hover:bg-gray-100"
+                      className="absolute top-1 right-1 rounded p-1 hover:bg-gray-100 cursor-pointer"
                     >
                       <Star
                         className={cn(
@@ -209,7 +230,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                             : "text-gray-400 hover:text-yellow-500",
                         )}
                       />
-                    </button>
+                    </div>
                   </button>
                 ))}
               </div>
