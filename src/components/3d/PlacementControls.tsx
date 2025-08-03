@@ -15,7 +15,7 @@ export function PlacementControls({
       <ToggleGroup
         type="single"
         value={placement}
-        onValueChange={(value) => {
+        onValueChange={value => {
           if (value) onPlacementChange(value as TexturePlacement);
         }}
         variant="outline"
@@ -28,7 +28,10 @@ export function PlacementControls({
         <ToggleGroupItem value="back" className="px-3 py-1 sm:px-4 sm:py-2">
           Back
         </ToggleGroupItem>
-        <ToggleGroupItem value="full-shirt" className="px-3 py-1 sm:px-4 sm:py-2">
+        <ToggleGroupItem
+          value="full-shirt"
+          className="px-3 py-1 sm:px-4 sm:py-2"
+        >
           Full Shirt
         </ToggleGroupItem>
       </ToggleGroup>
