@@ -38,7 +38,7 @@ export function Toast({
           : "-translate-x-full opacity-0"
       }`}
     >
-      <div className="border-border bg-background max-w-xs rounded-lg border px-3 py-2 shadow-lg">
+      <div className="max-w-xs rounded-lg border border-border bg-popover px-3 py-2 shadow-xl">
         <div className="flex items-center gap-2">
           <div className="flex-1">
             <p className="text-foreground text-sm">{message}</p>
