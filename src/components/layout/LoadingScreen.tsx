@@ -33,6 +33,9 @@ export function LoadingScreen({
   // Random video for mobile - select fresh each time
   const mobileVideo = mobileVideos[Math.floor(Math.random() * mobileVideos.length)];
 
+  // Random start time for videos (between 0 and 60 seconds)
+  const randomStartTime = Math.random() * 60;
+
   // Random GIF to show
   const [randomGif] = useState(() => {
     return loadingGifs[Math.floor(Math.random() * loadingGifs.length)];
@@ -93,6 +96,12 @@ export function LoadingScreen({
                   ? "border-1 border-white"
                   : ""
               }`}
+              onLoadedMetadata={e => {
+                // Set random start time for parkour and subway surfers videos
+                if (videoSrc === "/parkour.mp4" || videoSrc === "/subwaysurfers.mp4") {
+                  e.currentTarget.currentTime = randomStartTime;
+                }
+              }}
               onError={e => {
                 console.error(`Failed to load video: ${videoSrc}`, e);
                 // Hide the video element if it fails to load
@@ -121,6 +130,12 @@ export function LoadingScreen({
                 ? "border-1 border-white"
                 : ""
             }`}
+            onLoadedMetadata={e => {
+              // Set random start time for parkour and subway surfers videos
+              if (mobileVideo === "/parkour.mp4" || mobileVideo === "/subwaysurfers.mp4") {
+                e.currentTarget.currentTime = randomStartTime;
+              }
+            }}
             onError={e => {
               console.error(`Failed to load mobile video: ${mobileVideo}`, e);
               // Hide the video element if it fails to load
