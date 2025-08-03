@@ -50,7 +50,7 @@ export function SaveButton() {
             ? "Generating..."
             : "Save"}
       </Button>
-      
+
       <Toast
         message="Design saved to recent designs!"
         isVisible={showToast}

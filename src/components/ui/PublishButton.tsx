@@ -249,7 +249,7 @@ export function PublishButton() {
       // Update IndexedDB with published product info
       try {
         const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-        
+
         // Store the complete published product information
         await db.shirtHistory.put({
           id: imageHash,
@@ -263,7 +263,7 @@ export function PublishButton() {
           isPublished: true,
           publishedAt: new Date().toISOString(),
         });
-        
+
         console.log("💾 Stored published product in database:", {
           productName: confirmedProductName,
           productId: result.product.id,

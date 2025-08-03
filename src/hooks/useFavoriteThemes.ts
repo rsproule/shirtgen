@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 
 const FAVORITE_THEMES_KEY = "instashirt_favorite_themes";
-const MAX_FAVORITE_THEMES = 20;
+const MAX_FAVORITE_THEMES = 3;
 
 interface FavoriteTheme {
   theme: string;
@@ -51,52 +51,65 @@ export function useFavoriteThemes() {
   }, []);
 
   // Add or update a theme in favorites
-  const addToFavorites = useCallback((theme: string) => {
-    const now = new Date().toISOString();
-    const currentFavorites = [...favoriteThemes];
-    
-    const existingIndex = currentFavorites.findIndex(t => t.theme === theme);
-    
-    if (existingIndex >= 0) {
-      // Update existing theme
-      currentFavorites[existingIndex] = {
-        ...currentFavorites[existingIndex],
-        lastUsed: now,
-        useCount: currentFavorites[existingIndex].useCount + 1,
-      };
-    } else {
-      // Add new theme
-      const newTheme: FavoriteTheme = {
-        theme,
-        lastUsed: now,
-        useCount: 1,
-      };
-      currentFavorites.unshift(newTheme);
-    }
+  const addToFavorites = useCallback(
+    (theme: string): boolean => {
+      const now = new Date().toISOString();
+      const currentFavorites = [...favoriteThemes];
 
-    // Sort by last used (newest first)
-    currentFavorites.sort((a, b) => 
-      new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime()
-    );
+      const existingIndex = currentFavorites.findIndex(t => t.theme === theme);
 
-    // Apply size limit
-    if (currentFavorites.length > MAX_FAVORITE_THEMES) {
-      currentFavorites.splice(MAX_FAVORITE_THEMES);
-    }
+      if (existingIndex >= 0) {
+        // Update existing theme
+        currentFavorites[existingIndex] = {
+          ...currentFavorites[existingIndex],
+          lastUsed: now,
+          useCount: currentFavorites[existingIndex].useCount + 1,
+        };
+        saveFavoriteThemes(currentFavorites);
+        return true;
+      } else {
+        // Check if we can add a new theme
+        if (currentFavorites.length >= MAX_FAVORITE_THEMES) {
+          return false; // Cannot add more favorites
+        }
 
-    saveFavoriteThemes(currentFavorites);
-  }, [favoriteThemes, saveFavoriteThemes]);
+        // Add new theme
+        const newTheme: FavoriteTheme = {
+          theme,
+          lastUsed: now,
+          useCount: 1,
+        };
+        currentFavorites.unshift(newTheme);
+
+        // Sort by last used (newest first)
+        currentFavorites.sort(
+          (a, b) =>
+            new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime(),
+        );
+
+        saveFavoriteThemes(currentFavorites);
+        return true;
+      }
+    },
+    [favoriteThemes, saveFavoriteThemes],
+  );
 
   // Remove a theme from favorites
-  const removeFromFavorites = useCallback((theme: string) => {
-    const filteredThemes = favoriteThemes.filter(t => t.theme !== theme);
-    saveFavoriteThemes(filteredThemes);
-  }, [favoriteThemes, saveFavoriteThemes]);
+  const removeFromFavorites = useCallback(
+    (theme: string) => {
+      const filteredThemes = favoriteThemes.filter(t => t.theme !== theme);
+      saveFavoriteThemes(filteredThemes);
+    },
+    [favoriteThemes, saveFavoriteThemes],
+  );
 
   // Check if a theme is in favorites
-  const isFavorite = useCallback((theme: string) => {
-    return favoriteThemes.some(t => t.theme === theme);
-  }, [favoriteThemes]);
+  const isFavorite = useCallback(
+    (theme: string) => {
+      return favoriteThemes.some(t => t.theme === theme);
+    },
+    [favoriteThemes],
+  );
 
   // Get favorite theme names
   const getFavoriteThemeNames = useCallback(() => {
@@ -110,4 +123,4 @@ export function useFavoriteThemes() {
     isFavorite,
     getFavoriteThemeNames,
   };
-} 
+}
