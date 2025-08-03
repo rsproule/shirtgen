@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import { useEffect } from "react";
+import { Download, Check } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useAutoSave } from "@/hooks/useAutoSave";
@@ -17,6 +17,7 @@ import type { ShirtData } from "@/types";
 export function ViewPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [copied, setCopied] = useState(false);
   const {
     shirtData,
     setShirtData,
@@ -79,6 +80,16 @@ export function ViewPage() {
     navigate("/");
   };
 
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(shirtData.prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    } catch (error) {
+      console.error('Failed to copy prompt:', error);
+    }
+  };
+
   return (
     <div className="flex h-screen flex-col bg-white">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
@@ -111,17 +122,40 @@ export function ViewPage() {
             {/* User Prompt Display */}
             {shirtData.prompt && (
               <div className="mb-4 text-center">
-                <p className="text-sm text-gray-500 italic">
-                  "{shirtData.prompt}"
-                </p>
-                {shirtData.isPartial && (
-                  <p className="mt-1 animate-pulse text-xs text-blue-500">
-                    Generating... (
-                    {shirtData.partialIndex !== undefined
-                      ? shirtData.partialIndex + 1
-                      : 1}
-                    /3)
+                <button
+                  onClick={handleCopyPrompt}
+                  className="group cursor-pointer rounded-lg px-3 py-2 transition-colors hover:bg-gray-100"
+                  title="Click to copy prompt"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <p className="text-sm text-gray-500 italic group-hover:text-gray-700">
+                      "{shirtData.prompt}"
+                    </p>
+                    {copied && (
+                      <Check className="h-4 w-4 text-green-500" />
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
+                    {copied ? "Copied!" : "Click to copy"}
                   </p>
+                </button>
+                {shirtData.isPartial && (
+                  <div className="mt-3">
+                    <div className="mb-2 text-xs text-gray-600">
+                      Generating your design...
+                    </div>
+                    <div className="mx-auto h-2 w-48 rounded-full bg-gray-200">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-300 transition-all duration-500 ease-out"
+                        style={{ 
+                          width: `${((shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1) / 3) * 100}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1} of 3
+                    </div>
+                  </div>
                 )}
               </div>
             )}
