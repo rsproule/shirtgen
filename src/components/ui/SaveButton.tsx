@@ -1,4 +1,4 @@
-import { Save, Loader2, Check } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useShirtHistory } from "@/hooks/useShirtHistory";

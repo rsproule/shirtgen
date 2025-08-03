@@ -96,7 +96,7 @@ export function HomePage() {
     const themeEnhancers = themes
       .map(themeName => getThemeSuggestion(themeName))
       .filter(Boolean)
-      .map(theme => theme!.promptEnhancer);
+      .map(theme => theme!.promptEnhancers[0]);
 
     const styleGuide =
       themeEnhancers.length > 0
