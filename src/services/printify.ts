@@ -227,7 +227,7 @@ class PrintifyService {
         title: productName,
         description:
           description ||
-          `Custom AI-generated shirt design: ${prompt}\n\nID: ${identifier}`,
+          `Created on https://shirtslop.com\n\n${prompt.length > 50 ? prompt.substring(0, 50) + "..." : prompt}\n\nID: ${identifier}`,
         blueprint_id: shirtConfig.blueprint_id,
         print_provider_id: shirtConfig.print_provider_id,
         variants: shirtConfig.variants.map(variantId => ({

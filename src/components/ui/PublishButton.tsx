@@ -232,7 +232,7 @@ export function PublishButton() {
     setIsPublished(false);
 
     try {
-      const description = `Custom AI-generated shirt design: ${shirtData.prompt}`;
+      const description = `Created on https://shirtslop.com\n\n${shirtData.prompt.length > 50 ? shirtData.prompt.substring(0, 50) + "..." : shirtData.prompt}`;
 
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
