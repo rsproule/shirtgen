@@ -7,7 +7,7 @@ export function Navbar() {
   const { isAuthenticated, isAuthLoading } = useShirtData();
 
   return (
-    <nav className="border-b border-gray-200">
+    <nav className="border-border border-b">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
         <Branding size="small" />
 
