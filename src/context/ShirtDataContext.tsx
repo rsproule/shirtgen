@@ -25,7 +25,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   const [texturePlacement, setTexturePlacement] =
     useState<TexturePlacement>("front");
   const [isLoading, setIsLoading] = useState(false);
-  const [shirtColor, setShirtColor] = useState("#f8f8f8"); // Off-white default
+  const [shirtColor, setShirtColor] = useState("hsl(var(--shirt-white))"); // Off-white default
 
   // Centralize authentication state to prevent multiple useEcho calls
   const { isAuthenticated, isLoading: isAuthLoading, signIn } = useEcho();

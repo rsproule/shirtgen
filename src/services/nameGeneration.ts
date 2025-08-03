@@ -17,17 +17,19 @@ export function useNameGeneration(): NameGenerationService {
           : prompt.trim();
 
       // Create a concise name generation prompt with strict character limit
-      const namePrompt = `Generate a short, creative product name (MAX 30 characters) for this t-shirt design description: "${prompt}"
+      const namePrompt = `Generate a short, creative product name (MAX 30 characters) for this design: "${prompt}"
 
 Requirements:
 - Maximum 30 characters total
-- 3-5 words max
-- No quotes or extra punctuation
+- 2-4 words max
+- No quotes, punctuation, or branding
+- Focus on the design concept, not the product type
 
 Examples:
-- "Create a dragon breathing fire" → "Dragon Fire Design" (18 chars)
-- "Make a cute cat with sunglasses" → "Cool Cat Vibes" (14 chars)
+- "Create a dragon breathing fire" → "Dragon Fire" (11 chars)
+- "Make a cute cat with sunglasses" → "Cool Cat" (8 chars)
 - "Minimalist geometric pattern" → "Geometric Minimal" (17 chars)
+- "Sunset over mountains" → "Mountain Sunset" (15 chars)
 
 Just return the name, nothing else:`;
 
@@ -97,17 +99,19 @@ export async function generateProductName(
     }
 
     // Create a concise name generation prompt with strict character limit
-    const namePrompt = `Generate a short, creative product name (MAX 30 characters) for this t-shirt design description: "${prompt}"
+    const namePrompt = `Generate a short, creative product name (MAX 30 characters) for this design: "${prompt}"
 
 Requirements:
 - Maximum 30 characters total
-- 3-5 words max
-- No quotes or extra punctuation
+- 2-4 words max
+- No quotes, punctuation, or branding
+- Focus on the design concept, not the product type
 
 Examples:
-- "Create a dragon breathing fire" → "Dragon Fire Design" (18 chars)
-- "Make a cute cat with sunglasses" → "Cool Cat Vibes" (14 chars)
+- "Create a dragon breathing fire" → "Dragon Fire" (11 chars)
+- "Make a cute cat with sunglasses" → "Cool Cat" (8 chars)
 - "Minimalist geometric pattern" → "Geometric Minimal" (17 chars)
+- "Sunset over mountains" → "Mountain Sunset" (15 chars)
 
 Just return the name, nothing else:`;
 
