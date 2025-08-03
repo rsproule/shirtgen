@@ -149,7 +149,7 @@ class PrintifyService {
     // Convert blob directly to base64 without any resizing or compression
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = async () => {
         try {
           const dataUrl = reader.result as string;
@@ -161,7 +161,7 @@ class PrintifyService {
           reject(error);
         }
       };
-      
+
       reader.onerror = reject;
       reader.readAsDataURL(imageBlob);
     });
@@ -235,7 +235,10 @@ class PrintifyService {
       console.log("⬆️ Uploading image to Printify...");
       const uploadedImage = await this.uploadImage(imageBlob);
       console.log("✅ Image uploaded successfully, ID:", uploadedImage.id);
-      console.log("📸 Uploaded image details:", JSON.stringify(uploadedImage, null, 2));
+      console.log(
+        "📸 Uploaded image details:",
+        JSON.stringify(uploadedImage, null, 2),
+      );
 
       // 2. Use working values from script - Unisex Oversized Boxy Tee
       // Should include all the ones between these (inclusive) using an array function
@@ -253,8 +256,8 @@ class PrintifyService {
         description:
           description ||
           `Custom AI-generated shirt design: ${prompt}\n\nID: ${identifier}`,
-        blueprint_id: 1723, 
-        print_provider_id: 74, 
+        blueprint_id: 1723,
+        print_provider_id: 74,
         variants: availableVariantIds.map(variantId => ({
           id: variantId,
           price: price,
@@ -284,7 +287,10 @@ class PrintifyService {
       console.log(
         "📦 Product payload prepared with blueprint 1723 and provider 74",
       );
-      console.log("🖼️ Print areas config:", JSON.stringify(productPayload.print_areas, null, 2));
+      console.log(
+        "🖼️ Print areas config:",
+        JSON.stringify(productPayload.print_areas, null, 2),
+      );
       const product = await this.createProduct(productPayload);
       console.log("✅ Product created successfully, ID:", product.id);
 
