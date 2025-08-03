@@ -96,10 +96,10 @@ export function useImageGeneration(
         let errorMessage =
           "Failed to start image generation. Please try again.";
 
-        const error = apiError as { 
-          message?: string; 
-          error?: { message?: string }; 
-          status?: number; 
+        const error = apiError as {
+          message?: string;
+          error?: { message?: string };
+          status?: number;
         };
         if (error?.message?.includes("safety system")) {
           errorMessage =
