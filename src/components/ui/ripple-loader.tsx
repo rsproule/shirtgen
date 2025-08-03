@@ -1,4 +1,3 @@
-
 export function RippleLoader() {
   return (
     <div className="ripple-loader">
@@ -13,4 +12,4 @@ export function RippleLoader() {
       <div className="cell d-1"></div>
     </div>
   );
-} 
+}

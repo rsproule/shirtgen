@@ -21,7 +21,7 @@ export function ActionButtons({
   };
 
   return (
-    <div className="mt-8 flex justify-end">
+    <div className="mt-8 flex justify-center sm:justify-end">
       <PulsatingButton
         onClick={handleGenerate}
         disabled={!isAuthenticated || promptLength < 10}
@@ -32,11 +32,7 @@ export function ActionButtons({
             : "bg-black"
         }`}
       >
-        {!isAuthenticated
-          ? "Sign In to Generate"
-          : promptLength < 10
-            ? "Enter More Details"
-            : "Generate Design"}
+        Generate Design
       </PulsatingButton>
     </div>
   );
