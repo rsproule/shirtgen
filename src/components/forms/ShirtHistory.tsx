@@ -13,7 +13,7 @@ import { Skeleton } from "../ui/skeleton";
 export function ShirtHistory() {
   const { history, isLoading, clearHistory, removeFromHistory } =
     useShirtHistory();
-  const { setShirtData, isAuthenticated } = useShirtData();
+  const { setShirtData } = useShirtData();
   const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
 
@@ -47,21 +47,7 @@ export function ShirtHistory() {
   }
 
   if (history.length === 0) {
-    // Don't show empty history section if user is not authenticated
-    if (!isAuthenticated) {
-      return null;
-    }
-
-    return (
-      <div className="mt-12 border-t border-gray-200 pt-8">
-        <h2 className="mb-6 text-lg font-medium text-gray-900">
-          Your Recent Designs
-        </h2>
-        <p className="py-8 text-center text-gray-500">
-          No designs yet. Generate your first shirt to see it here!
-        </p>
-      </div>
-    );
+    return null;
   }
 
   const displayHistory = showAll ? history : history.slice(0, 6);
