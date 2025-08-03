@@ -4,5 +4,10 @@
       "source": "/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+).*)",
       "destination": "/"
     }
-  ]
+  ],
+  "functions": {
+    "api/printify.ts": {
+      "maxDuration": 30
+    }
+  }
 }

@@ -5,6 +5,7 @@ import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
 import { RecoveryPrompt } from "@/components/ui/RecoveryPrompt";
 import { HomePage } from "@/pages/HomePage";
 import { ViewPage } from "@/pages/ViewPage";
+import { Analytics } from "@vercel/analytics/react";
 
 const echoConfig = {
   appId: "157aa247-4d72-473c-8e27-6927c602892c",
@@ -47,6 +48,7 @@ function App() {
     <EchoProvider config={echoConfig}>
       <ShirtDataProvider>
         <AppContent />
+        <Analytics />
       </ShirtDataProvider>
     </EchoProvider>
   );
