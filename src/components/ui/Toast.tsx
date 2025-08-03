@@ -8,7 +8,12 @@ interface ToastProps {
   duration?: number;
 }
 
-export function Toast({ message, isVisible, onClose, duration = 1500 }: ToastProps) {
+export function Toast({
+  message,
+  isVisible,
+  onClose,
+  duration = 1500,
+}: ToastProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
@@ -28,10 +33,12 @@ export function Toast({ message, isVisible, onClose, duration = 1500 }: ToastPro
   return (
     <div
       className={`fixed top-20 left-4 z-50 transform transition-all duration-200 ${
-        isAnimating ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
+        isAnimating
+          ? "translate-x-0 opacity-100"
+          : "-translate-x-full opacity-0"
       }`}
     >
-      <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 max-w-xs">
+      <div className="max-w-xs rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg">
         <div className="flex items-center gap-2">
           <div className="flex-1">
             <p className="text-sm text-gray-900">{message}</p>
@@ -41,7 +48,7 @@ export function Toast({ message, isVisible, onClose, duration = 1500 }: ToastPro
               setIsAnimating(false);
               setTimeout(onClose, 200);
             }}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex-shrink-0 text-gray-400 transition-colors hover:text-gray-600"
           >
             <X className="h-3 w-3" />
           </button>
@@ -49,4 +56,4 @@ export function Toast({ message, isVisible, onClose, duration = 1500 }: ToastPro
       </div>
     </div>
   );
-} 
+}

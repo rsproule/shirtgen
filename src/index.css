@@ -52,7 +52,9 @@
     --cell-size: 52px;
     --cell-spacing: 1px;
     --cells: 3;
-    --total-size: calc(var(--cells) * (var(--cell-size) + 2 * var(--cell-spacing)));
+    --total-size: calc(
+      var(--cells) * (var(--cell-size) + 2 * var(--cell-spacing))
+    );
     display: flex;
     flex-wrap: wrap;
     width: var(--total-size);
@@ -85,39 +87,39 @@
   }
 
   .cell:nth-child(1) {
-    --cell-color: #6366F1;
+    --cell-color: #6366f1;
   }
 
   .cell:nth-child(2) {
-    --cell-color: #7C3AED;
+    --cell-color: #7c3aed;
   }
 
   .cell:nth-child(3) {
-    --cell-color: #8B5CF6;
+    --cell-color: #8b5cf6;
   }
 
   .cell:nth-child(4) {
-    --cell-color: #A855F7;
+    --cell-color: #a855f7;
   }
 
   .cell:nth-child(5) {
-    --cell-color: #C084FC;
+    --cell-color: #c084fc;
   }
 
   .cell:nth-child(6) {
-    --cell-color: #D8B4FE;
+    --cell-color: #d8b4fe;
   }
 
   .cell:nth-child(7) {
-    --cell-color: #E9D5FF;
+    --cell-color: #e9d5ff;
   }
 
   .cell:nth-child(8) {
-    --cell-color: #F3E8FF;
+    --cell-color: #f3e8ff;
   }
 
   .cell:nth-child(9) {
-    --cell-color: #FAF5FF;
+    --cell-color: #faf5ff;
   }
 
   /*Animation*/

@@ -86,7 +86,7 @@ export function ViewPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (error) {
-      console.error('Failed to copy prompt:', error);
+      console.error("Failed to copy prompt:", error);
     }
   };
 
@@ -131,9 +131,7 @@ export function ViewPage() {
                     <p className="text-sm text-gray-500 italic group-hover:text-gray-700">
                       "{shirtData.prompt}"
                     </p>
-                    {copied && (
-                      <Check className="h-4 w-4 text-green-500" />
-                    )}
+                    {copied && <Check className="h-4 w-4 text-green-500" />}
                   </div>
                   <p className="mt-1 text-xs text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
                     {copied ? "Copied!" : "Click to copy"}
@@ -145,15 +143,18 @@ export function ViewPage() {
                       Generating your design...
                     </div>
                     <div className="mx-auto h-2 w-48 rounded-full bg-gray-200">
-                      <div 
+                      <div
                         className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-300 transition-all duration-500 ease-out"
-                        style={{ 
-                          width: `${((shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1) / 3) * 100}%` 
+                        style={{
+                          width: `${((shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1) / 3) * 100}%`,
                         }}
                       ></div>
                     </div>
                     <div className="mt-1 text-xs text-gray-500">
-                      {shirtData.partialIndex !== undefined ? shirtData.partialIndex + 1 : 1} of 3
+                      {shirtData.partialIndex !== undefined
+                        ? shirtData.partialIndex + 1
+                        : 1}{" "}
+                      of 3
                     </div>
                   </div>
                 )}
