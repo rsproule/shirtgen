@@ -1,73 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Share2, ExternalLink, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { printifyService } from "@/services/printify";
-
-interface PrintifyVariant {
-  id: number;
-  title: string;
-  price: number;
-  options: number[];
-  external?: {
-    id: string;
-  };
-}
-
-interface PrintifyOption {
-  name: string;
-  type: string;
-  values: Array<{
-    id: number;
-    title: string;
-    colors?: string[];
-  }>;
-}
+import { db } from "@/services/db";
+import { generateDataUrlHash, getPublishedProduct } from "@/services/imageHash";
 
 interface PublishModalProps {
   isOpen: boolean;
   onClose: () => void;
   designName: string;
-  variants?: PrintifyVariant[];
-  options?: PrintifyOption[];
   isPublishing?: boolean;
   error?: string;
   shopifyUrl?: string;
+  isPublished?: boolean;
 }
 
 function PublishModal({
   isOpen,
   onClose,
   designName,
-  variants,
-  options,
   isPublishing,
   error,
   shopifyUrl,
+  isPublished,
 }: PublishModalProps) {
-  const [selectedColor, setSelectedColor] = useState<number | null>(null);
-  const [selectedSize, setSelectedSize] = useState<number | null>(null);
-
   if (!isOpen) return null;
 
-  const colorOptions = options?.find(opt => opt.type === "color")?.values || [];
-  const sizeOptions = options?.find(opt => opt.type === "size")?.values || [];
-
-  const getSelectedVariant = () => {
-    if (!selectedColor || !selectedSize || !variants) return null;
-    return variants.find(
-      v =>
-        v.options.includes(selectedColor) && v.options.includes(selectedSize),
-    );
-  };
-
-  const handleBuyNow = () => {
-    const variant = getSelectedVariant();
-    if (!variant?.external?.id) return;
-
-    const checkoutUrl = `https://shirt-slop.myshopify.com/cart/${variant.external.id}:1?checkout`;
-    window.open(checkoutUrl, "_blank");
-  };
 
   return (
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -112,7 +71,7 @@ function PublishModal({
             </div>
           )}
 
-          {variants && options && !isPublishing && (
+          {isPublished && !isPublishing && (
             <div className="rounded-lg border bg-green-50 p-4">
               <h4 className="mb-3 font-medium text-green-900">
                 Product published successfully!
@@ -125,7 +84,7 @@ function PublishModal({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          {variants && options && !isPublishing ? (
+          {isPublished && !isPublishing ? (
             <>
               <Button
                 onClick={() => window.open(shopifyUrl || 'https://shirt-slop.myshopify.com', '_blank')}
@@ -164,10 +123,43 @@ export function PublishButton() {
   const { shirtData } = useShirtData();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [variants, setVariants] = useState<PrintifyVariant[]>();
-  const [options, setOptions] = useState<PrintifyOption[]>();
   const [error, setError] = useState<string>();
   const [shopifyUrl, setShopifyUrl] = useState<string>();
+  const [isPublished, setIsPublished] = useState(false);
+  const [alreadyPublished, setAlreadyPublished] = useState<{
+    shopifyUrl?: string;
+    productName: string;
+  } | null>(null);
+
+  // Check if this image is already published when shirtData changes
+  useEffect(() => {
+    const checkPublishedStatus = async () => {
+      if (!shirtData?.imageUrl) {
+        setAlreadyPublished(null);
+        return;
+      }
+
+      try {
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        const publishedProduct = getPublishedProduct(imageHash);
+        
+        if (publishedProduct) {
+          console.log("📦 Found already published product:", publishedProduct.productName);
+          setAlreadyPublished({
+            shopifyUrl: publishedProduct.shopifyUrl,
+            productName: publishedProduct.productName,
+          });
+        } else {
+          setAlreadyPublished(null);
+        }
+      } catch (error) {
+        console.warn("Failed to check published status:", error);
+        setAlreadyPublished(null);
+      }
+    };
+
+    checkPublishedStatus();
+  }, [shirtData?.imageUrl]);
 
   const handlePublish = async () => {
     if (!shirtData?.imageUrl || !shirtData?.prompt) return;
@@ -175,28 +167,44 @@ export function PublishButton() {
     setShowModal(true);
     setIsPublishing(true);
     setError(undefined);
-    setVariants(undefined);
-    setOptions(undefined);
     setShopifyUrl(undefined);
+    setIsPublished(false);
 
     try {
-      const title = shirtData.prompt.substring(0, 50);
       const description = `Custom AI-generated shirt design: ${shirtData.prompt}`;
 
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
-        title,
+        shirtData.prompt, // Pass the full prompt for LLM name generation
         description,
       );
 
-      setVariants(result.variants);
-      setOptions(result.options);
-      
       // Set the Shopify URL if we have the handle
       if (result.product.external?.handle) {
         const url = printifyService.getShopifyUrl(result.product.external.handle);
         setShopifyUrl(url);
       }
+
+      // Update IndexedDB with published product info
+      try {
+        const existingItems = await db.shirtHistory
+          .where('prompt')
+          .equals(shirtData.prompt)
+          .toArray();
+        
+        if (existingItems.length > 0) {
+          // Update existing record
+          await db.shirtHistory.update(existingItems[0].id, {
+            imageUrl: shirtData.imageUrl,
+            // Add any other fields we want to track for published products
+          });
+          console.log("💾 Updated shirt history with published product");
+        }
+      } catch (dbError) {
+        console.warn("Failed to update database:", dbError);
+      }
+
+      setIsPublished(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to publish shirt");
     } finally {
@@ -207,9 +215,8 @@ export function PublishButton() {
   const handleCloseModal = () => {
     setShowModal(false);
     setError(undefined);
-    setVariants(undefined);
-    setOptions(undefined);
     setShopifyUrl(undefined);
+    setIsPublished(false);
   };
 
   const isDisabled =
@@ -217,6 +224,20 @@ export function PublishButton() {
     !shirtData?.prompt ||
     shirtData?.isPartial !== false ||
     isPublishing;
+
+  // If already published, show store link button
+  if (alreadyPublished) {
+    return (
+      <Button
+        onClick={() => window.open(alreadyPublished.shopifyUrl || 'https://shirt-slop.myshopify.com', '_blank')}
+        size="sm"
+        className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+      >
+        <ExternalLink className="h-4 w-4" />
+        {alreadyPublished.shopifyUrl ? 'View Product' : 'View Store'}
+      </Button>
+    );
+  }
 
   return (
     <>
@@ -244,11 +265,10 @@ export function PublishButton() {
         designName={
           shirtData?.prompt?.substring(0, 30) + "..." || "Untitled Design"
         }
-        variants={variants}
-        options={options}
         isPublishing={isPublishing}
         error={error}
         shopifyUrl={shopifyUrl}
+        isPublished={isPublished}
       />
     </>
   );
