@@ -69,6 +69,15 @@ export function EchoStyleWrapper({ children }: EchoStyleWrapperProps) {
             margin: 0 !important;
             text-align: center !important;
           }
+          
+          /* Hide default Echo error displays */
+          .echo-wrapper .echo-error,
+          .echo-wrapper [class*="error"],
+          .echo-wrapper [style*="background: red"],
+          .echo-wrapper [style*="background-color: red"],
+          .echo-wrapper [style*="color: red"] {
+            display: none !important;
+          }
         `}
       </style>
       {children}

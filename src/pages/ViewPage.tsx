@@ -131,11 +131,32 @@ export function ViewPage() {
     loadTitle();
   }, [shirtData?.imageUrl, shirtData?.prompt, getByHash, isEditingTitle]);
 
+  // Prevent navigation/refresh during progressive generation
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (shirtData?.isPartial) {
+        event.preventDefault();
+        // Modern browsers require returnValue to be set
+        event.returnValue =
+          "Your design is still generating. Are you sure you want to leave?";
+        return "Your design is still generating. Are you sure you want to leave?";
+      }
+    };
+
+    if (shirtData?.isPartial) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [shirtData?.isPartial]);
+
   if (!shirtData) {
     // Show loading while history is still loading
     if (isHistoryLoading) {
       return (
-        <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="bg-background flex min-h-svh items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground">Loading...</p>
           </div>
@@ -146,7 +167,7 @@ export function ViewPage() {
     // Only show empty state if no shirts exist in history at all
     if (history.length === 0) {
       return (
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="flex min-h-svh items-center justify-center">
           <div className="text-center">
             <h2 className="text-foreground mb-4 text-2xl font-light">
               No Design Found
@@ -167,7 +188,7 @@ export function ViewPage() {
 
     // If we have history but no shirt data loaded yet, show loading
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="bg-background flex min-h-svh items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Loading your last design...</p>
         </div>
@@ -219,7 +240,7 @@ export function ViewPage() {
   };
 
   return (
-    <div className="bg-background flex h-screen flex-col">
+    <div className="bg-background flex h-svh flex-col">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
         {/* Header with Navigation and Publish button */}
         <div className="relative">
