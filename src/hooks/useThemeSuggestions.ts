@@ -392,8 +392,13 @@ const themeSuggestions: ThemeSuggestion[] = [
 export function useThemeSuggestions() {
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
 
+  // Sort themes alphabetically
+  const sortedThemeSuggestions = [...themeSuggestions].sort((a, b) => 
+    a.theme.localeCompare(b.theme)
+  );
+
   const getThemeSuggestion = (theme: string): ThemeSuggestion | undefined => {
-    return themeSuggestions.find(t => t.theme === theme);
+    return sortedThemeSuggestions.find(t => t.theme === theme);
   };
 
   const enhancePromptWithThemes = (
@@ -444,6 +449,6 @@ export function useThemeSuggestions() {
     enhancePromptWithThemes,
     getRandomThemeExample,
     getThemeSuggestion,
-    themeSuggestions,
+    themeSuggestions: sortedThemeSuggestions,
   };
 }
