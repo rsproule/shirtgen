@@ -9,7 +9,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useShirtData } from "@/context/ShirtDataContext";
-import { db } from "@/services/db";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { db, ImageLifecycleState } from "@/services/db";
 import { generateDataUrlHash, getPublishedProduct } from "@/services/imageHash";
 import { printifyService } from "@/services/printify";
 import {
@@ -101,8 +102,8 @@ function PublishModal({
           )}
 
           {isPublishing && (
-            <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4">
-              <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+            <div className="bg-primary/10 flex items-center gap-3 rounded-lg p-4">
+              <Loader2 className="text-primary h-5 w-5 animate-spin" />
               <div>
                 <p className="font-medium">Publishing...</p>
                 <p className="text-muted-foreground text-sm">
@@ -113,11 +114,13 @@ function PublishModal({
           )}
 
           {error && (
-            <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 text-red-600" />
+            <div className="border-destructive/20 bg-destructive/10 flex items-start gap-3 rounded-lg border p-4">
+              <AlertCircle className="text-destructive mt-0.5 h-5 w-5" />
               <div>
-                <p className="font-medium text-red-900">Publishing Failed</p>
-                <p className="mt-1 text-sm text-red-700">{error}</p>
+                <p className="text-destructive font-medium">
+                  Publishing Failed
+                </p>
+                <p className="text-destructive/80 mt-1 text-sm">{error}</p>
               </div>
             </div>
           )}
@@ -175,15 +178,45 @@ function PublishModal({
 
 export function PublishButton() {
   const { shirtData } = useShirtData();
+  const { updateLifecycle, updateExternalIds, getByHash } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string>();
   const [shopifyUrl, setShopifyUrl] = useState<string>();
   const [isPublished, setIsPublished] = useState(false);
+  const [designTitle, setDesignTitle] = useState<string>("");
   const [alreadyPublished, setAlreadyPublished] = useState<{
     shopifyUrl?: string;
     productName: string;
   } | null>(null);
+
+  // Load design title from database
+  useEffect(() => {
+    const loadDesignTitle = async () => {
+      if (!shirtData?.imageUrl) {
+        setDesignTitle("");
+        return;
+      }
+
+      try {
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        const record = await getByHash(imageHash);
+        if (record?.generatedTitle) {
+          setDesignTitle(record.generatedTitle);
+        } else {
+          // Fallback to a truncated prompt if no generated title yet
+          setDesignTitle(
+            shirtData.prompt?.substring(0, 30) || "Untitled Design",
+          );
+        }
+      } catch (error) {
+        console.warn("Failed to load design title:", error);
+        setDesignTitle(shirtData.prompt?.substring(0, 30) || "Untitled Design");
+      }
+    };
+
+    loadDesignTitle();
+  }, [shirtData?.imageUrl, shirtData?.prompt, getByHash]);
 
   // Check if this image is already published when shirtData changes
   useEffect(() => {
@@ -232,7 +265,15 @@ export function PublishButton() {
     setIsPublished(false);
 
     try {
+      const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+
+      // Update lifecycle to UPLOADING
+      await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
+
       const description = `Created on https://shirtslop.com\n\n${shirtData.prompt.length > 50 ? shirtData.prompt.substring(0, 50) + "..." : shirtData.prompt}`;
+
+      // Update lifecycle to PUBLISHING before creating product
+      await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHING);
 
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
@@ -246,36 +287,51 @@ export function PublishButton() {
         setShopifyUrl(result.product.external.handle);
       }
 
-      // Update IndexedDB with published product info
+      // Update database with published product info using new hash-based system
       try {
-        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-
-        // Store the complete published product information
-        await db.shirtHistory.put({
-          id: imageHash,
-          prompt: shirtData.prompt,
-          imageUrl: shirtData.imageUrl,
-          generatedAt: new Date().toISOString(),
-          timestamp: Date.now(),
-          productName: confirmedProductName,
+        await updateExternalIds(imageHash, {
+          generatedTitle: confirmedProductName,
           printifyProductId: result.product.id,
           shopifyUrl: result.product.external?.handle,
-          isPublished: true,
+        });
+
+        // Update lifecycle to PUBLISHED
+        await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHED);
+
+        // Update publishedAt timestamp
+        await db.shirtHistory.update(imageHash, {
           publishedAt: new Date().toISOString(),
         });
 
-        console.log("💾 Stored published product in database:", {
+        console.log("💾 Updated published product in database:", {
+          hash: imageHash,
           productName: confirmedProductName,
           productId: result.product.id,
           shopifyUrl: result.product.external?.handle,
+          lifecycle: ImageLifecycleState.PUBLISHED,
         });
       } catch (dbError) {
         console.warn("Failed to update database:", dbError);
+        // Set lifecycle to FAILED if database update fails
+        await updateLifecycle(imageHash, ImageLifecycleState.FAILED);
       }
 
       setIsPublished(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to publish shirt");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to publish shirt";
+      setError(errorMessage);
+
+      // Update lifecycle to FAILED on publish error
+      try {
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        await updateLifecycle(imageHash, ImageLifecycleState.FAILED);
+        await db.shirtHistory.update(imageHash, {
+          publishError: errorMessage,
+        });
+      } catch (updateError) {
+        console.warn("Failed to update error state:", updateError);
+      }
     } finally {
       setIsPublishing(false);
     }
@@ -305,10 +361,10 @@ export function PublishButton() {
           )
         }
         size="sm"
-        className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+        className="bg-primary text-primary-foreground hover:bg-primary/80 flex items-center gap-2"
       >
         <ExternalLink className="h-4 w-4" />
-        {alreadyPublished.shopifyUrl ? "View Product" : "View Store"}
+        Go to Store
       </Button>
     );
   }
@@ -319,7 +375,7 @@ export function PublishButton() {
         onClick={handleOpenModal}
         disabled={isDisabled}
         size="sm"
-        className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+        className="bg-primary text-primary-foreground hover:bg-primary/80 flex items-center gap-2"
       >
         {isPublishing ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -336,9 +392,7 @@ export function PublishButton() {
       <PublishModal
         isOpen={showModal}
         onClose={handleCloseModal}
-        designName={
-          shirtData?.prompt?.substring(0, 30) + "..." || "Untitled Design"
-        }
+        designName={designTitle || "Untitled Design"}
         isPublishing={isPublishing}
         error={error}
         shopifyUrl={shopifyUrl}
