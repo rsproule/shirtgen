@@ -1,5 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+// Configure body parser for larger payloads
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
   res.setHeader("Access-Control-Allow-Credentials", "true");

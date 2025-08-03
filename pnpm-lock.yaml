@@ -25,6 +25,9 @@ importers:
       "@react-three/fiber":
         specifier: ^9.3.0
         version: 9.3.0(@types/react@19.1.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.179.0)
+      "@vercel/analytics":
+        specifier: ^1.5.0
+        version: 1.5.0(react@19.1.1)
       "@vercel/node":
         specifier: ^5.3.10
         version: 5.3.10(rollup@4.46.2)
@@ -1638,6 +1641,35 @@ packages:
       }
     peerDependencies:
       react: ">= 16.8.0"
+
+  "@vercel/analytics@1.5.0":
+    resolution:
+      {
+        integrity: sha512-MYsBzfPki4gthY5HnYN7jgInhAZ7Ac1cYDoRWFomwGHWEX7odTEzbtg9kf/QSo7XEsEAqlQugA6gJ2WS2DEa3g==,
+      }
+    peerDependencies:
+      "@remix-run/react": ^2
+      "@sveltejs/kit": ^1 || ^2
+      next: ">= 13"
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: ">= 4"
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      "@remix-run/react":
+        optional: true
+      "@sveltejs/kit":
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
 
   "@vercel/build-utils@11.0.0":
     resolution:
@@ -5194,6 +5226,10 @@ snapshots:
   "@use-gesture/react@10.3.1(react@19.1.1)":
     dependencies:
       "@use-gesture/core": 10.3.1
+      react: 19.1.1
+
+  "@vercel/analytics@1.5.0(react@19.1.1)":
+    optionalDependencies:
       react: 19.1.1
 
   "@vercel/build-utils@11.0.0": {}
