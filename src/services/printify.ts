@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { generateImageHash } from "./imageHash";
-import { createProductIdentifier, generateProductName } from "./nameGeneration";
+import { createProductIdentifier } from "./nameGeneration";
 
 // Shirt configuration presets
 interface ShirtConfig {
@@ -90,56 +90,9 @@ interface CreateProductPayload {
 }
 
 class PrintifyService {
-  private readonly token: string;
-  private readonly shopId: string;
-  private readonly shopifyStore: string;
-
   constructor() {
-    this.token = import.meta.env.VITE_PRINTIFY_TOKEN;
-    this.shopId = import.meta.env.VITE_PRINTIFY_SHOP_ID;
-    this.shopifyStore = import.meta.env.VITE_SHOPIFY_STORE;
-
-    if (!this.token) {
-      throw new Error("VITE_PRINTIFY_TOKEN environment variable is required");
-    }
-    if (!this.shopId) {
-      throw new Error("VITE_PRINTIFY_SHOP_ID environment variable is required");
-    }
-    if (!this.shopifyStore) {
-      throw new Error("VITE_SHOPIFY_STORE environment variable is required");
-    }
-  }
-
-  private async generateAndStoreProductName(
-    prompt: string,
-    imageHash: string,
-    imageUrl: string,
-  ): Promise<string> {
-    try {
-      console.log("🤖 Generating product name with LLM...");
-      const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      const productName = await generateProductName(prompt, openaiApiKey);
-      console.log("✅ Generated product name:", productName);
-
-      // Store in IndexedDB using image hash as ID
-      await db.shirtHistory.put({
-        id: imageHash,
-        prompt,
-        imageUrl,
-        generatedAt: new Date().toISOString(),
-        timestamp: Date.now(),
-        productName,
-        isPublished: false,
-      });
-
-      console.log("💾 Stored product info in IndexedDB with hash:", imageHash);
-      return productName;
-    } catch (error) {
-      console.warn("Failed to generate/store product name:", error);
-      return prompt.length > 30
-        ? prompt.substring(0, 30).trim() + "..."
-        : prompt.trim();
-    }
+    // All API calls go through our server-side /api/printify endpoint
+    // No need for credentials on the client-side
   }
 
   private async makeRequest<T>(
@@ -211,6 +164,7 @@ class PrintifyService {
   async createShirtFromDesign(
     imageUrl: string,
     prompt: string,
+    productName: string,
     description: string = "",
     price: number = 3500, // $35.00 in cents
   ): Promise<{
@@ -240,13 +194,18 @@ class PrintifyService {
       const imageHash = await generateImageHash(imageBlob);
       console.log("🔑 Generated image hash:", imageHash);
 
-      // Generate a marketable product name using LLM
-      const productName = await this.generateAndStoreProductName(
+      // Store product info in IndexedDB
+      await db.shirtHistory.put({
+        id: imageHash,
         prompt,
-        imageHash,
         imageUrl,
-      );
-      console.log("🏷️ Generated product name:", productName);
+        generatedAt: new Date().toISOString(),
+        timestamp: Date.now(),
+        productName,
+        isPublished: false,
+      });
+      console.log("💾 Stored product info in IndexedDB with hash:", imageHash);
+      console.log("🏷️ Using product name:", productName);
 
       console.log("⬆️ Uploading image to Printify...");
       const uploadedImage = await this.uploadImage(imageBlob);
