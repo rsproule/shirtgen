@@ -13,6 +13,7 @@ import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ShirtHistory } from "@/components/forms/ShirtHistory";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
+import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 
@@ -152,8 +153,14 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
       {/* Main Input Area */}
       <div className="mx-auto mt-8 w-full max-w-7xl px-8">
-        {/* History Button - Top Right */}
-        <div className="mb-1 flex justify-end">
+        {/* Top Section */}
+        <div className="mb-1 flex justify-between items-start">
+          {/* Favorites Display - Top Left */}
+          <FavoritesDisplay
+            onThemeSelect={handleThemeSelect}
+            activeThemes={selectedThemes}
+          />
+          {/* History Button - Top Right */}
           <PromptHistory onSelectPrompt={handleSelectFromHistory} />
         </div>
 
@@ -162,10 +169,18 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
           onChange={handleTextChange}
           onKeyDown={handleKeyDown}
           fullPrompt={fullPromptPreview}
+          activeThemes={selectedThemes}
+          onThemeRemove={handleThemeSelect}
         />
 
         {/* Stats Bar */}
         <TypingStats stats={typingStats} promptLength={prompt.length} />
+
+        {/* Action Buttons */}
+        <ActionButtons
+          onGenerate={handleGenerate}
+          promptLength={prompt.length}
+        />
 
         {/* Theme Buttons */}
         <div className="mt-4">
@@ -174,12 +189,6 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
             activeThemes={selectedThemes}
           />
         </div>
-
-        {/* Action Buttons */}
-        <ActionButtons
-          onGenerate={handleGenerate}
-          promptLength={prompt.length}
-        />
 
         {/* Shirt History */}
         <ShirtHistory />
