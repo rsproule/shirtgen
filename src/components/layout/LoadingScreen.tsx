@@ -45,6 +45,32 @@ export function LoadingScreen({
         </video>
       </div>
 
+      {/* Sad Arrested Development GIF underneath Pepe video */}
+      <div className="absolute top-52 left-4 z-10">
+        <img
+          src="/Sad Arrested Development GIF.gif"
+          alt="Sad Arrested Development"
+          className="h-40 w-auto rounded-none shadow-lg"
+          onError={e => {
+            console.error("Failed to load sad arrested development gif", e);
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      </div>
+
+      {/* Watermelon Cat image underneath Sad Arrested Development GIF */}
+      <div className="absolute top-[calc(13rem+12rem)] left-4 z-10">
+        <img
+          src="/Cat Watermelon GIF.gif"
+          alt="Watermelon Cat"
+          className="h-56 w-auto rounded-none shadow-lg"
+          onError={e => {
+            console.error("Failed to load watermelon cat image", e);
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      </div>
+
       {/* Fortnite Default Dance video in top right corner */}
       <div className="absolute top-4 right-4 z-10">
         <video
@@ -91,6 +117,32 @@ export function LoadingScreen({
             <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
           </div>
         </video>
+      </div>
+
+      {/* Zoo walks off GIF underneath cat shooting video */}
+      <div className="absolute top-[calc(13rem+8rem)] right-4 z-10">
+        <img
+          src="/zoo walks off GIF.gif"
+          alt="Zoo walks off"
+          className="h-40 w-auto rounded-none shadow-lg"
+          onError={e => {
+            console.error("Failed to load zoo walks off gif", e);
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      </div>
+
+      {/* Dance Party Cat GIF underneath zoo walks off GIF */}
+      <div className="absolute top-[calc(13rem+24rem)] right-4 z-10">
+        <img
+          src="/Dance Party Cat GIF.gif"
+          alt="Dance Party Cat"
+          className="h-56 w-auto rounded-none shadow-lg"
+          onError={e => {
+            console.error("Failed to load dance party cat gif", e);
+            e.currentTarget.style.display = "none";
+          }}
+        />
       </div>
 
       <div className="w-full text-center">
