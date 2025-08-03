@@ -54,22 +54,6 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     return cloned;
   }, [scene]);
 
-  // Extract existing base texture from GLB model
-  const existingBaseTexture = useMemo((): THREE.Texture | null => {
-    if (!shirtScene) return null;
-
-    let baseTexture: THREE.Texture | null = null;
-    shirtScene.traverse(child => {
-      if (child instanceof THREE.Mesh && child.material) {
-        const material = child.material as THREE.MeshStandardMaterial;
-        if (material.map) {
-          baseTexture = material.map;
-          return; // Found it, stop traversing
-        }
-      }
-    });
-    return baseTexture;
-  }, [shirtScene]);
 
   // Create custom texture based on placement
   const customTexture = useMemo(() => {
@@ -227,7 +211,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         img.src = imageUrl;
       }
     });
-  }, [imageUrl, texturePlacement, shirtColor, existingBaseTexture]);
+  }, [imageUrl, texturePlacement, shirtColor]);
 
   // Smooth rotation animation
   useFrame((_, delta) => {

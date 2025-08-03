@@ -96,7 +96,7 @@ export function useImageGeneration(
         let errorMessage =
           "Failed to start image generation. Please try again.";
 
-        const error = apiError as any;
+        const error = apiError as { message?: string };
         if (error?.message?.includes("safety system")) {
           errorMessage =
             "Your request was blocked by content safety filters. Please try a different prompt that doesn't involve potentially harmful content.";
@@ -274,7 +274,7 @@ export function useImageGeneration(
         if (!streamErrorOccurred) {
           let errorMessage = "Stream processing failed. Please try again.";
 
-          const error = streamError as any;
+          const error = streamError as { message?: string };
           if (error?.message?.includes("network")) {
             errorMessage =
               "Network error during generation. Please check your connection and try again.";
@@ -297,7 +297,7 @@ export function useImageGeneration(
     } catch (error: unknown) {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
-      const err = error as any;
+      const err = error as { message?: string };
       if (err?.message?.includes("fetch")) {
         errorMessage =
           "Network connection failed. Please check your internet connection.";
