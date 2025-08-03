@@ -70,10 +70,10 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
 
   return (
     <div className="w-full">
-      <div className="relative overflow-hidden">
-        <div className="flex gap-1 animate-scroll whitespace-nowrap">
-          {/* Duplicate themes for seamless looping */}
-          {[...themeSuggestions, ...themeSuggestions].map((themeData, index) => (
+      <div className="relative overflow-hidden w-full">
+        <div className="flex gap-1 animate-scroll whitespace-nowrap min-w-max">
+          {/* Duplicate many times for infinite loop */}
+          {[...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions].map((themeData, index) => (
             <ThemeButton
               key={`${themeData.theme}-${index}`}
               theme={themeData.theme}
