@@ -51,7 +51,7 @@ export function ShirtHistory() {
     if (!isAuthenticated) {
       return null;
     }
-    
+
     return (
       <div className="mt-12 border-t border-gray-200 pt-8">
         <h2 className="mb-6 text-lg font-medium text-gray-900">

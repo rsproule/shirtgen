@@ -19,7 +19,8 @@ import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { PulsatingButton } from "@/components/magicui/pulsating-button";
 
 export function HomePage() {
-  const { isLoading, setIsLoading, isAuthLoading, isAuthenticated, signIn } = useShirtData();
+  const { isLoading, setIsLoading, isAuthLoading, isAuthenticated, signIn } =
+    useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { typingStats, handleInputChange, setPromptWithoutStats } =
@@ -168,7 +169,9 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
         {/* Chat UI Container - with blur overlay when not authenticated */}
         <div className="relative">
           {/* Main Chat UI */}
-          <div className={`${!isAuthenticated ? 'blur-sm pointer-events-none' : ''}`}>
+          <div
+            className={`${!isAuthenticated ? "pointer-events-none blur-sm" : ""}`}
+          >
             <PromptInput
               value={prompt}
               onChange={handleTextChange}
@@ -199,7 +202,7 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
           {/* Sign-in overlay for non-authenticated users */}
           {!isAuthenticated && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <PulsatingButton 
+              <PulsatingButton
                 onClick={signIn}
                 className="bg-black text-white hover:bg-gray-800"
                 pulseColor="#4a4a4a"
