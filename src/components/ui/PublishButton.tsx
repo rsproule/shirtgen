@@ -14,6 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { printifyService } from "@/services/printify";
 import { db } from "@/services/db";
@@ -27,6 +29,7 @@ interface PublishModalProps {
   error?: string;
   shopifyUrl?: string;
   isPublished?: boolean;
+  onPublish?: (productName: string) => void;
 }
 
 function PublishModal({
@@ -37,7 +40,30 @@ function PublishModal({
   error,
   shopifyUrl,
   isPublished,
+  onPublish,
 }: PublishModalProps) {
+  const [productName, setProductName] = useState("");
+  const [hasUserEdited, setHasUserEdited] = useState(false);
+
+  // Initialize product name when modal opens, but don't override user edits
+  useEffect(() => {
+    if (designName && !hasUserEdited && !isPublished) {
+      setProductName(designName);
+    }
+  }, [designName, hasUserEdited, isPublished]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setHasUserEdited(false);
+      setProductName("");
+    }
+  }, [isOpen]);
+
+  const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProductName(e.target.value);
+    setHasUserEdited(true);
+  };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white sm:max-w-md">
@@ -53,13 +79,34 @@ function PublishModal({
         </DialogHeader>
 
         <div className="space-y-4">
+          {!isPublishing && !isPublished && !error && (
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="productName" className="text-sm font-medium">
+                  Product Name
+                </Label>
+                <Input
+                  id="productName"
+                  value={productName}
+                  onChange={handleProductNameChange}
+                  placeholder="Enter product name..."
+                  className="mt-1"
+                  maxLength={30}
+                />
+                <p className="text-muted-foreground mt-1 text-xs">
+                  {productName.length}/30 characters
+                </p>
+              </div>
+            </div>
+          )}
+
           {isPublishing && (
             <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4">
               <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
               <div>
                 <p className="font-medium">Publishing...</p>
                 <p className="text-muted-foreground text-sm">
-                  Creating your shirt creating...
+                  Creating "{productName}"...
                 </p>
               </div>
             </div>
@@ -81,7 +128,8 @@ function PublishModal({
               <div>
                 <p className="font-medium text-green-900">Success!</p>
                 <p className="mt-1 text-sm text-green-700">
-                  Your shirt is now live on Shopify
+                  "{productName}" is now live. It may take a few minutes for the
+                  previews to appear.
                 </p>
               </div>
             </div>
@@ -97,6 +145,19 @@ function PublishModal({
               <Button onClick={() => window.open(shopifyUrl, "_blank")}>
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View Product
+              </Button>
+            </>
+          ) : !isPublishing && !error ? (
+            <>
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => onPublish?.(productName)}
+                disabled={!productName.trim()}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                Publish
               </Button>
             </>
           ) : (
@@ -155,10 +216,14 @@ export function PublishButton() {
     checkPublishedStatus();
   }, [shirtData?.imageUrl]);
 
-  const handlePublish = async () => {
+  const handleOpenModal = () => {
+    if (!shirtData?.imageUrl || !shirtData?.prompt) return;
+    setShowModal(true);
+  };
+
+  const handleConfirmPublish = async (confirmedProductName: string) => {
     if (!shirtData?.imageUrl || !shirtData?.prompt) return;
 
-    setShowModal(true);
     setIsPublishing(true);
     setError(undefined);
     setShopifyUrl(undefined);
@@ -169,7 +234,8 @@ export function PublishButton() {
 
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
-        shirtData.prompt, // Pass the full prompt for LLM name generation
+        shirtData.prompt,
+        confirmedProductName,
         description,
       );
 
@@ -240,7 +306,7 @@ export function PublishButton() {
   return (
     <>
       <Button
-        onClick={handlePublish}
+        onClick={handleOpenModal}
         disabled={isDisabled}
         size="sm"
         className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
@@ -261,12 +327,15 @@ export function PublishButton() {
         isOpen={showModal}
         onClose={handleCloseModal}
         designName={
-          shirtData?.prompt?.substring(0, 30) + "..." || "Untitled Design"
+          shirtData?.productName ||
+          shirtData?.prompt?.substring(0, 30) + "..." ||
+          "Untitled Design"
         }
         isPublishing={isPublishing}
         error={error}
         shopifyUrl={shopifyUrl}
         isPublished={isPublished}
+        onPublish={handleConfirmPublish}
       />
     </>
   );
