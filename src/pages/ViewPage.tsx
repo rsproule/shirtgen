@@ -246,7 +246,7 @@ export function ViewPage() {
                       handleCancelEdit();
                     }
                   }}
-                  className="h-auto min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-left text-sm font-semibold text-foreground shadow-none focus-visible:ring-0"
+                  className="text-foreground h-auto min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-left text-sm font-semibold shadow-none focus-visible:ring-0"
                   maxLength={30}
                   placeholder="Enter design title..."
                   autoFocus
@@ -254,7 +254,7 @@ export function ViewPage() {
                 <button
                   onClick={handleSaveTitle}
                   disabled={isSavingTitle}
-                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-muted"
+                  className="hover:bg-muted flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors"
                   title="Save"
                 >
                   {isSavingTitle ? (
@@ -266,7 +266,7 @@ export function ViewPage() {
                 <button
                   onClick={handleCancelEdit}
                   disabled={isSavingTitle}
-                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-muted"
+                  className="hover:bg-muted flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors"
                   title="Cancel"
                 >
                   <X className="h-3 w-3" />
@@ -275,13 +275,13 @@ export function ViewPage() {
             ) : (
               <button
                 onClick={() => setIsEditingTitle(true)}
-                className="group flex w-full items-center gap-2 rounded px-2 py-1 text-left transition-all hover:bg-muted/50"
+                className="group hover:bg-muted/50 flex w-full items-center gap-2 rounded px-2 py-1 text-left transition-all"
                 title="Click to edit title"
               >
-                <h1 className="text-sm font-semibold text-foreground group-hover:text-muted-foreground">
+                <h1 className="text-foreground group-hover:text-muted-foreground text-sm font-semibold">
                   {title || "Untitled Design"}
                 </h1>
-                <Edit3 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                <Edit3 className="text-muted-foreground group-hover:text-foreground h-4 w-4" />
               </button>
             )}
           </div>
@@ -310,10 +310,10 @@ export function ViewPage() {
                     <TooltipTrigger asChild>
                       <button
                         onClick={handleCopyPrompt}
-                        className="group max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors hover:bg-muted"
+                        className="group hover:bg-muted max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors"
                       >
                         <div className="flex items-center justify-center gap-2">
-                          <p className="max-w-md truncate text-sm text-muted-foreground italic group-hover:text-foreground">
+                          <p className="text-muted-foreground group-hover:text-foreground max-w-md truncate text-sm italic">
                             "{shirtData.prompt}"
                           </p>
                           {copied && (
@@ -332,10 +332,10 @@ export function ViewPage() {
                 </TooltipProvider>
                 {shirtData.isPartial && (
                   <div className="mt-3">
-                    <div className="mb-2 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mb-2 text-xs">
                       Generating your design...
                     </div>
-                    <div className="mx-auto h-2 w-48 rounded-full bg-muted">
+                    <div className="bg-muted mx-auto h-2 w-48 rounded-full">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-300 transition-all duration-500 ease-out"
                         style={{
@@ -343,7 +343,7 @@ export function ViewPage() {
                         }}
                       ></div>
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-1 text-xs">
                       {shirtData.partialIndex !== undefined
                         ? shirtData.partialIndex + 1
                         : 1}{" "}

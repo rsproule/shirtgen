@@ -49,20 +49,20 @@ export function ErrorDisplay({
         isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       }`}
     >
-      <div className="w-full max-w-md rounded-lg border border-destructive/20 bg-destructive/10 p-3 shadow-lg sm:w-auto sm:p-4">
+      <div className="border-destructive/20 bg-destructive/10 w-full max-w-md rounded-lg border p-3 shadow-lg sm:w-auto sm:p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
+          <AlertCircle className="text-destructive mt-0.5 h-5 w-5 flex-shrink-0" />
 
           <div className="min-w-0 flex-1">
-            <h3 className="mb-1 text-sm font-medium text-destructive">
+            <h3 className="text-destructive mb-1 text-sm font-medium">
               Generation Error
             </h3>
-            <p className="text-sm break-words text-destructive/80">{error}</p>
+            <p className="text-destructive/80 text-sm break-words">{error}</p>
           </div>
 
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 text-destructive/60 transition-colors hover:text-destructive"
+            className="text-destructive/60 hover:text-destructive flex-shrink-0 transition-colors"
             aria-label="Dismiss error"
           >
             <X className="h-4 w-4" />
@@ -70,13 +70,13 @@ export function ErrorDisplay({
         </div>
 
         {onRetry && (
-          <div className="mt-3 border-t border-destructive/20 pt-3">
+          <div className="border-destructive/20 mt-3 border-t pt-3">
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={onRetry}
-                className="flex w-full items-center justify-center gap-1 border-destructive/30 text-destructive hover:bg-destructive/20 sm:w-auto"
+                className="border-destructive/30 text-destructive hover:bg-destructive/20 flex w-full items-center justify-center gap-1 sm:w-auto"
               >
                 <RefreshCw className="h-3 w-3" />
                 Try Again
@@ -85,7 +85,7 @@ export function ErrorDisplay({
                 size="sm"
                 variant="ghost"
                 onClick={handleDismiss}
-                className="w-full text-destructive/80 hover:text-destructive sm:w-auto"
+                className="text-destructive/80 hover:text-destructive w-full sm:w-auto"
               >
                 Dismiss
               </Button>
