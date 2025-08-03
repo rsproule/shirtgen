@@ -47,8 +47,7 @@ function PublishModal({
 }: PublishModalProps) {
   const [productName, setProductName] = useState("");
   const [hasUserEdited, setHasUserEdited] = useState(false);
-  const [fileSizeMB, setFileSizeMB] = useState<number | null>(null);
-  const [compressedSizeMB, setCompressedSizeMB] = useState<number | null>(null);
+const [fileSizeMB, setFileSizeMB] = useState<number | null>(null);
 
   // Initialize product name when modal opens, but don't override user edits
   useEffect(() => {
@@ -67,10 +66,10 @@ function PublishModal({
 
   // Calculate file size from data URL
   useEffect(() => {
-    if (imageUrl && imageUrl.startsWith('data:')) {
+    if (imageUrl && imageUrl.startsWith("data:")) {
       try {
         // Extract the base64 part after the comma
-        const base64Data = imageUrl.split(',')[1];
+        const base64Data = imageUrl.split(",")[1];
         if (base64Data) {
           // Calculate size: base64 is ~4/3 the size of the original binary data
           // Each base64 character represents 6 bits, so 4 chars = 3 bytes
@@ -80,25 +79,13 @@ function PublishModal({
           const actualSizeInBytes = sizeInBytes - padding;
           const sizeInMB = actualSizeInBytes / (1024 * 1024);
           setFileSizeMB(Math.round(sizeInMB * 100) / 100); // Round to 2 decimal places
-
-          // Show potential compression if image is large
-          if (sizeInMB > 2) {
-            // Estimate best-case compression (will try multiple quality levels automatically)
-            const compressionRatio = 0.3; // Conservative estimate for automatic compression
-            const compressedSizeInMB = sizeInMB * compressionRatio;
-            setCompressedSizeMB(Math.round(compressedSizeInMB * 100) / 100);
-          } else {
-            setCompressedSizeMB(null); // No compression for images <2MB
-          }
         }
       } catch (error) {
-        console.warn('Failed to calculate file size:', error);
+        console.warn("Failed to calculate file size:", error);
         setFileSizeMB(null);
-        setCompressedSizeMB(null);
       }
     } else {
       setFileSizeMB(null);
-      setCompressedSizeMB(null);
     }
   }, [imageUrl]);
 
@@ -123,16 +110,6 @@ function PublishModal({
         <div className="space-y-4">
           {!isPublishing && !isPublished && !error && (
             <div className="space-y-3">
-              {fileSizeMB && (
-                <div className="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">
-                  <div>Image size: {fileSizeMB} MB</div>
-                  {compressedSizeMB ? (
-                    <div>Upload size: ~{compressedSizeMB} MB (will be optimized automatically)</div>
-                  ) : (
-                    <div>Upload size: {fileSizeMB} MB (no compression needed)</div>
-                  )}
-                </div>
-              )}
               <div>
                 <Label htmlFor="productName" className="text-sm font-medium">
                   Product Name
