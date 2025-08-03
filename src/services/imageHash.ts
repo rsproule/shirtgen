@@ -30,7 +30,7 @@ export async function generateDataUrlHash(dataUrl: string): Promise<string> {
   return hashHex;
 }
 
-import { db } from "./db";
+import { db, ImageLifecycleState } from "./db";
 
 /**
  * Get published product info from database
@@ -45,13 +45,13 @@ export async function getPublishedProduct(imageHash: string): Promise<{
   try {
     const item = await db.shirtHistory.get(imageHash);
 
-    if (item && item.isPublished && item.printifyProductId) {
+    if (item && item.lifecycle === ImageLifecycleState.PUBLISHED && item.printifyProductId) {
       return {
-        productName: item.productName || "Untitled",
-        prompt: item.prompt,
+        productName: item.generatedTitle || item.productName || "Untitled",
+        prompt: item.originalPrompt || item.prompt || "",
         printifyProductId: item.printifyProductId,
         shopifyUrl: item.shopifyUrl,
-        publishedAt: item.publishedAt || item.generatedAt,
+        publishedAt: item.publishedAt || item.createdAt || item.generatedAt || "",
       };
     }
 
@@ -68,4 +68,29 @@ export async function getPublishedProduct(imageHash: string): Promise<{
 export async function isImagePublished(imageHash: string): Promise<boolean> {
   const publishedProduct = await getPublishedProduct(imageHash);
   return publishedProduct !== null;
+}
+
+/**
+ * Get image record by hash
+ */
+export async function getImageRecord(imageHash: string) {
+  try {
+    return await db.shirtHistory.get(imageHash);
+  } catch (error) {
+    console.warn("Failed to get image record:", error);
+    return null;
+  }
+}
+
+/**
+ * Check if an image exists in database (regardless of publish status)
+ */
+export async function imageExists(imageHash: string): Promise<boolean> {
+  try {
+    const item = await db.shirtHistory.get(imageHash);
+    return item !== undefined;
+  } catch (error) {
+    console.warn("Failed to check if image exists:", error);
+    return false;
+  }
 }

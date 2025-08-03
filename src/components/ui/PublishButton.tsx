@@ -9,9 +9,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useShirtData } from "@/context/ShirtDataContext";
-import { db } from "@/services/db";
+import { db, ImageLifecycleState } from "@/services/db";
 import { generateDataUrlHash, getPublishedProduct } from "@/services/imageHash";
 import { printifyService } from "@/services/printify";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
 import {
   AlertCircle,
   CheckCircle2,
@@ -175,6 +176,7 @@ function PublishModal({
 
 export function PublishButton() {
   const { shirtData } = useShirtData();
+  const { updateLifecycle, updateExternalIds } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string>();
@@ -232,7 +234,15 @@ export function PublishButton() {
     setIsPublished(false);
 
     try {
+      const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+      
+      // Update lifecycle to UPLOADING
+      await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
+
       const description = `Created on https://shirtslop.com\n\n${shirtData.prompt.length > 50 ? shirtData.prompt.substring(0, 50) + "..." : shirtData.prompt}`;
+
+      // Update lifecycle to PUBLISHING before creating product
+      await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHING);
 
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
@@ -246,36 +256,50 @@ export function PublishButton() {
         setShopifyUrl(result.product.external.handle);
       }
 
-      // Update IndexedDB with published product info
+      // Update database with published product info using new hash-based system
       try {
-        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-
-        // Store the complete published product information
-        await db.shirtHistory.put({
-          id: imageHash,
-          prompt: shirtData.prompt,
-          imageUrl: shirtData.imageUrl,
-          generatedAt: new Date().toISOString(),
-          timestamp: Date.now(),
-          productName: confirmedProductName,
+        await updateExternalIds(imageHash, {
+          generatedTitle: confirmedProductName,
           printifyProductId: result.product.id,
           shopifyUrl: result.product.external?.handle,
-          isPublished: true,
+        });
+
+        // Update lifecycle to PUBLISHED
+        await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHED);
+
+        // Update publishedAt timestamp
+        await db.shirtHistory.update(imageHash, {
           publishedAt: new Date().toISOString(),
         });
 
-        console.log("💾 Stored published product in database:", {
+        console.log("💾 Updated published product in database:", {
+          hash: imageHash,
           productName: confirmedProductName,
           productId: result.product.id,
           shopifyUrl: result.product.external?.handle,
+          lifecycle: ImageLifecycleState.PUBLISHED,
         });
       } catch (dbError) {
         console.warn("Failed to update database:", dbError);
+        // Set lifecycle to FAILED if database update fails
+        await updateLifecycle(imageHash, ImageLifecycleState.FAILED);
       }
 
       setIsPublished(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to publish shirt");
+      const errorMessage = err instanceof Error ? err.message : "Failed to publish shirt";
+      setError(errorMessage);
+      
+      // Update lifecycle to FAILED on publish error
+      try {
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        await updateLifecycle(imageHash, ImageLifecycleState.FAILED);
+        await db.shirtHistory.update(imageHash, {
+          publishError: errorMessage,
+        });
+      } catch (updateError) {
+        console.warn("Failed to update error state:", updateError);
+      }
     } finally {
       setIsPublishing(false);
     }
@@ -308,7 +332,7 @@ export function PublishButton() {
         className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
       >
         <ExternalLink className="h-4 w-4" />
-        {alreadyPublished.shopifyUrl ? "View Product" : "View Store"}
+        Go to Store
       </Button>
     );
   }

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Download, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Download, Check, Edit3, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
@@ -10,14 +11,18 @@ import { PlacementControls } from "@/components/3d/PlacementControls";
 import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
 import { Shirt3D } from "@/components/Shirt3D";
 import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
-import { SaveButton } from "@/components/ui/SaveButton";
 import { PublishButton } from "@/components/ui/PublishButton";
 import type { ShirtData } from "@/types";
+import { generateDataUrlHash } from "@/services/imageHash";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
 
 export function ViewPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [copied, setCopied] = useState(false);
+  const [title, setTitle] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
   const {
     shirtData,
     setShirtData,
@@ -26,6 +31,7 @@ export function ViewPage() {
     setIsLoading,
   } = useShirtData();
   const { autoSaveStatus, lastSavedAt } = useAutoSave();
+  const { updateExternalIds, getByHash } = useShirtHistory();
 
   useEffect(() => {
     // Only reset loading when component mounts if we don't have partial data
@@ -45,6 +51,32 @@ export function ViewPage() {
       }
     }
   }, [location.state, shirtData, setShirtData, setIsLoading]);
+
+  // Load title from database when shirtData changes (but not when editing)
+  useEffect(() => {
+    const loadTitle = async () => {
+      // Don't overwrite title if user is currently editing
+      if (isEditingTitle) return;
+      
+      if (shirtData?.imageUrl) {
+        try {
+          const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+          const record = await getByHash(imageHash);
+          if (record?.generatedTitle) {
+            setTitle(record.generatedTitle);
+          } else {
+            // Fallback to a truncated prompt if no generated title yet
+            setTitle(shirtData.prompt?.substring(0, 30) || "Untitled Design");
+          }
+        } catch (error) {
+          console.warn("Failed to load title:", error);
+          setTitle(shirtData.prompt?.substring(0, 30) || "Untitled Design");
+        }
+      }
+    };
+
+    loadTitle();
+  }, [shirtData?.imageUrl, shirtData?.prompt, getByHash, isEditingTitle]);
 
   if (!shirtData) {
     return (
@@ -90,17 +122,101 @@ export function ViewPage() {
     }
   };
 
+  const handleSaveTitle = async () => {
+    if (!shirtData?.imageUrl) return;
+    
+    setIsSavingTitle(true);
+    try {
+      const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+      await updateExternalIds(imageHash, {
+        generatedTitle: title.trim() || "Untitled Design",
+      });
+      setIsEditingTitle(false);
+    } catch (error) {
+      console.error("Failed to save title:", error);
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
+
+  const handleCancelEdit = async () => {
+    // Reload title from database
+    if (shirtData?.imageUrl) {
+      try {
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        const record = await getByHash(imageHash);
+        if (record?.generatedTitle) {
+          setTitle(record.generatedTitle);
+        }
+      } catch (error) {
+        console.warn("Failed to reload title:", error);
+      }
+    }
+    setIsEditingTitle(false);
+  };
+
   return (
     <div className="flex h-screen flex-col bg-white">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
-        {/* Header with Save/Publish buttons */}
+        {/* Header with Navigation and Publish button */}
         <div className="relative">
           <Header showBackButton />
 
-          {/* Save/Publish buttons - Top right, aligned with header padding */}
-          <div className="absolute top-6 right-6 flex items-center gap-2">
-            <SaveButton />
+          {/* Publish button - Top right, aligned with header */}
+          <div className="absolute top-3 right-6">
             <PublishButton />
+          </div>
+        </div>
+
+        {/* Separate Title Section */}
+        <div className="flex-shrink-0 border-b border-gray-100 bg-white px-2 py-1">
+          <div className="text-center">
+            {isEditingTitle ? (
+              <div className="flex items-center justify-center gap-2 w-full max-w-lg mx-auto">
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveTitle();
+                    } else if (e.key === 'Escape') {
+                      handleCancelEdit();
+                    }
+                  }}
+                  className="text-left text-sm font-semibold text-gray-900 border-none shadow-none focus-visible:ring-0 bg-transparent px-2 py-1 h-auto flex-1 min-w-0"
+                  maxLength={30}
+                  placeholder="Enter design title..."
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveTitle}
+                  disabled={isSavingTitle}
+                  className="flex items-center justify-center h-5 w-5 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  title="Save"
+                >
+                  {isSavingTitle ? <Save className="h-3 w-3 animate-pulse" /> : <Save className="h-3 w-3" />}
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  disabled={isSavingTitle}
+                  className="flex items-center justify-center h-5 w-5 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  title="Cancel"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsEditingTitle(true)}
+                className="group flex items-center gap-2 rounded px-2 py-1 transition-all hover:bg-gray-50 w-full text-left"
+                title="Click to edit title"
+              >
+                <h1 className="text-sm font-semibold text-gray-900 group-hover:text-gray-700">
+                  {title || "Untitled Design"}
+                </h1>
+                <Edit3 className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+              </button>
+            )}
           </div>
         </div>
 

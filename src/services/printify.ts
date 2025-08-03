@@ -249,12 +249,21 @@ class PrintifyService {
       const imageHash = await generateImageHash(imageBlob);
       console.log("🔑 Generated image hash:", imageHash);
 
-      // Store product info in IndexedDB
+      // Store product info in IndexedDB using new hash-based schema
+      const now = new Date().toISOString();
       await db.shirtHistory.put({
+        hash: imageHash,
+        originalPrompt: prompt,
+        imageUrl,
+        createdAt: now,
+        updatedAt: now,
+        lifecycle: 'drafted' as const,
+        generatedTitle: productName,
+        
+        // Legacy compatibility fields
         id: imageHash,
         prompt,
-        imageUrl,
-        generatedAt: new Date().toISOString(),
+        generatedAt: now,
         timestamp: Date.now(),
         productName,
         isPublished: false,

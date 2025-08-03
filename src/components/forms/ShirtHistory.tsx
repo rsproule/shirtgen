@@ -54,9 +54,9 @@ export function ShirtHistory() {
 
   const handleViewShirt = (item: ShirtHistoryItem) => {
     const shirtData = {
-      prompt: item.prompt,
+      prompt: item.originalPrompt || item.prompt || "",
       imageUrl: item.imageUrl,
-      generatedAt: item.generatedAt,
+      generatedAt: item.createdAt || item.generatedAt || new Date().toISOString(),
       isPartial: false,
       partialIndex: -1,
     };
@@ -132,7 +132,7 @@ export function ShirtHistory() {
                 variant="ghost"
                 onClick={e => {
                   e.stopPropagation();
-                  removeFromHistory(item.id);
+                  removeFromHistory(item.hash || item.id || "");
                 }}
                 className="absolute top-2 right-2 h-6 w-6 rounded-full bg-black/20 p-0 text-white transition-all hover:bg-red-500 hover:text-white"
               >
@@ -142,10 +142,10 @@ export function ShirtHistory() {
               {/* Info overlay - bottom */}
               <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                 <p className="mb-1 truncate text-xs text-white">
-                  {item.prompt}
+                  {item.originalPrompt || item.prompt || ""}
                 </p>
                 <p className="text-xs text-white/70">
-                  {formatTimestamp(item.timestamp)}
+                  {formatTimestamp(item.timestamp || Date.parse(item.createdAt || new Date().toISOString()))}
                 </p>
               </div>
             </CardContent>
