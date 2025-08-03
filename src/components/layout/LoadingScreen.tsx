@@ -15,10 +15,7 @@ export function LoadingScreen({
   ];
 
   // Mobile-only videos (excluding bouncing DVD)
-  const mobileVideos = [
-    "/parkour.mp4",
-    "/subwaysurfers.mp4",
-  ];
+  const mobileVideos = ["/parkour.mp4", "/subwaysurfers.mp4"];
 
   // All GIFs and videos to randomize
   const loadingGifs = [
@@ -31,7 +28,8 @@ export function LoadingScreen({
   ];
 
   // Random video for mobile - select fresh each time
-  const mobileVideo = mobileVideos[Math.floor(Math.random() * mobileVideos.length)];
+  const mobileVideo =
+    mobileVideos[Math.floor(Math.random() * mobileVideos.length)];
 
   // Random start time for videos (between 0 and 60 seconds)
   const randomStartTime = Math.random() * 60;
@@ -91,14 +89,17 @@ export function LoadingScreen({
               muted
               playsInline
               preload="auto"
-              className={`h-auto w-full max-w-md max-h-[650px] rounded-none shadow-lg ${
+              className={`h-auto max-h-[70svh] w-full max-w-md rounded-none shadow-lg ${
                 videoSrc === "/loading-video-3.mp4"
                   ? "border-1 border-white"
                   : ""
               }`}
               onLoadedMetadata={e => {
                 // Set random start time for parkour and subway surfers videos
-                if (videoSrc === "/parkour.mp4" || videoSrc === "/subwaysurfers.mp4") {
+                if (
+                  videoSrc === "/parkour.mp4" ||
+                  videoSrc === "/subwaysurfers.mp4"
+                ) {
                   e.currentTarget.currentTime = randomStartTime;
                 }
               }}
@@ -125,14 +126,17 @@ export function LoadingScreen({
             muted
             playsInline
             preload="auto"
-            className={`h-auto w-full max-h-96 rounded-none ${
+            className={`h-auto max-h-96 w-full rounded-none ${
               mobileVideo === "/loading-video-3.mp4"
                 ? "border-1 border-white"
                 : ""
             }`}
             onLoadedMetadata={e => {
               // Set random start time for parkour and subway surfers videos
-              if (mobileVideo === "/parkour.mp4" || mobileVideo === "/subwaysurfers.mp4") {
+              if (
+                mobileVideo === "/parkour.mp4" ||
+                mobileVideo === "/subwaysurfers.mp4"
+              ) {
                 e.currentTarget.currentTime = randomStartTime;
               }
             }}
