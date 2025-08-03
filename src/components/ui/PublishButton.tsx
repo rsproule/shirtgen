@@ -361,7 +361,7 @@ export function PublishButton() {
           )
         }
         size="sm"
-        className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+        className="bg-primary text-primary-foreground hover:bg-primary/80 flex items-center gap-2"
       >
         <ExternalLink className="h-4 w-4" />
         Go to Store
