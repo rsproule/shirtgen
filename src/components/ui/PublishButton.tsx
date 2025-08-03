@@ -251,6 +251,26 @@ export function PublishButton() {
     checkPublishedStatus();
   }, [shirtData?.imageUrl]);
 
+  // Prevent navigation/refresh during publishing
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isPublishing) {
+        event.preventDefault();
+        // Modern browsers require returnValue to be set
+        event.returnValue = "Your design is being published. Are you sure you want to leave?";
+        return "Your design is being published. Are you sure you want to leave?";
+      }
+    };
+
+    if (isPublishing) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isPublishing]);
+
   const handleOpenModal = () => {
     if (!shirtData?.imageUrl || !shirtData?.prompt) return;
     setShowModal(true);
