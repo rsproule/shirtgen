@@ -137,15 +137,17 @@ function PublishModal({
         </div>
 
         <div className="flex justify-end gap-2">
-          {isPublished && !isPublishing && shopifyUrl ? (
+          {isPublished && !isPublishing ? (
             <>
               <Button variant="outline" onClick={onClose}>
                 Close
               </Button>
-              <Button onClick={() => window.open(shopifyUrl, "_blank")}>
-                <ExternalLink className="mr-2 h-4 w-4" />
-                View Product
-              </Button>
+              {shopifyUrl && (
+                <Button onClick={() => window.open(shopifyUrl, "_blank")}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  View Product
+                </Button>
+              )}
             </>
           ) : !isPublishing && !error ? (
             <>
@@ -193,7 +195,7 @@ export function PublishButton() {
 
       try {
         const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-        const publishedProduct = getPublishedProduct(imageHash);
+        const publishedProduct = await getPublishedProduct(imageHash);
 
         if (publishedProduct) {
           console.log(
@@ -246,19 +248,27 @@ export function PublishButton() {
 
       // Update IndexedDB with published product info
       try {
-        const existingItems = await db.shirtHistory
-          .where("prompt")
-          .equals(shirtData.prompt)
-          .toArray();
-
-        if (existingItems.length > 0) {
-          // Update existing record
-          await db.shirtHistory.update(existingItems[0].id, {
-            imageUrl: shirtData.imageUrl,
-            // Add any other fields we want to track for published products
-          });
-          console.log("💾 Updated shirt history with published product");
-        }
+        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+        
+        // Store the complete published product information
+        await db.shirtHistory.put({
+          id: imageHash,
+          prompt: shirtData.prompt,
+          imageUrl: shirtData.imageUrl,
+          generatedAt: new Date().toISOString(),
+          timestamp: Date.now(),
+          productName: confirmedProductName,
+          printifyProductId: result.product.id,
+          shopifyUrl: result.product.external?.handle,
+          isPublished: true,
+          publishedAt: new Date().toISOString(),
+        });
+        
+        console.log("💾 Stored published product in database:", {
+          productName: confirmedProductName,
+          productId: result.product.id,
+          shopifyUrl: result.product.external?.handle,
+        });
       } catch (dbError) {
         console.warn("Failed to update database:", dbError);
       }
