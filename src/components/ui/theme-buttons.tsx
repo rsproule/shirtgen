@@ -89,7 +89,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       const success = addToFavorites(theme);
       if (!success) {
         setFavoritesError(
-          "Maximum 3 favorites allowed. Remove one to add another.",
+          "Maximum 10 favorites allowed. Remove one to add another.",
         );
         // Clear error after 3 seconds
         setTimeout(() => setFavoritesError(null), 3000);
