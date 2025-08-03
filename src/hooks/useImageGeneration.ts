@@ -20,19 +20,19 @@ export function useImageGeneration(
   const generateSmartTitle = async (prompt: string, imageUrl: string) => {
     try {
       console.log("🎯 Generating smart title for:", prompt);
-      
+
       // Generate hash to identify the image record
       const imageHash = await generateDataUrlHash(imageUrl);
-      
+
       // Generate the smart title using AI
       const generatedTitle = await generateName(prompt);
       console.log("✨ Generated title:", generatedTitle);
-      
+
       // Update the database with the generated title
       await updateExternalIds(imageHash, {
         generatedTitle: generatedTitle,
       });
-      
+
       console.log("💾 Updated database with generated title");
     } catch (error) {
       console.warn("Failed to generate smart title:", error);
@@ -265,7 +265,7 @@ export function useImageGeneration(
 
               // Generate smart title in background
               generateSmartTitle(prompt, imageUrl);
-              
+
               setIsLoading(false);
             }
           }

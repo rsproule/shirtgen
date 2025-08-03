@@ -235,7 +235,7 @@ export function PublishButton() {
 
     try {
       const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-      
+
       // Update lifecycle to UPLOADING
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
@@ -287,9 +287,10 @@ export function PublishButton() {
 
       setIsPublished(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to publish shirt";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to publish shirt";
       setError(errorMessage);
-      
+
       // Update lifecycle to FAILED on publish error
       try {
         const imageHash = await generateDataUrlHash(shirtData.imageUrl);

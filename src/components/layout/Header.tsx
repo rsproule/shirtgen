@@ -9,10 +9,10 @@ interface HeaderProps {
   showBranding?: boolean;
 }
 
-export function Header({ 
-  showBackButton = false, 
+export function Header({
+  showBackButton = false,
   onBack,
-  showBranding = false
+  showBranding = false,
 }: HeaderProps) {
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ export function Header({
             variant="ghost"
             onClick={handleBack}
             size="sm"
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-900 px-2 py-1 h-8"
+            className="flex h-8 items-center gap-1 px-2 py-1 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-3 w-3" />
             <span className="text-sm">Back</span>
@@ -45,10 +45,9 @@ export function Header({
         ) : (
           <div />
         )}
-        
         <div /> {/* This will be filled by buttons from parent component */}
       </div>
-      
+
       {/* Branding section for pages that need it */}
       {showBranding && (
         <div className="flex justify-center pb-3">

@@ -57,7 +57,7 @@ export function ViewPage() {
     const loadTitle = async () => {
       // Don't overwrite title if user is currently editing
       if (isEditingTitle) return;
-      
+
       if (shirtData?.imageUrl) {
         try {
           const imageHash = await generateDataUrlHash(shirtData.imageUrl);
@@ -124,7 +124,7 @@ export function ViewPage() {
 
   const handleSaveTitle = async () => {
     if (!shirtData?.imageUrl) return;
-    
+
     setIsSavingTitle(true);
     try {
       const imageHash = await generateDataUrlHash(shirtData.imageUrl);
@@ -172,18 +172,18 @@ export function ViewPage() {
         <div className="flex-shrink-0 border-b border-gray-100 bg-white px-2 py-1">
           <div className="text-center">
             {isEditingTitle ? (
-              <div className="flex items-center justify-center gap-2 w-full max-w-lg mx-auto">
+              <div className="mx-auto flex w-full max-w-lg items-center justify-center gap-2">
                 <Input
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                  onChange={e => setTitle(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
                       handleSaveTitle();
-                    } else if (e.key === 'Escape') {
+                    } else if (e.key === "Escape") {
                       handleCancelEdit();
                     }
                   }}
-                  className="text-left text-sm font-semibold text-gray-900 border-none shadow-none focus-visible:ring-0 bg-transparent px-2 py-1 h-auto flex-1 min-w-0"
+                  className="h-auto min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-left text-sm font-semibold text-gray-900 shadow-none focus-visible:ring-0"
                   maxLength={30}
                   placeholder="Enter design title..."
                   autoFocus
@@ -191,15 +191,19 @@ export function ViewPage() {
                 <button
                   onClick={handleSaveTitle}
                   disabled={isSavingTitle}
-                  className="flex items-center justify-center h-5 w-5 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-gray-100"
                   title="Save"
                 >
-                  {isSavingTitle ? <Save className="h-3 w-3 animate-pulse" /> : <Save className="h-3 w-3" />}
+                  {isSavingTitle ? (
+                    <Save className="h-3 w-3 animate-pulse" />
+                  ) : (
+                    <Save className="h-3 w-3" />
+                  )}
                 </button>
                 <button
                   onClick={handleCancelEdit}
                   disabled={isSavingTitle}
-                  className="flex items-center justify-center h-5 w-5 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded transition-colors hover:bg-gray-100"
                   title="Cancel"
                 >
                   <X className="h-3 w-3" />
@@ -208,7 +212,7 @@ export function ViewPage() {
             ) : (
               <button
                 onClick={() => setIsEditingTitle(true)}
-                className="group flex items-center gap-2 rounded px-2 py-1 transition-all hover:bg-gray-50 w-full text-left"
+                className="group flex w-full items-center gap-2 rounded px-2 py-1 text-left transition-all hover:bg-gray-50"
                 title="Click to edit title"
               >
                 <h1 className="text-sm font-semibold text-gray-900 group-hover:text-gray-700">

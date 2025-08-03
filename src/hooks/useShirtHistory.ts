@@ -23,7 +23,7 @@ export function useShirtHistory() {
         if (stored) {
           console.log("Migrating from localStorage...");
           const parsedHistory = JSON.parse(stored);
-          
+
           // Convert legacy items to new hash-based format
           const migratedItems = [];
           for (const legacyItem of parsedHistory) {
@@ -36,12 +36,14 @@ export function useShirtHistory() {
                   imageUrl: legacyItem.imageUrl,
                   createdAt: legacyItem.generatedAt || new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
-                  lifecycle: legacyItem.isPublished ? ImageLifecycleState.PUBLISHED : ImageLifecycleState.DRAFTED,
+                  lifecycle: legacyItem.isPublished
+                    ? ImageLifecycleState.PUBLISHED
+                    : ImageLifecycleState.DRAFTED,
                   printifyProductId: legacyItem.printifyProductId,
                   shopifyUrl: legacyItem.shopifyUrl,
                   generatedTitle: legacyItem.productName,
                   publishedAt: legacyItem.publishedAt,
-                  
+
                   // Legacy compatibility
                   id: hash,
                   prompt: legacyItem.prompt,
@@ -56,7 +58,7 @@ export function useShirtHistory() {
               }
             }
           }
-          
+
           if (migratedItems.length > 0) {
             await db.shirtHistory.bulkPut(migratedItems);
           }
@@ -79,7 +81,7 @@ export function useShirtHistory() {
     try {
       // Generate hash from image data
       const hash = await generateDataUrlHash(shirtData.imageUrl);
-      
+
       // Check if this image already exists
       const existingItem = await db.shirtHistory.get(hash);
       if (existingItem) {
@@ -102,7 +104,7 @@ export function useShirtHistory() {
         createdAt: shirtData.generatedAt || now,
         updatedAt: now,
         lifecycle: ImageLifecycleState.DRAFTED,
-        
+
         // Legacy compatibility fields
         id: hash,
         prompt: shirtData.prompt,
@@ -148,11 +150,19 @@ export function useShirtHistory() {
   };
 
   const getShirtById = (hashOrId: string): ShirtHistoryItem | null => {
-    return history?.find((item: ShirtHistoryItem) => item.hash === hashOrId || item.id === hashOrId) || null;
+    return (
+      history?.find(
+        (item: ShirtHistoryItem) =>
+          item.hash === hashOrId || item.id === hashOrId,
+      ) || null
+    );
   };
 
   // New methods for lifecycle management
-  const updateLifecycle = async (hash: string, lifecycle: ImageLifecycleState) => {
+  const updateLifecycle = async (
+    hash: string,
+    lifecycle: ImageLifecycleState,
+  ) => {
     try {
       await db.shirtHistory.update(hash, {
         lifecycle,
@@ -166,7 +176,19 @@ export function useShirtHistory() {
     }
   };
 
-  const updateExternalIds = async (hash: string, updates: Partial<Pick<ShirtHistoryItem, 'printifyImageId' | 'printifyProductId' | 'shopifyProductId' | 'shopifyUrl' | 'generatedTitle'>>) => {
+  const updateExternalIds = async (
+    hash: string,
+    updates: Partial<
+      Pick<
+        ShirtHistoryItem,
+        | "printifyImageId"
+        | "printifyProductId"
+        | "shopifyProductId"
+        | "shopifyUrl"
+        | "generatedTitle"
+      >
+    >,
+  ) => {
     try {
       await db.shirtHistory.update(hash, {
         ...updates,
@@ -182,7 +204,7 @@ export function useShirtHistory() {
 
   const getByHash = async (hash: string): Promise<ShirtHistoryItem | null> => {
     try {
-      return await db.shirtHistory.get(hash) || null;
+      return (await db.shirtHistory.get(hash)) || null;
     } catch (error) {
       console.error("Failed to get shirt by hash:", error);
       return null;
