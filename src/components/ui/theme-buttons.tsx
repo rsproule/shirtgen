@@ -35,8 +35,6 @@ const ThemeButton: React.FC<ThemeButtonProps> = ({
   );
 };
 
-
-
 interface ThemeButtonsProps {
   onThemeSelect: (theme: string) => void;
   activeThemes?: string[];
@@ -47,7 +45,8 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
   activeThemes = [],
 }) => {
   const { themeSuggestions } = useThemeSuggestions();
-  const { addToFavorites, removeFromFavorites, isFavorite } = useFavoriteThemes();
+  const { addToFavorites, removeFromFavorites, isFavorite } =
+    useFavoriteThemes();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedThemes, setSelectedThemes] = useState<string[]>(activeThemes);
   const [isHovered, setIsHovered] = useState(false);
@@ -99,7 +98,6 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
 
   return (
     <div className="w-full">
-
       {/* Scrolling Themes Section */}
       <div
         className="relative w-full overflow-hidden"
@@ -153,19 +151,19 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+          className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
           onClick={handleCloseModal}
         >
           <div
-            className="w-full max-w-4xl max-h-[90vh] rounded-lg border border-gray-200 bg-white shadow-lg flex flex-col"
+            className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
             onClick={e => e.stopPropagation()}
           >
-            <div className="bg-white border-b border-gray-200 p-4 sm:p-6 flex-shrink-0">
+            <div className="flex-shrink-0 border-b border-gray-200 bg-white p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Select Themes</h3>
                 <button
                   onClick={handleCloseModal}
-                  className="text-gray-400 hover:text-gray-600 p-1"
+                  className="p-1 text-gray-400 hover:text-gray-600"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -179,8 +177,8 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
               )}
             </div>
 
-            <div className="p-4 sm:p-6 overflow-y-auto flex-1">
-              <div className="grid grid-cols-1 gap-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <div className="xs:grid-cols-2 grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {themeSuggestions.map(themeData => (
                   <button
                     key={themeData.theme}
@@ -193,10 +191,10 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                         : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
                     )}
                   >
-                    <div className="truncate text-xs leading-tight font-semibold pr-6">
+                    <div className="truncate pr-6 text-xs leading-tight font-semibold">
                       {themeData.theme}
                     </div>
-                    <div className="truncate text-xs leading-tight text-gray-500 pr-6">
+                    <div className="truncate pr-6 text-xs leading-tight text-gray-500">
                       {themeData.description}
                     </div>
                     <button

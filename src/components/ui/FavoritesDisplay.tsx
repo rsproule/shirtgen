@@ -47,7 +47,7 @@ export const FavoritesDisplay: React.FC<FavoritesDisplayProps> = ({
   };
 
   return (
-    <div className="flex gap-1 flex-wrap justify-start">
+    <div className="flex flex-wrap justify-start gap-1">
       {favoriteThemes.map(favoriteTheme => {
         const themeData = themeSuggestions.find(
           t => t.theme === favoriteTheme.theme,

@@ -154,7 +154,7 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
       {/* Main Input Area */}
       <div className="mx-auto mt-8 w-full max-w-7xl px-8">
         {/* Top Section */}
-        <div className="mb-1 flex justify-between items-start">
+        <div className="mb-1 flex items-start justify-between">
           {/* Favorites Display - Top Left */}
           <FavoritesDisplay
             onThemeSelect={handleThemeSelect}
