@@ -30,80 +30,43 @@ export async function generateDataUrlHash(dataUrl: string): Promise<string> {
   return hashHex;
 }
 
-/**
- * Store published product info in localStorage
- */
-export function storePublishedProduct(
-  imageHash: string,
-  data: {
-    productName: string;
-    prompt: string;
-    printifyProductId: string;
-    shopifyUrl?: string;
-    publishedAt: string;
-  },
-) {
-  const key = `published_${imageHash}`;
-  localStorage.setItem(key, JSON.stringify(data));
-}
+import { db } from "./db";
 
 /**
- * Get published product info from localStorage
+ * Get published product info from database
  */
-export function getPublishedProduct(imageHash: string): {
+export async function getPublishedProduct(imageHash: string): Promise<{
   productName: string;
   prompt: string;
   printifyProductId: string;
   shopifyUrl?: string;
   publishedAt: string;
-} | null {
-  const key = `published_${imageHash}`;
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : null;
+} | null> {
+  try {
+    const item = await db.shirtHistory.get(imageHash);
+    
+    if (item && item.isPublished && item.printifyProductId) {
+      return {
+        productName: item.productName || 'Untitled',
+        prompt: item.prompt,
+        printifyProductId: item.printifyProductId,
+        shopifyUrl: item.shopifyUrl,
+        publishedAt: item.publishedAt || item.generatedAt,
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn("Failed to get published product:", error);
+    return null;
+  }
 }
 
 /**
  * Check if an image has already been published
  */
-export function isImagePublished(imageHash: string): boolean {
-  return getPublishedProduct(imageHash) !== null;
+export async function isImagePublished(imageHash: string): Promise<boolean> {
+  const publishedProduct = await getPublishedProduct(imageHash);
+  return publishedProduct !== null;
 }
 
-/**
- * Extract product identifier from product description
- * Example: "Custom AI-generated shirt design: dragon breathing fire\n\nID: a1b2c3d4"
- */
-export function extractIdentifierFromDescription(
-  description: string,
-): string | null {
-  // Look for "ID: " followed by 8-char hex pattern
-  const match = description.match(/ID:\s*([a-f0-9]{8})/i);
-  return match ? match[1] : null;
-}
-
-/**
- * Find stored product by partial hash identifier
- */
-export function findProductByIdentifier(identifier: string): {
-  productName: string;
-  prompt: string;
-  printifyProductId: string;
-  shopifyUrl?: string;
-  publishedAt: string;
-  imageHash: string;
-} | null {
-  // Search through localStorage for matching identifiers
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith("published_")) {
-      const imageHash = key.replace("published_", "");
-      if (imageHash.startsWith(identifier)) {
-        const stored = localStorage.getItem(key);
-        if (stored) {
-          return { ...JSON.parse(stored), imageHash };
-        }
-      }
-    }
-  }
-  return null;
-}
