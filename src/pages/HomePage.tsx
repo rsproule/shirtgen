@@ -126,9 +126,16 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
-  // Show blank page while auth state is being determined
-  if (isAuthLoading) {
-    return <div className="min-h-svh bg-white" />;
+  // Show loading screen while auth state is being determined
+  if (isAuthLoading || (!isAuthLoading && !isAuthenticated && typeof isAuthenticated === 'boolean')) {
+    return (
+      <div className="flex min-h-svh flex-col bg-white">
+        <Navbar />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) {
