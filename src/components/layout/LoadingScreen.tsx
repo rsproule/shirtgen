@@ -7,11 +7,21 @@ interface LoadingScreenProps {
 export function LoadingScreen({
   message = "Creating your design... This may take a minute... enjoy the show!",
 }: LoadingScreenProps) {
-  // All loading videos to display
+  // All loading videos to display (updated with new videos)
   const loadingVideos = [
-    "/loading-video-ss.mp4",
-    "/loading-video-2.mp4",
+    "/parkour.mp4",
+    "/subwaysurfers.mp4",
     "/loading-video-3.mp4",
+  ];
+
+  // All GIFs and videos to randomize
+  const loadingGifs = [
+    "/Sad Arrested Development GIF.gif",
+    "/Cat Watermelon GIF.gif",
+    "/zoo walks off GIF.gif",
+    "/Dance Party Cat GIF.gif",
+    "/Dancing_Pepe_1_with_Galaxy_Background_Free_Video_Background.mp4",
+    "/Meme_Doy_clases_los_jueves_no_cobro_mucho_Shrek.mp4",
   ];
 
   // Random video for mobile
@@ -19,154 +29,44 @@ export function LoadingScreen({
     return loadingVideos[Math.floor(Math.random() * loadingVideos.length)];
   });
 
+  // Random GIF to show
+  const [randomGif] = useState(() => {
+    return loadingGifs[Math.floor(Math.random() * loadingGifs.length)];
+  });
+
   return (
-    <div className="relative container mx-auto flex min-h-screen items-center justify-center bg-white p-4">
-      {/* Dancing Pepe video in top left corner */}
+    <div className="relative flex min-h-screen items-center justify-center bg-white p-4 container mx-auto">
+      {/* Random GIF/Video in top left corner */}
       <div className="absolute top-4 left-4 z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="h-40 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load dancing pepe video", e);
-            e.currentTarget.style.display = "none";
-          }}
-        >
-          <source
-            src="/Dancing_Pepe_1_with_Galaxy_Background_Free_Video_Background.mp4"
-            type="video/mp4"
+        {randomGif.endsWith('.mp4') ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="h-40 w-auto rounded-none shadow-lg"
+            onError={e => {
+              console.error("Failed to load random video", e);
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <source src={randomGif} type="video/mp4" />
+            <div className="flex h-48 w-full items-center justify-center bg-gray-800">
+              <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
+            </div>
+          </video>
+        ) : (
+          <img
+            src={randomGif}
+            alt="Random loading GIF"
+            className="h-40 w-auto rounded-none shadow-lg"
+            onError={e => {
+              console.error("Failed to load random gif", e);
+              e.currentTarget.style.display = "none";
+            }}
           />
-          <div className="flex h-48 w-full items-center justify-center bg-gray-800">
-            <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
-          </div>
-        </video>
-      </div>
-
-      {/* Sad Arrested Development GIF underneath Pepe video */}
-      <div className="absolute top-52 left-4 z-10">
-        <img
-          src="/Sad Arrested Development GIF.gif"
-          alt="Sad Arrested Development"
-          className="h-40 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load sad arrested development gif", e);
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      </div>
-
-      {/* Watermelon Cat image underneath Sad Arrested Development GIF */}
-      <div className="absolute top-[calc(13rem+12rem)] left-4 z-10">
-        <img
-          src="/Cat Watermelon GIF.gif"
-          alt="Watermelon Cat"
-          className="h-56 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load watermelon cat image", e);
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      </div>
-
-      {/* Fortnite Default Dance video in top right corner */}
-      <div className="absolute top-4 right-4 z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="h-40 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load fortnite dance video", e);
-            e.currentTarget.style.display = "none";
-          }}
-        >
-          <source
-            src="/FORTNITE_DEFAULT_DANCE_BASS_BOOSTED.mp4"
-            type="video/mp4"
-          />
-          <div className="flex h-48 w-full items-center justify-center bg-gray-800">
-            <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
-          </div>
-        </video>
-      </div>
-
-      {/* Cat is shooting video underneath Fortnite dance */}
-      <div className="absolute top-52 right-4 z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="h-40 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load cat shooting video", e);
-            e.currentTarget.style.display = "none";
-          }}
-        >
-          <source
-            src="/The_cat_is_shooting_from_AK_47_2023_3d_meme_gun.mp4"
-            type="video/mp4"
-          />
-          <div className="flex h-48 w-full items-center justify-center bg-gray-800">
-            <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
-          </div>
-        </video>
-      </div>
-
-      {/* Zoo walks off GIF underneath cat shooting video */}
-      <div className="absolute top-[calc(13rem+8rem)] right-4 z-10">
-        <img
-          src="/zoo walks off GIF.gif"
-          alt="Zoo walks off"
-          className="h-40 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load zoo walks off gif", e);
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      </div>
-
-      {/* Dance Party Cat GIF underneath zoo walks off GIF */}
-      <div className="absolute top-[calc(13rem+24rem)] right-4 z-10">
-        <img
-          src="/Dance Party Cat GIF.gif"
-          alt="Dance Party Cat"
-          className="h-56 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load dance party cat gif", e);
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      </div>
-
-      {/* Shrek meme video to the right of the cat */}
-      <div className="absolute top-52 right-52 z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="h-40 w-auto rounded-none shadow-lg"
-          onError={e => {
-            console.error("Failed to load Shrek meme video", e);
-            e.currentTarget.style.display = "none";
-          }}
-        >
-          <source
-            src="/Meme_Doy_clases_los_jueves_no_cobro_mucho_Shrek.mp4"
-            type="video/mp4"
-          />
-          <div className="flex h-48 w-full items-center justify-center bg-gray-800">
-            <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-white"></div>
-          </div>
-        </video>
+        )}
       </div>
 
       <div className="w-full text-center">
