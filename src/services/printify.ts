@@ -123,12 +123,16 @@ class PrintifyService {
     return new Promise(async (resolve, reject) => {
       try {
         let processedBlob = imageBlob;
-        
+
         // If image is larger than 2MB, compress it
         if (imageBlob.size > 2 * 1024 * 1024) {
-          console.log(`🗜️ Compressing image from ${(imageBlob.size / 1024 / 1024).toFixed(2)}MB`);
+          console.log(
+            `🗜️ Compressing image from ${(imageBlob.size / 1024 / 1024).toFixed(2)}MB`,
+          );
           processedBlob = await this.compressImage(imageBlob);
-          console.log(`✅ Compressed to ${(processedBlob.size / 1024 / 1024).toFixed(2)}MB`);
+          console.log(
+            `✅ Compressed to ${(processedBlob.size / 1024 / 1024).toFixed(2)}MB`,
+          );
         }
 
         const reader = new FileReader();
@@ -155,8 +159,8 @@ class PrintifyService {
 
   private async compressImage(blob: Blob): Promise<Blob> {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
       const img = new Image();
 
       img.onload = () => {
@@ -176,17 +180,17 @@ class PrintifyService {
 
         // Draw and compress
         ctx?.drawImage(img, 0, 0, width, height);
-        
+
         canvas.toBlob(
-          (compressedBlob) => {
+          compressedBlob => {
             if (compressedBlob) {
               resolve(compressedBlob);
             } else {
-              reject(new Error('Failed to compress image'));
+              reject(new Error("Failed to compress image"));
             }
           },
-          'image/png',
-          0.9 // 90% quality
+          "image/png",
+          0.9, // 90% quality
         );
       };
 
@@ -257,9 +261,9 @@ class PrintifyService {
         imageUrl,
         createdAt: now,
         updatedAt: now,
-        lifecycle: 'drafted' as const,
+        lifecycle: "drafted" as const,
         generatedTitle: productName,
-        
+
         // Legacy compatibility fields
         id: imageHash,
         prompt,

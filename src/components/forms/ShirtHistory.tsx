@@ -56,7 +56,8 @@ export function ShirtHistory() {
     const shirtData = {
       prompt: item.originalPrompt || item.prompt || "",
       imageUrl: item.imageUrl,
-      generatedAt: item.createdAt || item.generatedAt || new Date().toISOString(),
+      generatedAt:
+        item.createdAt || item.generatedAt || new Date().toISOString(),
       isPartial: false,
       partialIndex: -1,
     };
@@ -145,7 +146,10 @@ export function ShirtHistory() {
                   {item.originalPrompt || item.prompt || ""}
                 </p>
                 <p className="text-xs text-white/70">
-                  {formatTimestamp(item.timestamp || Date.parse(item.createdAt || new Date().toISOString()))}
+                  {formatTimestamp(
+                    item.timestamp ||
+                      Date.parse(item.createdAt || new Date().toISOString()),
+                  )}
                 </p>
               </div>
             </CardContent>

@@ -45,13 +45,18 @@ export async function getPublishedProduct(imageHash: string): Promise<{
   try {
     const item = await db.shirtHistory.get(imageHash);
 
-    if (item && item.lifecycle === ImageLifecycleState.PUBLISHED && item.printifyProductId) {
+    if (
+      item &&
+      item.lifecycle === ImageLifecycleState.PUBLISHED &&
+      item.printifyProductId
+    ) {
       return {
         productName: item.generatedTitle || item.productName || "Untitled",
         prompt: item.originalPrompt || item.prompt || "",
         printifyProductId: item.printifyProductId,
         shopifyUrl: item.shopifyUrl,
-        publishedAt: item.publishedAt || item.createdAt || item.generatedAt || "",
+        publishedAt:
+          item.publishedAt || item.createdAt || item.generatedAt || "",
       };
     }
 
