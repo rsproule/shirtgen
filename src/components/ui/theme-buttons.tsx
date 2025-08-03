@@ -176,7 +176,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
           onClick={handleCloseModal}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
+            className="flex max-h-[90svh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
             onClick={e => e.stopPropagation()}
           >
             <div className="border-border bg-background flex-shrink-0 border-b p-4 sm:p-6">
