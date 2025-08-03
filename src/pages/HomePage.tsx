@@ -128,7 +128,7 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
 
   // Show blank page while auth state is being determined
   if (isAuthLoading) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-svh bg-white" />;
   }
 
   if (isLoading) {
@@ -149,7 +149,7 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-svh flex-col bg-white">
       {/* Navbar */}
       <Navbar />
 

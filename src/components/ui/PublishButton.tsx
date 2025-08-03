@@ -31,7 +31,6 @@ interface PublishModalProps {
   shopifyUrl?: string;
   isPublished?: boolean;
   onPublish?: (productName: string) => void;
-  imageUrl?: string;
 }
 
 function PublishModal({
@@ -420,7 +419,6 @@ export function PublishButton() {
         shopifyUrl={shopifyUrl}
         isPublished={isPublished}
         onPublish={handleConfirmPublish}
-        imageUrl={shirtData?.imageUrl}
       />
     </>
   );
