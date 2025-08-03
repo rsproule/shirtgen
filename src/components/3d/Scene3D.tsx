@@ -14,7 +14,7 @@ export function Scene3D({ children }: Scene3DProps) {
   return (
     <div className="h-full w-full flex-1 bg-gray-50">
       <Canvas className="h-full w-full">
-        <PerspectiveCamera makeDefault position={[0, 0, 6]} />
+        <PerspectiveCamera makeDefault position={[0, 0, 3]} />
         <OrbitControls
           enablePan={true}
           enableZoom={true}
