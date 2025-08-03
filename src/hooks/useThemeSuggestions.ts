@@ -256,6 +256,18 @@ const themeSuggestions: ThemeSuggestion[] = [
     keyword: "surrealist",
   },
   {
+    theme: "Documentary",
+    description: "Cinematic realism",
+    promptEnhancers: [
+      "in a documentary style with cinematic realism, natural lighting, authentic atmosphere, and observational photography",
+      "documentary aesthetic, cinematic realism style, natural lighting, authentic atmosphere, observational photography",
+      "cinematic documentary style, realism aesthetic, natural lighting, authentic atmosphere, observational photography",
+      "documentary cinematic style, realism aesthetic, natural lighting, authentic atmosphere, observational photography",
+    ],
+    examples: ["documentary", "cinematic", "natural lighting", "authentic"],
+    keyword: "documentary",
+  },
+  {
     theme: "Double Exposure",
     description: "Layered photographic effect",
     promptEnhancers: [
