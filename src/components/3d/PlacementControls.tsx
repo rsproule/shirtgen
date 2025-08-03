@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { TexturePlacement } from "@/types";
 
 interface PlacementControlsProps {
@@ -11,33 +11,27 @@ export function PlacementControls({
   onPlacementChange,
 }: PlacementControlsProps) {
   return (
-    <div className="mb-4 flex justify-center">
-      <div className="flex space-x-2">
-        <Button
-          variant={placement === "front" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onPlacementChange("front")}
-          className="px-4 py-2"
-        >
+    <div className="flex justify-center">
+      <ToggleGroup
+        type="single"
+        value={placement}
+        onValueChange={(value) => {
+          if (value) onPlacementChange(value as TexturePlacement);
+        }}
+        variant="outline"
+        size="sm"
+        className="flex-row"
+      >
+        <ToggleGroupItem value="front" className="px-3 py-1 sm:px-4 sm:py-2">
           Front
-        </Button>
-        <Button
-          variant={placement === "back" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onPlacementChange("back")}
-          className="px-4 py-2"
-        >
+        </ToggleGroupItem>
+        <ToggleGroupItem value="back" className="px-3 py-1 sm:px-4 sm:py-2">
           Back
-        </Button>
-        <Button
-          variant={placement === "full-shirt" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onPlacementChange("full-shirt")}
-          className="px-4 py-2"
-        >
+        </ToggleGroupItem>
+        <ToggleGroupItem value="full-shirt" className="px-3 py-1 sm:px-4 sm:py-2">
           Full Shirt
-        </Button>
-      </div>
+        </ToggleGroupItem>
+      </ToggleGroup>
     </div>
   );
 }
