@@ -45,11 +45,11 @@ export function ErrorDisplay({
 
   return (
     <div
-      className={`fixed top-4 right-4 left-4 z-50 transform transition-all duration-300 sm:top-4 sm:right-4 sm:left-auto ${
+      className={`fixed top-4 right-4 left-4 z-[9999] transform transition-all duration-300 sm:top-4 sm:right-4 sm:left-auto ${
         isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       }`}
     >
-      <div className="border-destructive/20 bg-destructive/10 w-full max-w-md rounded-lg border p-3 shadow-lg sm:w-auto sm:p-4">
+      <div className="bg-background w-full max-w-md rounded-lg border p-3 shadow-lg sm:w-auto sm:p-4">
         <div className="flex items-start gap-3">
           <AlertCircle className="text-destructive mt-0.5 h-5 w-5 flex-shrink-0" />
 
