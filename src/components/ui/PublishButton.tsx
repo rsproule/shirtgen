@@ -1,6 +1,19 @@
 import { useState, useEffect } from "react";
-import { Share2, ExternalLink, X, Loader2 } from "lucide-react";
+import {
+  Share2,
+  ExternalLink,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { printifyService } from "@/services/printify";
 import { db } from "@/services/db";
@@ -25,102 +38,75 @@ function PublishModal({
   shopifyUrl,
   isPublished,
 }: PublishModalProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-      <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Publish Design
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 transition-colors hover:text-gray-600"
-            disabled={isPublishing}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mb-6">
-          <p className="mb-4 text-gray-600">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-white sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Publish Design</DialogTitle>
+          <DialogDescription>
             {isPublishing
               ? `Publishing "${designName}" to your store...`
-              : `Ready to share "${designName}" with the world?`}
-          </p>
+              : isPublished
+                ? `"${designName}" has been published successfully!`
+                : `Ready to share "${designName}" with the world?`}
+          </DialogDescription>
+        </DialogHeader>
 
+        <div className="space-y-4">
           {isPublishing && (
-            <div className="rounded-lg border bg-blue-50 p-4">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                <span className="text-sm text-blue-800">
-                  Creating product on Printify and syncing to Shopify...
-                </span>
+            <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4">
+              <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+              <div>
+                <p className="font-medium">Publishing...</p>
+                <p className="text-muted-foreground text-sm">
+                  Creating your shirt creating...
+                </p>
               </div>
             </div>
           )}
 
           {error && (
-            <div className="rounded-lg border bg-red-50 p-4">
-              <h4 className="mb-2 font-medium text-red-900">
-                Publishing Failed
-              </h4>
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 text-red-600" />
+              <div>
+                <p className="font-medium text-red-900">Publishing Failed</p>
+                <p className="mt-1 text-sm text-red-700">{error}</p>
+              </div>
             </div>
           )}
 
           {isPublished && !isPublishing && (
-            <div className="rounded-lg border bg-green-50 p-4">
-              <h4 className="mb-3 font-medium text-green-900">
-                Product published successfully!
-              </h4>
-              <p className="mb-3 text-sm text-green-700">
-                Your shirt is now available on Shopify. Click below to view the
-                product page.
-              </p>
+            <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
+              <div>
+                <p className="font-medium text-green-900">Success!</p>
+                <p className="mt-1 text-sm text-green-700">
+                  Your shirt is now live on Shopify
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          {isPublished && !isPublishing ? (
+        <div className="flex justify-end gap-2">
+          {isPublished && !isPublishing && shopifyUrl ? (
             <>
-              <Button
-                onClick={() =>
-                  window.open(
-                    shopifyUrl || "https://shirt-slop.myshopify.com",
-                    "_blank",
-                  )
-                }
-                className="flex-1 bg-green-600 hover:bg-green-700"
-                size="sm"
-              >
-                <ExternalLink className="mr-2 h-4 w-4" />
-                {shopifyUrl ? "View Product" : "View Store"}
-              </Button>
-              <Button
-                onClick={onClose}
-                variant="outline"
-                className="flex-1"
-                size="sm"
-              >
+              <Button variant="outline" onClick={onClose}>
                 Close
+              </Button>
+              <Button onClick={() => window.open(shopifyUrl, "_blank")}>
+                <ExternalLink className="mr-2 h-4 w-4" />
+                View Product
               </Button>
             </>
           ) : (
-            <Button
-              onClick={onClose}
-              className="w-full"
-              size="sm"
-              disabled={isPublishing}
-            >
+            <Button variant="outline" onClick={onClose} disabled={isPublishing}>
               {isPublishing ? "Publishing..." : "Close"}
             </Button>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
