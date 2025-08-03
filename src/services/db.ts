@@ -1,11 +1,16 @@
 import Dexie, { type EntityTable } from "dexie";
 
 export interface ShirtHistoryItem {
-  id: string;
+  id: string; // Image hash as unique identifier
   prompt: string;
   imageUrl: string;
   generatedAt: string;
   timestamp: number;
+  productName?: string; // LLM-generated product name
+  printifyProductId?: string; // Printify product ID
+  shopifyUrl?: string; // Direct Shopify product URL
+  isPublished?: boolean; // Whether product was successfully published
+  publishedAt?: string; // When it was published
 }
 
 export interface PromptHistoryItem {
