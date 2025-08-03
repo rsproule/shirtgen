@@ -119,24 +119,79 @@ class PrintifyService {
   }
 
   async uploadImage(imageBlob: Blob): Promise<PrintifyImage> {
-    // Convert blob directly to base64 without any resizing or compression
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = async () => {
-        try {
-          const dataUrl = reader.result as string;
-          const result = await this.makeRequest<PrintifyImage>("upload", {
-            imageUrl: dataUrl,
-          });
-          resolve(result);
-        } catch (error) {
-          reject(error);
+    // Compress image if it's too large
+    return new Promise(async (resolve, reject) => {
+      try {
+        let processedBlob = imageBlob;
+        
+        // If image is larger than 2MB, compress it
+        if (imageBlob.size > 2 * 1024 * 1024) {
+          console.log(`🗜️ Compressing image from ${(imageBlob.size / 1024 / 1024).toFixed(2)}MB`);
+          processedBlob = await this.compressImage(imageBlob);
+          console.log(`✅ Compressed to ${(processedBlob.size / 1024 / 1024).toFixed(2)}MB`);
         }
+
+        const reader = new FileReader();
+
+        reader.onload = async () => {
+          try {
+            const dataUrl = reader.result as string;
+            const result = await this.makeRequest<PrintifyImage>("upload", {
+              imageUrl: dataUrl,
+            });
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        };
+
+        reader.onerror = reject;
+        reader.readAsDataURL(processedBlob);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  private async compressImage(blob: Blob): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate new dimensions while maintaining aspect ratio
+        const maxWidth = 1024;
+        const maxHeight = 1536;
+        let { width, height } = img;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(
+          (compressedBlob) => {
+            if (compressedBlob) {
+              resolve(compressedBlob);
+            } else {
+              reject(new Error('Failed to compress image'));
+            }
+          },
+          'image/png',
+          0.9 // 90% quality
+        );
       };
 
-      reader.onerror = reject;
-      reader.readAsDataURL(imageBlob);
+      img.onerror = reject;
+      img.src = URL.createObjectURL(blob);
     });
   }
 
