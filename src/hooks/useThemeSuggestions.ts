@@ -11,7 +11,7 @@ interface ThemeSuggestion {
 const themeSuggestions: ThemeSuggestion[] = [
   {
     theme: "Ultrarealistic",
-    description: "Fine grain film camera",
+    description: "Film camera",
     promptEnhancers: [
       "in an ultrarealistic style with fine grain film camera aesthetic and photorealistic details",
       "photorealistic rendering with ultrarealistic quality and fine grain film texture",
@@ -23,7 +23,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Grainy Film Camera",
-    description: "Vintage film aesthetic",
+    description: "Film aesthetic",
     promptEnhancers: [
       "with a grainy film camera aesthetic, vintage photography style, and authentic film grain texture",
       "vintage film grain aesthetic, authentic analog camera texture, retro photography style",
@@ -40,7 +40,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "B&W Portrait",
-    description: "High-contrast headshot",
+    description: "High contrast",
     promptEnhancers: [
       "in ultra-realistic high-contrast black-and-white style with dramatic lighting and 35mm lens quality",
       "high-contrast black-and-white aesthetic, ultra-realistic style, dramatic lighting, 35mm lens quality",
@@ -52,7 +52,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Vintage",
-    description: "Retro t-shirt designs",
+    description: "Retro designs",
     promptEnhancers: [
       "in a vintage retro t-shirt design style with distressed graphics and nostalgic 80s/90s aesthetic",
       "vintage t-shirt design aesthetic, retro graphics style, distressed and nostalgic 80s/90s look",
@@ -69,7 +69,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "80s Glamour",
-    description: "Mall portrait studio",
+    description: "Portrait studio",
     promptEnhancers: [
       "in cheesy 1980s mall glamour shot style with foggy soft lighting, teal and magenta color palette",
       "1980s mall glamour shot aesthetic, cheesy style, foggy soft lighting, teal and magenta color scheme",
@@ -86,7 +86,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Cyberpunk",
-    description: "Neon & futuristic",
+    description: "Neon futuristic",
     promptEnhancers: [
       "in a cyberpunk aesthetic with vivid neon accents, futuristic textures, glowing details, and high-contrast lighting",
       "cyberpunk style aesthetic, vivid neon accents, futuristic textures, glowing details, high-contrast lighting",
@@ -103,7 +103,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Art Nouveau",
-    description: "Flowing organic elegance",
+    description: "Organic elegance",
     promptEnhancers: [
       "in an Art Nouveau style with flowing lines, organic shapes, and decorative elegance",
       "Art Nouveau aesthetic, flowing organic lines, decorative elegance",
@@ -120,7 +120,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Anime",
-    description: "Japanese animation style",
+    description: "Animation style",
     promptEnhancers: [
       "in a detailed anime aesthetic with expressive eyes, smooth cel-shaded coloring, and clean linework",
       "anime style aesthetic, detailed rendering, expressive eyes, smooth cel-shaded coloring, clean linework",
@@ -137,7 +137,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "50s Cartoon",
-    description: "Retro UPA animation",
+    description: "UPA animation",
     promptEnhancers: [
       "in a retro 1950s cartoon style with minimal vector art, Art Deco inspiration, clean flat colors, geometric shapes, and mid-century modern design aesthetic",
       "retro 1950s cartoon aesthetic, minimal vector art, Art Deco inspiration, clean flat colors, geometric shapes, mid-century modern design",
@@ -149,7 +149,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Renaissance",
-    description: "Classical oil painting",
+    description: "Oil painting",
     promptEnhancers: [
       "in a Renaissance style with classical oil painting technique, rich colors, dramatic lighting, and masterful brushwork",
       "Renaissance aesthetic, classical oil painting style, rich colors, dramatic lighting, masterful brushwork",
@@ -161,7 +161,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Engraving",
-    description: "Fine line etching",
+    description: "Line etching",
     promptEnhancers: [
       "in an engraving style with fine line etching technique, detailed cross-hatching, monochromatic tones, and intricate linework",
       "engraving aesthetic, fine line etching style, detailed cross-hatching, monochromatic tones, intricate linework",
@@ -173,7 +173,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Gothic",
-    description: "Dark medieval aesthetic",
+    description: "Medieval aesthetic",
     promptEnhancers: [
       "in a gothic style with dark medieval aesthetic, dramatic shadows, ornate details, and mysterious atmosphere",
       "gothic aesthetic, dark medieval style, dramatic shadows, ornate details, mysterious atmosphere",
@@ -185,7 +185,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Pop Art",
-    description: "Bold colorful style",
+    description: "Colorful style",
     promptEnhancers: [
       "in a pop art style with bold colors, high contrast, comic book aesthetic, and vibrant saturation",
       "pop art aesthetic, bold colorful style, high contrast, comic book aesthetic, vibrant saturation",
@@ -197,7 +197,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Film Noir",
-    description: "Dark dramatic lighting",
+    description: "Dramatic lighting",
     promptEnhancers: [
       "in a film noir style with dramatic shadows, high contrast black and white, moody lighting, and atmospheric darkness",
       "film noir aesthetic, dramatic shadow style, high contrast black and white, moody lighting, atmospheric darkness",
@@ -209,7 +209,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Polaroid",
-    description: "Vintage instant photo",
+    description: "Instant photo",
     promptEnhancers: [
       "in a polaroid style with vintage instant photo aesthetic, warm tones, soft focus, and nostalgic film quality",
       "polaroid aesthetic, vintage instant photo style, warm tones, soft focus, nostalgic film quality",
@@ -221,7 +221,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Watercolor",
-    description: "Soft painted style",
+    description: "Painted style",
     promptEnhancers: [
       "in a watercolor style with soft painted aesthetic, flowing colors, transparent washes, and artistic brushwork",
       "watercolor aesthetic, soft painted style, flowing colors, transparent washes, artistic brushwork",
@@ -233,7 +233,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Sketch",
-    description: "Hand-drawn pencil style",
+    description: "Pencil style",
     promptEnhancers: [
       "in a sketch style with hand-drawn pencil aesthetic, loose linework, rough texture, and artistic spontaneity",
       "sketch aesthetic, hand-drawn pencil style, loose linework, rough texture, artistic spontaneity",
@@ -245,7 +245,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Surrealist",
-    description: "Dreamlike artistic style",
+    description: "Artistic style",
     promptEnhancers: [
       "in a surrealist style with dreamlike aesthetic, ethereal atmosphere, otherworldly lighting, and artistic imagination",
       "surrealist aesthetic, dreamlike style, ethereal atmosphere, otherworldly lighting, artistic imagination",
@@ -269,7 +269,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Double Exposure",
-    description: "Layered photographic effect",
+    description: "Photographic effect",
     promptEnhancers: [
       "in a double exposure style with layered photographic effect, overlapping imagery, transparent blending, and artistic layering",
       "double exposure aesthetic, layered photographic style, overlapping imagery, transparent blending, artistic layering",
@@ -281,7 +281,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Kawaii",
-    description: "Cute Japanese aesthetic",
+    description: "Japanese aesthetic",
     promptEnhancers: [
       "in a kawaii style with cute Japanese aesthetic, pastel colors, soft lighting, and adorable charm",
       "kawaii aesthetic, cute Japanese style, pastel colors, soft lighting, adorable charm",
@@ -293,7 +293,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Cottage Core",
-    description: "Rustic romantic aesthetic",
+    description: "Romantic aesthetic",
     promptEnhancers: [
       "in a cottage core style with rustic romantic aesthetic, warm natural lighting, earthy tones, and pastoral charm",
       "cottage core aesthetic, rustic romantic style, warm natural lighting, earthy tones, pastoral charm",
@@ -305,7 +305,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Long Exposure",
-    description: "Motion blur photography",
+    description: "Blur photography",
     promptEnhancers: [
       "in a long exposure style with motion blur photography, flowing light trails, ethereal movement, and artistic blur effects",
       "long exposure aesthetic, motion blur photography style, flowing light trails, ethereal movement, artistic blur effects",
@@ -317,7 +317,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Ukiyo-e",
-    description: "Traditional Japanese woodblock",
+    description: "Japanese woodblock",
     promptEnhancers: [
       "in a ukiyo-e style with traditional Japanese woodblock aesthetic, flat colors, bold outlines, and classical composition",
       "ukiyo-e aesthetic, traditional Japanese woodblock style, flat colors, bold outlines, classical composition",
@@ -329,7 +329,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Vaporwave",
-    description: "Retro-futuristic aesthetic",
+    description: "Futuristic aesthetic",
     promptEnhancers: [
       "in a vaporwave style with retro-futuristic aesthetic, neon pink and cyan colors, glitch effects, and 80s nostalgia",
       "vaporwave aesthetic, retro-futuristic style, neon pink and cyan colors, glitch effects, 80s nostalgia",
@@ -341,7 +341,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Dark Academia",
-    description: "Moody scholarly aesthetic",
+    description: "Scholarly aesthetic",
     promptEnhancers: [
       "in a dark academia style with moody scholarly aesthetic, rich browns and golds, dramatic shadows, and intellectual atmosphere",
       "dark academia aesthetic, moody scholarly style, rich browns and golds, dramatic shadows, intellectual atmosphere",
@@ -353,7 +353,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Sci-Fi",
-    description: "Futuristic design aesthetic",
+    description: "Design aesthetic",
     promptEnhancers: [
       "in a sci-fi style with futuristic design aesthetic, sleek metallic surfaces, advanced technology lighting, and otherworldly atmosphere",
       "sci-fi aesthetic, futuristic design style, sleek metallic surfaces, advanced technology lighting, otherworldly atmosphere",
@@ -365,7 +365,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Tattoo",
-    description: "Traditional ink aesthetic",
+    description: "Ink aesthetic",
     promptEnhancers: [
       "in a tattoo style with traditional ink aesthetic, bold black outlines, solid colors, and permanent art quality",
       "tattoo aesthetic, traditional ink style, bold black outlines, solid colors, permanent art quality",
@@ -377,7 +377,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Charcoal",
-    description: "Soft monochromatic drawing",
+    description: "Charcoal drawing",
     promptEnhancers: [
       "in a charcoal style with soft monochromatic drawing aesthetic, rich blacks and grays, smudged textures, and artistic depth",
       "charcoal aesthetic, soft monochromatic drawing style, rich blacks and grays, smudged textures, artistic depth",
@@ -389,7 +389,7 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
   {
     theme: "Mid-Century Modern",
-    description: "Clean geometric aesthetic",
+    description: "Geometric aesthetic",
     promptEnhancers: [
       "in a mid-century modern style with clean geometric aesthetic, warm earth tones, organic curves, and minimalist elegance",
       "mid-century modern aesthetic, clean geometric style, warm earth tones, organic curves, minimalist elegance",

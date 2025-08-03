@@ -152,4 +152,16 @@
   .animate-scroll {
     animation: scroll 600s linear infinite;
   }
+
+  .animate-scroll-paused {
+    animation-play-state: paused;
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
