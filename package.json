@@ -9,14 +9,17 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api-dev": "vercel dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-three/drei": "^10.6.1",
     "@react-three/fiber": "^9.3.0",
+    "@vercel/node": "^5.3.10",
     "@zdql/echo-react-sdk": "^0.1.25",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
