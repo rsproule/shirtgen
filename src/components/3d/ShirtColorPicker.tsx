@@ -1,3 +1,10 @@
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useShirtData } from "@/context/ShirtDataContext";
 
 const SHIRT_COLORS = [
@@ -10,27 +17,36 @@ const SHIRT_COLORS = [
 export function ShirtColorPicker() {
   const { shirtColor, setShirtColor } = useShirtData();
 
+  const handleColorClick = (color: string) => {
+    setShirtColor(color);
+  };
+
   return (
-    <div className="mb-4 flex justify-center">
-      <div className="flex space-x-2">
-        {SHIRT_COLORS.map(colorOption => (
-          <div key={colorOption.color} className="group relative">
-            <button
-              onClick={() => setShirtColor(colorOption.color)}
-              className={`h-8 w-8 rounded-full border-2 transition-all ${
-                shirtColor === colorOption.color
-                  ? "scale-110 border-gray-800"
-                  : "border-gray-300 hover:border-gray-500"
-              }`}
-              style={{ backgroundColor: colorOption.color }}
-              aria-label={`Select ${colorOption.name} shirt color`}
-            />
-            <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 transform rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
-              {colorOption.name}
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="flex justify-center">
+      <TooltipProvider>
+        <div className="flex gap-1">
+          {SHIRT_COLORS.map(colorOption => (
+            <Tooltip key={colorOption.color}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => handleColorClick(colorOption.color)}
+                  className={`h-8 w-8 rounded transition-all ${
+                    shirtColor === colorOption.color
+                      ? "ring-2 ring-gray-800 ring-offset-1"
+                      : ""
+                  }`}
+                  style={{ backgroundColor: colorOption.color }}
+                  aria-label={`Select ${colorOption.name} shirt color`}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{colorOption.name}</p>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
+      </TooltipProvider>
     </div>
   );
 }

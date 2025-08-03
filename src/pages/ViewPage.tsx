@@ -243,11 +243,11 @@ export function ViewPage() {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex-shrink-0 border-t border-gray-200 bg-white p-4">
+        <div className="flex-shrink-0 border-t border-gray-200 bg-white p-2 sm:p-4">
           <div className="mx-auto max-w-4xl">
             {/* User Prompt Display */}
             {shirtData.prompt && (
-              <div className="mb-4 text-center">
+              <div className="mb-2 text-center sm:mb-4">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -297,41 +297,20 @@ export function ViewPage() {
               </div>
             )}
 
-            {/* Simplified Controls Row */}
-            <div className="mb-4 flex items-center justify-between">
+            {/* Controls - Responsive Layout */}
+            <div className="mb-1 flex flex-col items-center gap-1 sm:flex-row sm:justify-between sm:gap-3">
               {/* Shirt Color Selection */}
-              <div className="flex-shrink-0">
+              <div>
                 <ShirtColorPicker />
               </div>
 
               {/* Texture Placement */}
-              <div className="flex-shrink-0">
+              <div>
                 <PlacementControls
                   placement={texturePlacement}
                   onPlacementChange={setTexturePlacement}
                 />
               </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!shirtData.imageUrl}
-                onClick={handleDownload}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Download
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleNewDesign}
-                className="bg-black text-white hover:bg-gray-800"
-              >
-                New Design
-              </Button>
             </div>
           </div>
         </div>
