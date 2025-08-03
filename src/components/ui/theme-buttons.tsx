@@ -1,8 +1,8 @@
-import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
+import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { cn } from "@/lib/utils";
+import { Palette, Star, X } from "lucide-react";
 import React, { useState } from "react";
-import { X, Star, Palette } from "lucide-react";
 import { Button } from "./button";
 
 interface ThemeButtonProps {
