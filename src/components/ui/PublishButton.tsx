@@ -47,7 +47,6 @@ function PublishModal({
 }: PublishModalProps) {
   const [productName, setProductName] = useState("");
   const [hasUserEdited, setHasUserEdited] = useState(false);
-const [fileSizeMB, setFileSizeMB] = useState<number | null>(null);
 
   // Initialize product name when modal opens, but don't override user edits
   useEffect(() => {
@@ -64,30 +63,6 @@ const [fileSizeMB, setFileSizeMB] = useState<number | null>(null);
     }
   }, [isOpen]);
 
-  // Calculate file size from data URL
-  useEffect(() => {
-    if (imageUrl && imageUrl.startsWith("data:")) {
-      try {
-        // Extract the base64 part after the comma
-        const base64Data = imageUrl.split(",")[1];
-        if (base64Data) {
-          // Calculate size: base64 is ~4/3 the size of the original binary data
-          // Each base64 character represents 6 bits, so 4 chars = 3 bytes
-          const sizeInBytes = (base64Data.length * 3) / 4;
-          // Account for padding characters
-          const padding = (imageUrl.match(/=/g) || []).length;
-          const actualSizeInBytes = sizeInBytes - padding;
-          const sizeInMB = actualSizeInBytes / (1024 * 1024);
-          setFileSizeMB(Math.round(sizeInMB * 100) / 100); // Round to 2 decimal places
-        }
-      } catch (error) {
-        console.warn("Failed to calculate file size:", error);
-        setFileSizeMB(null);
-      }
-    } else {
-      setFileSizeMB(null);
-    }
-  }, [imageUrl]);
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProductName(e.target.value);
