@@ -187,12 +187,9 @@ export function PublishButton() {
         description,
       );
 
-      // Set the Shopify URL if we have the handle
+      // Set the Shopify URL using the external handle directly
       if (result.product.external?.handle) {
-        const url = printifyService.getShopifyUrl(
-          result.product.external.handle,
-        );
-        setShopifyUrl(url);
+        setShopifyUrl(result.product.external.handle);
       }
 
       // Update IndexedDB with published product info

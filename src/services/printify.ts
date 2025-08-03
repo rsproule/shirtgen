@@ -2,6 +2,26 @@ import { db } from "./db";
 import { generateImageHash } from "./imageHash";
 import { createProductIdentifier, generateProductName } from "./nameGeneration";
 
+// Shirt configuration presets
+interface ShirtConfig {
+  name: string;
+  blueprint_id: number;
+  print_provider_id: number;
+  variants: number[];
+}
+
+const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
+  shaka: {
+    name: "Unisex Garment-Dyed Drop-Shoulder T-Shirt (Shaka)",
+    blueprint_id: 1723,
+    print_provider_id: 74,
+    variants: [
+      118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
+      118102, 118106, 118107,
+    ],
+  },
+};
+
 interface PrintifyImage {
   id: string;
   src: string;
@@ -188,10 +208,6 @@ class PrintifyService {
     return response.json();
   }
 
-  getShopifyUrl(productHandle: string): string {
-    return `https://${this.shopifyStore}.myshopify.com/products/${productHandle}`;
-  }
-
   async createShirtFromDesign(
     imageUrl: string,
     prompt: string,
@@ -240,15 +256,12 @@ class PrintifyService {
         JSON.stringify(uploadedImage, null, 2),
       );
 
-      // 2. Use working values from script - Unisex Oversized Boxy Tee
-      // Should include all the ones between these (inclusive) using an array function
-      const availableVariantIds = [
-        118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
-        118102, 118106, 118107,
-      ];
-      console.log("📋 Step 2: Using variant IDs:", availableVariantIds);
+      // 2. Use Shaka shirt configuration
+      const shirtConfig = SHIRT_CONFIGS.shaka;
+      console.log("📋 Step 2: Using shirt config:", shirtConfig.name);
+      console.log("📋 Variant IDs:", shirtConfig.variants);
 
-      // 3. Create product with working blueprint/provider
+      // 3. Create product with Shaka shirt configuration
       console.log("🏭 Step 3: Creating product on Printify...");
       const identifier = createProductIdentifier(imageHash);
       const productPayload: CreateProductPayload = {
@@ -256,25 +269,25 @@ class PrintifyService {
         description:
           description ||
           `Custom AI-generated shirt design: ${prompt}\n\nID: ${identifier}`,
-        blueprint_id: 1723,
-        print_provider_id: 74,
-        variants: availableVariantIds.map(variantId => ({
+        blueprint_id: shirtConfig.blueprint_id,
+        print_provider_id: shirtConfig.print_provider_id,
+        variants: shirtConfig.variants.map(variantId => ({
           id: variantId,
           price: price,
           is_enabled: true,
         })),
         print_areas: [
           {
-            variant_ids: availableVariantIds,
+            variant_ids: shirtConfig.variants,
             placeholders: [
               {
-                position: "front",
+                position: "front_dtg",
                 images: [
                   {
                     id: uploadedImage.id,
                     x: 0.5, // Center horizontally
                     y: 0.5, // Center vertically
-                    scale: 0.8, // Slightly smaller than full size
+                    scale: 0.6, // Full size (same as bash script)
                     angle: 0,
                   },
                 ],
@@ -285,7 +298,7 @@ class PrintifyService {
       };
 
       console.log(
-        "📦 Product payload prepared with blueprint 1723 and provider 74",
+        `📦 Product payload prepared with blueprint ${shirtConfig.blueprint_id} and provider ${shirtConfig.print_provider_id}`,
       );
       console.log(
         "🖼️ Print areas config:",
@@ -311,16 +324,8 @@ class PrintifyService {
       );
       console.log("🔗 Product external data:", updatedProduct.external);
 
-      let shopifyUrl: string | undefined;
-      if (updatedProduct.external?.handle) {
-        // Extract handle from full URL if needed, or use as-is if it's just a handle
-        const handleValue = updatedProduct.external.handle;
-        const justHandle = handleValue.includes("/products/")
-          ? handleValue.split("/products/")[1]?.split("?")[0]
-          : handleValue;
-
-        shopifyUrl = this.getShopifyUrl(justHandle);
-      }
+      // Use the external handle directly as it contains the full Shopify URL
+      const shopifyUrl = updatedProduct.external?.handle;
 
       if (shopifyUrl) {
         console.log("🛒 Shopify product URL:", shopifyUrl);
