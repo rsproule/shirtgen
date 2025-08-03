@@ -32,8 +32,8 @@ export function Branding({
   const classes = sizeClasses[size];
 
   return (
-    <div 
-      className={`flex items-center ${onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${className}`}
+    <div
+      className={`flex items-center ${onClick ? "cursor-pointer transition-opacity hover:opacity-80" : ""} ${className}`}
       onClick={onClick}
     >
       <div className="flex items-center gap-2">

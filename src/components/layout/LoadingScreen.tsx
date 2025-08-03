@@ -20,7 +20,7 @@ export function LoadingScreen({
   });
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-white p-4 container mx-auto">
+    <div className="relative container mx-auto flex min-h-screen items-center justify-center bg-white p-4">
       {/* Dancing Pepe video in top left corner */}
       <div className="absolute top-4 left-4 z-10">
         <video

@@ -44,17 +44,17 @@ export async function getPublishedProduct(imageHash: string): Promise<{
 } | null> {
   try {
     const item = await db.shirtHistory.get(imageHash);
-    
+
     if (item && item.isPublished && item.printifyProductId) {
       return {
-        productName: item.productName || 'Untitled',
+        productName: item.productName || "Untitled",
         prompt: item.prompt,
         printifyProductId: item.printifyProductId,
         shopifyUrl: item.shopifyUrl,
         publishedAt: item.publishedAt || item.generatedAt,
       };
     }
-    
+
     return null;
   } catch (error) {
     console.warn("Failed to get published product:", error);
@@ -69,4 +69,3 @@ export async function isImagePublished(imageHash: string): Promise<boolean> {
   const publishedProduct = await getPublishedProduct(imageHash);
   return publishedProduct !== null;
 }
-
