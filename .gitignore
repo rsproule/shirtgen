@@ -28,3 +28,6 @@ dist-ssr
 
 .env
 .vercel
+
+# Package lock files
+package-lock.json

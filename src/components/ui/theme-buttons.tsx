@@ -1,7 +1,8 @@
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
+import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
-import { X } from "lucide-react";
+import { X, Star } from "lucide-react";
 
 interface ThemeButtonProps {
   theme: string;
@@ -44,8 +45,10 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
   activeThemes = [],
 }) => {
   const { themeSuggestions } = useThemeSuggestions();
+  const { favoriteThemes, addToFavorites, removeFromFavorites, isFavorite } = useFavoriteThemes();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedThemes, setSelectedThemes] = useState<string[]>(activeThemes);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleThemeToggle = (theme: string) => {
     const newSelectedThemes = selectedThemes.includes(theme)
@@ -68,17 +71,79 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
     setIsModalOpen(false);
   };
 
+  const handleThemeClick = (theme: string) => {
+    onThemeSelect(theme);
+    addToFavorites(theme);
+  };
+
+  const handleFavoriteToggle = (theme: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isFavorite(theme)) {
+      removeFromFavorites(theme);
+    } else {
+      addToFavorites(theme);
+    }
+  };
+
   return (
     <div className="w-full">
-      <div className="relative overflow-hidden w-full">
-        <div className="flex gap-1 animate-scroll whitespace-nowrap min-w-max">
+      {/* Favorite Themes Section */}
+      {favoriteThemes.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+            <h3 className="text-sm font-semibold text-gray-700">Favorite Themes</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {favoriteThemes.map((favoriteTheme) => {
+              const themeData = themeSuggestions.find(t => t.theme === favoriteTheme.theme);
+              if (!themeData) return null;
+              
+              return (
+                <button
+                  key={favoriteTheme.theme}
+                  onClick={() => handleThemeClick(favoriteTheme.theme)}
+                  className={cn(
+                    "h-16 p-3 rounded-lg border text-left transition-all duration-200",
+                    "hover:shadow-md flex flex-col justify-center relative",
+                    activeThemes.includes(favoriteTheme.theme)
+                      ? "border-blue-300 bg-blue-50 text-gray-700"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
+                  )}
+                >
+                  <div className="font-semibold text-xs leading-tight truncate">{favoriteTheme.theme}</div>
+                  <div className="text-xs text-gray-500 leading-tight truncate">{themeData.description}</div>
+                  <button
+                    onClick={(e) => handleFavoriteToggle(favoriteTheme.theme, e)}
+                    className="absolute top-1 right-1 p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                  </button>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Scrolling Themes Section */}
+      <div 
+        className="relative overflow-hidden w-full"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className={cn(
+          "flex gap-1 whitespace-nowrap min-w-max",
+          "animate-scroll",
+          isHovered && "animate-scroll-paused"
+        )}>
           {/* Duplicate many times for infinite loop */}
           {[...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions, ...themeSuggestions].map((themeData, index) => (
             <ThemeButton
               key={`${themeData.theme}-${index}`}
               theme={themeData.theme}
               description={themeData.description}
-              onClick={onThemeSelect}
+              onClick={handleThemeClick}
               isSelected={activeThemes.includes(themeData.theme)}
             />
           ))}
@@ -102,7 +167,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
           onClick={handleCloseModal}
         >
           <div 
-            className="bg-white rounded-lg border border-gray-200 shadow-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-lg border border-gray-200 shadow-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
@@ -115,21 +180,32 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
               </button>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {themeSuggestions.map((themeData) => (
                 <button
                   key={themeData.theme}
                   onClick={() => handleThemeToggle(themeData.theme)}
                   className={cn(
-                    "p-2 rounded-lg border text-left transition-all duration-200",
-                    "hover:shadow-md",
+                    "h-16 p-3 rounded-lg border text-left transition-all duration-200",
+                    "hover:shadow-md flex flex-col justify-center relative",
                     activeThemes.includes(themeData.theme)
                       ? "border-blue-300 bg-blue-50 text-gray-700"
                       : "border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50",
                   )}
                 >
-                  <div className="font-semibold text-xs">{themeData.theme}</div>
-                  <div className="text-xs text-gray-500 mt-1">{themeData.description}</div>
+                  <div className="font-semibold text-xs leading-tight truncate">{themeData.theme}</div>
+                  <div className="text-xs text-gray-500 leading-tight truncate">{themeData.description}</div>
+                  <button
+                    onClick={(e) => handleFavoriteToggle(themeData.theme, e)}
+                    className="absolute top-1 right-1 p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Star className={cn(
+                      "h-3 w-3",
+                      isFavorite(themeData.theme) 
+                        ? "text-yellow-500 fill-current" 
+                        : "text-gray-400 hover:text-yellow-500"
+                    )} />
+                  </button>
                 </button>
               ))}
             </div>
