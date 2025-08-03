@@ -1,3 +1,7 @@
+import { db } from "./db";
+import { generateImageHash } from "./imageHash";
+import { createProductIdentifier, generateProductName } from "./nameGeneration";
+
 interface PrintifyImage {
   id: string;
   src: string;
@@ -86,12 +90,44 @@ class PrintifyService {
     }
   }
 
+  private async generateAndStoreProductName(
+    prompt: string,
+    imageHash: string,
+    imageUrl: string,
+  ): Promise<string> {
+    try {
+      console.log("🤖 Generating product name with LLM...");
+      const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      const productName = await generateProductName(prompt, openaiApiKey);
+      console.log("✅ Generated product name:", productName);
+
+      // Store in IndexedDB using image hash as ID
+      await db.shirtHistory.put({
+        id: imageHash,
+        prompt,
+        imageUrl,
+        generatedAt: new Date().toISOString(),
+        timestamp: Date.now(),
+        productName,
+        isPublished: false,
+      });
+
+      console.log("💾 Stored product info in IndexedDB with hash:", imageHash);
+      return productName;
+    } catch (error) {
+      console.warn("Failed to generate/store product name:", error);
+      return prompt.length > 30
+        ? prompt.substring(0, 30).trim() + "..."
+        : prompt.trim();
+    }
+  }
+
   private async makeRequest<T>(
     action: string,
-    body?: any,
+    body?: unknown,
     method: string = "POST",
   ): Promise<T> {
-    const baseUrl = import.meta.env.DEV ? 'http://localhost:3000' : '';
+    const baseUrl = import.meta.env.DEV ? "http://localhost:3000" : "";
     const url = `${baseUrl}/api/printify?action=${action}`;
     const response = await fetch(url, {
       method,
@@ -109,44 +145,14 @@ class PrintifyService {
     return response.json();
   }
 
-
   async uploadImage(imageBlob: Blob): Promise<PrintifyImage> {
-    // Compress the image before uploading to reduce payload size
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-    const img = new Image();
-
+    // Convert blob directly to base64 without any resizing or compression
     return new Promise((resolve, reject) => {
-      img.onload = async () => {
-        // Set max dimensions to reduce file size
-        const maxWidth = 800;
-        const maxHeight = 800;
-
-        let { width, height } = img;
-
-        // Calculate new dimensions maintaining aspect ratio
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw and compress
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Convert to data URL with compression
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.8); // 80% quality
-
+      const reader = new FileReader();
+      
+      reader.onload = async () => {
         try {
+          const dataUrl = reader.result as string;
           const result = await this.makeRequest<PrintifyImage>("upload", {
             imageUrl: dataUrl,
           });
@@ -155,9 +161,9 @@ class PrintifyService {
           reject(error);
         }
       };
-
-      img.onerror = reject;
-      img.src = URL.createObjectURL(imageBlob);
+      
+      reader.onerror = reject;
+      reader.readAsDataURL(imageBlob);
     });
   }
 
@@ -170,7 +176,7 @@ class PrintifyService {
   }
 
   async getProduct(productId: string): Promise<PrintifyProduct> {
-    const baseUrl = import.meta.env.DEV ? 'http://localhost:3000' : '';
+    const baseUrl = import.meta.env.DEV ? "http://localhost:3000" : "";
     const url = `${baseUrl}/api/printify?action=get-product&productId=${productId}`;
     const response = await fetch(url);
 
@@ -188,42 +194,67 @@ class PrintifyService {
 
   async createShirtFromDesign(
     imageUrl: string,
-    title: string,
+    prompt: string,
     description: string = "",
     price: number = 3500, // $35.00 in cents
   ): Promise<{
     product: PrintifyProduct;
     variants: PrintifyVariant[];
     options: PrintifyOption[];
+    imageHash: string;
   }> {
     console.log("🚀 Starting shirt creation process...");
-    console.log("📝 Title:", title);
+    console.log("📝 Original prompt:", prompt);
     console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
-    
+
     try {
-      // 1. Convert image URL to blob and upload
+      // 1. Convert image URL to blob and generate hash
       console.log("📷 Step 1: Fetching and processing image...");
       const imageResponse = await fetch(imageUrl);
-      console.log("✅ Image fetched, size:", imageResponse.headers.get('content-length'), 'bytes');
-      
+      console.log(
+        "✅ Image fetched, size:",
+        imageResponse.headers.get("content-length"),
+        "bytes",
+      );
+
       const imageBlob = await imageResponse.blob();
-      console.log("🔄 Converting to blob, size:", imageBlob.size, 'bytes');
-      
+      console.log("🔄 Converting to blob, size:", imageBlob.size, "bytes");
+
+      // Generate hash from image content
+      const imageHash = await generateImageHash(imageBlob);
+      console.log("🔑 Generated image hash:", imageHash);
+
+      // Generate a marketable product name using LLM
+      const productName = await this.generateAndStoreProductName(
+        prompt,
+        imageHash,
+        imageUrl,
+      );
+      console.log("🏷️ Generated product name:", productName);
+
       console.log("⬆️ Uploading image to Printify...");
       const uploadedImage = await this.uploadImage(imageBlob);
       console.log("✅ Image uploaded successfully, ID:", uploadedImage.id);
+      console.log("📸 Uploaded image details:", JSON.stringify(uploadedImage, null, 2));
 
       // 2. Use working values from script - Unisex Oversized Boxy Tee
-      const availableVariantIds = [103548, 103547, 103546]; // White L, M, S
+      // Should include all the ones between these (inclusive) using an array function
+      const availableVariantIds = [
+        118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
+        118102, 118106, 118107,
+      ];
       console.log("📋 Step 2: Using variant IDs:", availableVariantIds);
 
       // 3. Create product with working blueprint/provider
       console.log("🏭 Step 3: Creating product on Printify...");
+      const identifier = createProductIdentifier(imageHash);
       const productPayload: CreateProductPayload = {
-        title,
-        description: description || `Custom design: ${title}`,
-        blueprint_id: 1382, // Unisex Oversized Boxy Tee
-        print_provider_id: 99, // Working provider from your products
+        title: productName,
+        description:
+          description ||
+          `Custom AI-generated shirt design: ${prompt}\n\nID: ${identifier}`,
+        blueprint_id: 1723, 
+        print_provider_id: 74, 
         variants: availableVariantIds.map(variantId => ({
           id: variantId,
           price: price,
@@ -240,7 +271,7 @@ class PrintifyService {
                     id: uploadedImage.id,
                     x: 0.5, // Center horizontally
                     y: 0.5, // Center vertically
-                    scale: 1,
+                    scale: 0.8, // Slightly smaller than full size
                     angle: 0,
                   },
                 ],
@@ -250,7 +281,10 @@ class PrintifyService {
         ],
       };
 
-      console.log("📦 Product payload prepared with blueprint 1382 and provider 99");
+      console.log(
+        "📦 Product payload prepared with blueprint 1723 and provider 74",
+      );
+      console.log("🖼️ Print areas config:", JSON.stringify(productPayload.print_areas, null, 2));
       const product = await this.createProduct(productPayload);
       console.log("✅ Product created successfully, ID:", product.id);
 
@@ -262,24 +296,48 @@ class PrintifyService {
       // 5. Wait for sync and get updated product details with variants
       console.log("⏳ Step 5: Waiting 5 seconds for Shopify sync...");
       await new Promise(resolve => setTimeout(resolve, 5000));
-      
+
       console.log("🔄 Fetching updated product details...");
       const updatedProduct = await this.getProduct(product.id);
-      console.log("✅ Updated product fetched, variants count:", updatedProduct.variants?.length || 0);
+      console.log(
+        "✅ Updated product fetched, variants count:",
+        updatedProduct.variants?.length || 0,
+      );
       console.log("🔗 Product external data:", updatedProduct.external);
-      
+
+      let shopifyUrl: string | undefined;
       if (updatedProduct.external?.handle) {
-        console.log("🛒 Shopify product URL:", this.getShopifyUrl(updatedProduct.external.handle));
+        // Extract handle from full URL if needed, or use as-is if it's just a handle
+        const handleValue = updatedProduct.external.handle;
+        const justHandle = handleValue.includes("/products/")
+          ? handleValue.split("/products/")[1]?.split("?")[0]
+          : handleValue;
+
+        shopifyUrl = this.getShopifyUrl(justHandle);
+      }
+
+      if (shopifyUrl) {
+        console.log("🛒 Shopify product URL:", shopifyUrl);
       } else {
         console.log("⚠️ No Shopify handle found in external data");
       }
-      
+
+      // Update IndexedDB with published status
+      await db.shirtHistory.update(imageHash, {
+        isPublished: true,
+        publishedAt: new Date().toISOString(),
+        printifyProductId: product.id,
+        shopifyUrl,
+      });
+
+      console.log("💾 Updated published status in database");
       console.log("🎉 Shirt creation process completed successfully!");
 
       return {
         product: updatedProduct,
         variants: updatedProduct.variants || [],
         options: updatedProduct.options || [],
+        imageHash, // Include hash for tracking
       };
     } catch (error) {
       console.error("❌ Failed to create shirt:", error);

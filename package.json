@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api-dev": "vercel dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
