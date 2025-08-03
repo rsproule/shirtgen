@@ -94,9 +94,9 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         // Enable high-quality image rendering
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-        
+
         // Ensure the generated image is drawn at full opacity on top
-        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = "source-over";
         ctx.globalAlpha = 1.0;
 
         // Calculate image aspect ratio
@@ -322,7 +322,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             // The shirt color is already baked into the texture
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
-              color: '#ffffff', // Use white to avoid color multiplication
+              color: "#ffffff", // Use white to avoid color multiplication
               roughness: 0.6,
               metalness: 0.0,
               transparent: false,
