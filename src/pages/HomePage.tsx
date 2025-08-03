@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useTypingStats } from "@/hooks/useTypingStats";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { usePromptEnhancement } from "@/hooks/usePromptEnhancement";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { Navbar } from "@/components/layout/Navbar";
 import { PromptInput } from "@/components/forms/PromptInput";
@@ -27,6 +28,13 @@ export function HomePage() {
     useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
+  const { 
+    enhancePrompt, 
+    suggestions, 
+    isEnhancing, 
+    clearSuggestions,
+    isLowEffortPrompt
+  } = usePromptEnhancement();
 
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
   const {
@@ -37,12 +45,63 @@ export function HomePage() {
   } = useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
 
+  // Ref to track if we're already processing
+  const processingRef = useRef(false);
+
   // Reset loading state when component unmounts
   useEffect(() => {
     return () => {
       setIsLoading(false);
     };
   }, [setIsLoading]);
+
+  // Check for low-effort prompts and generate suggestions
+  const checkPrompt = useCallback(async () => {
+    console.log("=== checkPrompt called ===");
+    console.log("Current prompt:", prompt);
+    console.log("Prompt length:", prompt.length);
+    
+    // Don't show suggestions if user has typed more than 3 words
+    const wordCount = prompt.trim().split(/\s+/).length;
+    if (wordCount > 3) {
+      console.log("More than 3 words, clearing suggestions");
+      clearSuggestions();
+      return;
+    }
+    
+    if (prompt.trim().length > 0) {
+      console.log("Prompt has content, calling enhancePrompt...");
+      await enhancePrompt(prompt);
+    } else {
+      console.log("Empty prompt, clearing suggestions");
+      clearSuggestions();
+    }
+  }, [prompt, enhancePrompt, clearSuggestions]);
+
+  useEffect(() => {
+    console.log("=== useEffect triggered ===");
+    console.log("Prompt changed:", prompt);
+    console.log("Prompt length:", prompt.length);
+    console.log("Is authenticated:", isAuthenticated);
+    console.log("Suggestions count:", suggestions.length);
+    console.log("Is enhancing:", isEnhancing);
+    
+    // Only run if authenticated
+    if (isAuthenticated) {
+      console.log("User is authenticated, setting timeout...");
+      // Trigger immediately when typing starts
+      const timeoutId = setTimeout(() => {
+        console.log("Timeout fired, calling checkPrompt");
+        checkPrompt();
+      }, 300);
+      return () => {
+        console.log("Clearing timeout");
+        clearTimeout(timeoutId);
+      };
+    } else {
+      console.log("User not authenticated, skipping");
+    }
+  }, [prompt, isAuthenticated]); // Remove checkPrompt from dependencies
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -98,6 +157,17 @@ export function HomePage() {
   const handleThemeSelect = (theme: string) => {
     toggleTheme(theme);
   };
+
+  const handleSuggestionSelect = useCallback((suggestion: string) => {
+    console.log("Suggestion selected:", suggestion);
+    setPrompt(suggestion);
+    setPromptWithoutStats();
+    clearSuggestions(); // Clear suggestions after selection
+  }, [setPromptWithoutStats, clearSuggestions]);
+
+  const handleDismissSuggestions = useCallback(() => {
+    clearSuggestions();
+  }, [clearSuggestions]);
 
   // Create the full prompt that would be sent to the API
   const createFullPrompt = (userPrompt: string, themes: string[]): string => {
@@ -179,6 +249,10 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
               fullPrompt={fullPromptPreview}
               activeThemes={selectedThemes}
               onThemeRemove={handleThemeSelect}
+              suggestions={suggestions}
+              onSelectSuggestion={handleSuggestionSelect}
+              onDismissSuggestions={handleDismissSuggestions}
+              isEnhancing={isEnhancing}
             />
 
             {/* Stats Bar */}

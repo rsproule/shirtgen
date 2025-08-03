@@ -1,6 +1,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useRef, useEffect, useState } from "react";
+import { PromptSuggestions } from "@/components/ui/PromptSuggestions";
 
 interface PromptInputProps {
   value: string;
@@ -10,6 +11,14 @@ interface PromptInputProps {
   fullPrompt?: string; // The complete prompt including system prompt and enhancements
   activeThemes?: string[];
   onThemeRemove?: (theme: string) => void;
+  suggestions?: Array<{
+    id: string;
+    text: string;
+    category: string;
+  }>;
+  onSelectSuggestion?: (suggestion: string) => void;
+  onDismissSuggestions?: () => void;
+  isEnhancing?: boolean;
 }
 
 export function PromptInput({
@@ -20,6 +29,10 @@ export function PromptInput({
   fullPrompt,
   activeThemes = [],
   onThemeRemove,
+  suggestions = [],
+  onSelectSuggestion,
+  onDismissSuggestions,
+  isEnhancing = false,
 }: PromptInputProps) {
   const { isAuthenticated } = useShirtData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -119,6 +132,14 @@ export function PromptInput({
           </div>
         )}
       </div>
+
+      {/* Prompt Suggestions */}
+      <PromptSuggestions
+        suggestions={suggestions}
+        onSelectSuggestion={onSelectSuggestion || (() => {})}
+        onDismiss={onDismissSuggestions || (() => {})}
+        isLoading={isEnhancing}
+      />
     </div>
   );
 }
