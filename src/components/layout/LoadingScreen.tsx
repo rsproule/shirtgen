@@ -14,6 +14,9 @@ export function LoadingScreen({
     "/loading-video-3.mp4",
   ];
 
+  // Mobile-only videos (excluding bouncing DVD)
+  const mobileVideos = ["/parkour.mp4", "/subwaysurfers.mp4"];
+
   // All GIFs and videos to randomize
   const loadingGifs = [
     "/Sad Arrested Development GIF.gif",
@@ -24,10 +27,12 @@ export function LoadingScreen({
     "/Meme_Doy_clases_los_jueves_no_cobro_mucho_Shrek.mp4",
   ];
 
-  // Random video for mobile
-  const [mobileVideo] = useState(() => {
-    return loadingVideos[Math.floor(Math.random() * loadingVideos.length)];
-  });
+  // Random video for mobile - select fresh each time
+  const mobileVideo =
+    mobileVideos[Math.floor(Math.random() * mobileVideos.length)];
+
+  // Random start time for videos (between 0 and 60 seconds)
+  const randomStartTime = Math.random() * 60;
 
   // Random GIF to show
   const [randomGif] = useState(() => {
@@ -37,7 +42,7 @@ export function LoadingScreen({
   return (
     <div className="relative container mx-auto flex min-h-svh items-center justify-center bg-white p-4">
       {/* Random GIF/Video in top left corner */}
-      <div className="absolute top-32 left-8 z-10 hidden lg:block">
+      <div className="absolute top-8 left-4 z-10 hidden lg:block">
         {randomGif.endsWith(".mp4") ? (
           <video
             autoPlay
@@ -84,11 +89,20 @@ export function LoadingScreen({
               muted
               playsInline
               preload="auto"
-              className={`h-auto w-full max-w-md rounded-none shadow-lg ${
+              className={`h-auto max-h-[70svh] w-full max-w-md rounded-none shadow-lg ${
                 videoSrc === "/loading-video-3.mp4"
                   ? "border-1 border-white"
                   : ""
               }`}
+              onLoadedMetadata={e => {
+                // Set random start time for parkour and subway surfers videos
+                if (
+                  videoSrc === "/parkour.mp4" ||
+                  videoSrc === "/subwaysurfers.mp4"
+                ) {
+                  e.currentTarget.currentTime = randomStartTime;
+                }
+              }}
               onError={e => {
                 console.error(`Failed to load video: ${videoSrc}`, e);
                 // Hide the video element if it fails to load
@@ -105,18 +119,27 @@ export function LoadingScreen({
         </div>
 
         {/* Mobile: Show 1 random video */}
-        <div className="flex justify-center lg:hidden">
+        <div className="lg:hidden">
           <video
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            className={`h-auto w-full max-w-sm rounded-none shadow-lg ${
+            className={`h-auto max-h-96 w-full rounded-none ${
               mobileVideo === "/loading-video-3.mp4"
                 ? "border-1 border-white"
                 : ""
             }`}
+            onLoadedMetadata={e => {
+              // Set random start time for parkour and subway surfers videos
+              if (
+                mobileVideo === "/parkour.mp4" ||
+                mobileVideo === "/subwaysurfers.mp4"
+              ) {
+                e.currentTarget.currentTime = randomStartTime;
+              }
+            }}
             onError={e => {
               console.error(`Failed to load mobile video: ${mobileVideo}`, e);
               // Hide the video element if it fails to load
