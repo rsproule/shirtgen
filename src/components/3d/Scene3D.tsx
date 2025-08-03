@@ -19,7 +19,7 @@ export function Scene3D({ children }: Scene3DProps) {
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
-          minDistance={2}
+          minDistance={0.5}
           maxDistance={10}
           target={[0, 0, 0]}
         />

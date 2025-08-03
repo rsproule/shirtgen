@@ -42,7 +42,7 @@ export function LoadingScreen({
   });
 
   return (
-    <div className="relative container mx-auto flex min-h-screen items-center justify-center bg-white p-4">
+    <div className="relative container mx-auto flex min-h-svh items-center justify-center bg-white p-4">
       {/* Random GIF/Video in top left corner */}
       <div className="absolute top-8 left-4 z-10 hidden lg:block">
         {randomGif.endsWith(".mp4") ? (

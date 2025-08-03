@@ -100,7 +100,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
   return (
     <div className="w-full">
       {/* Mobile: Minimal Button */}
-      <div className="block sm:hidden flex justify-center">
+      <div className="block flex justify-center sm:hidden">
         <Button
           onClick={() => setIsModalOpen(true)}
           variant="outline"
@@ -110,7 +110,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
           <Palette className="h-4 w-4" />
           <span>Choose Themes</span>
           {activeThemes.length > 0 && (
-            <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            <span className="bg-primary/10 text-primary ml-auto rounded-full px-2 py-0.5 text-xs font-medium">
               {activeThemes.length}
             </span>
           )}
@@ -176,7 +176,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
           onClick={handleCloseModal}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
+            className="flex max-h-[90svh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
             onClick={e => e.stopPropagation()}
           >
             <div className="border-border bg-background flex-shrink-0 border-b p-4 sm:p-6">
@@ -220,7 +220,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                     </div>
                     <div
                       onClick={e => handleFavoriteToggle(themeData.theme, e)}
-                      className="absolute top-1 right-1 rounded p-1 hover:bg-gray-100 cursor-pointer"
+                      className="absolute top-1 right-1 cursor-pointer rounded p-1 hover:bg-gray-100"
                     >
                       <Star
                         className={cn(

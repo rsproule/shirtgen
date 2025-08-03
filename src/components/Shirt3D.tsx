@@ -54,23 +54,6 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     return cloned;
   }, [scene]);
 
-  // Extract existing base texture from GLB model
-  const existingBaseTexture = useMemo((): THREE.Texture | null => {
-    if (!shirtScene) return null;
-
-    let baseTexture: THREE.Texture | null = null;
-    shirtScene.traverse(child => {
-      if (child instanceof THREE.Mesh && child.material) {
-        const material = child.material as THREE.MeshStandardMaterial;
-        if (material.map) {
-          baseTexture = material.map;
-          return; // Found it, stop traversing
-        }
-      }
-    });
-    return baseTexture;
-  }, [shirtScene]);
-
   // Create custom texture based on placement
   const customTexture = useMemo(() => {
     const canvas = document.createElement("canvas");
@@ -82,34 +65,9 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     canvas.height = 2048;
 
     return new Promise<THREE.CanvasTexture>(resolve => {
-      // First, draw the existing base texture if available
-      if (
-        existingBaseTexture &&
-        existingBaseTexture.image instanceof HTMLImageElement
-      ) {
-        try {
-          // Draw the existing GLB texture as the base
-          ctx.drawImage(
-            existingBaseTexture.image,
-            0,
-            0,
-            canvas.width,
-            canvas.height,
-          );
-        } catch (error) {
-          console.warn(
-            "Could not draw existing base texture, using solid color fallback",
-            error,
-          );
-          // Fallback to solid color background
-          ctx.fillStyle = shirtColor;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-      } else {
-        // Fallback to solid color background if no base texture
-        ctx.fillStyle = shirtColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
+      // Always start with a solid shirt color as the base
+      ctx.fillStyle = shirtColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Create a temporary image to draw the design texture
       const img = new Image();
@@ -119,6 +77,10 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         // Enable high-quality image rendering
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
+
+        // Ensure the generated image is drawn at full opacity on top
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1.0;
 
         // Calculate image aspect ratio
         const imgAspectRatio = img.width / img.height;
@@ -248,7 +210,7 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         img.src = imageUrl;
       }
     });
-  }, [imageUrl, texturePlacement, shirtColor, existingBaseTexture]);
+  }, [imageUrl, texturePlacement, shirtColor]);
 
   // Smooth rotation animation
   useFrame((_, delta) => {
@@ -339,10 +301,11 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
               (mesh.material as THREE.Material).dispose();
             }
 
-            // Apply textured material with shirt color as base
+            // Apply textured material without color blending
+            // The shirt color is already baked into the texture
             mesh.material = new THREE.MeshStandardMaterial({
               map: texture,
-              color: shirtColor, // Use selected shirt color as base
+              color: "#ffffff", // Use white to avoid color multiplication
               roughness: 0.6,
               metalness: 0.0,
               transparent: false,
