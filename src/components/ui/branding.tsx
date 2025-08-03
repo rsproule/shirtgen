@@ -2,12 +2,14 @@ interface BrandingProps {
   size?: "small" | "medium" | "large";
   showTagline?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
 export function Branding({
   size = "medium",
   showTagline = false,
   className = "",
+  onClick,
 }: BrandingProps) {
   const sizeClasses = {
     small: {
@@ -30,7 +32,10 @@ export function Branding({
   const classes = sizeClasses[size];
 
   return (
-    <div className={`flex items-center ${className}`}>
+    <div 
+      className={`flex items-center ${onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${className}`}
+      onClick={onClick}
+    >
       <div className="flex items-center gap-2">
         <img
           src="/shirtslop.png"
