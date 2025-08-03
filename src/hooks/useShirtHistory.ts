@@ -234,14 +234,14 @@ export function useShirtHistory() {
       if (lastViewedHash) {
         return await getByHash(lastViewedHash);
       }
-      
+
       // Fallback to most recent shirt if no last viewed is set
       const recentShirts = await db.shirtHistory
         .orderBy("updatedAt")
         .reverse()
         .limit(1)
         .toArray();
-      
+
       return recentShirts[0] || null;
     } catch (error) {
       console.error("Failed to get last viewed:", error);

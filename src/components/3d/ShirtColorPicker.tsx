@@ -32,7 +32,7 @@ export function ShirtColorPicker() {
                   onClick={() => handleColorClick(colorOption.color)}
                   className={`h-8 w-8 rounded border-2 transition-all ${
                     shirtColor === colorOption.color
-                      ? "border-foreground ring-2 ring-foreground ring-offset-1"
+                      ? "border-foreground ring-foreground ring-2 ring-offset-1"
                       : "border-border hover:border-muted-foreground"
                   }`}
                   style={{ backgroundColor: colorOption.color }}

@@ -28,7 +28,7 @@ export function ActionButtons({
         disabledAnimation={!isAuthenticated || promptLength < 10}
         className={`text-white ${
           !isAuthenticated || promptLength < 10
-            ? "cursor-not-allowed bg-muted"
+            ? "bg-muted cursor-not-allowed"
             : "bg-black"
         }`}
       >

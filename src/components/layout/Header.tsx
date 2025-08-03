@@ -29,7 +29,7 @@ export function Header({
   };
 
   return (
-    <div className="border-b border-border">
+    <div className="border-border border-b">
       {/* Navigation row */}
       <div className="flex items-center justify-between px-6 py-3">
         {showBackButton ? (
@@ -37,7 +37,7 @@ export function Header({
             variant="ghost"
             onClick={handleBack}
             size="sm"
-            className="flex h-8 items-center gap-1 px-2 py-1 text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex h-8 items-center gap-1 px-2 py-1"
           >
             <ArrowLeft className="h-3 w-3" />
             <span className="text-sm">Back</span>

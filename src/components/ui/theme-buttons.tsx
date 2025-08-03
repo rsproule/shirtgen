@@ -158,12 +158,12 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
             className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex-shrink-0 border-b border-border bg-background p-4 sm:p-6">
+            <div className="border-border bg-background flex-shrink-0 border-b p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Select Themes</h3>
                 <button
                   onClick={handleCloseModal}
-                  className="p-1 text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground p-1"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -171,7 +171,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
 
               {/* Error Message in Modal */}
               {favoritesError && (
-                <div className="mt-3 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                <div className="border-destructive/20 bg-destructive/10 text-destructive mt-3 rounded-lg border px-3 py-2 text-xs">
                   {favoritesError}
                 </div>
               )}

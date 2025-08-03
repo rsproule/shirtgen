@@ -42,23 +42,23 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-8 w-8 items-center justify-center border-0 p-0 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center border-0 p-0 transition-colors"
         title={`Recent prompts (${history.length})`}
       >
         <Clock className="h-4 w-4" />
       </Button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 z-50 mt-2 max-h-80 w-80 overflow-y-auto rounded-lg border border-border bg-background shadow-lg">
-          <div className="flex items-center justify-between border-b border-border p-3">
-            <h3 className="text-sm font-medium text-foreground">
+        <div className="border-border bg-background absolute top-full right-0 z-50 mt-2 max-h-80 w-80 overflow-y-auto rounded-lg border shadow-lg">
+          <div className="border-border flex items-center justify-between border-b p-3">
+            <h3 className="text-foreground text-sm font-medium">
               Recent Prompts
             </h3>
             <Button
               variant="ghost"
               size="sm"
               onClick={clearHistory}
-              className="h-auto p-1 text-xs text-destructive hover:text-destructive/80"
+              className="text-destructive hover:text-destructive/80 h-auto p-1 text-xs"
             >
               Clear All
             </Button>
@@ -68,14 +68,14 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
             {history.map(item => (
               <div
                 key={item.id}
-                className="group flex items-start gap-3 border-b border-border p-3 last:border-b-0 hover:bg-muted/50"
+                className="group border-border hover:bg-muted/50 flex items-start gap-3 border-b p-3 last:border-b-0"
               >
                 <button
                   onClick={() => handleSelectPrompt(item)}
                   className="flex-1 text-left"
                 >
                   <p
-                    className="mb-1 overflow-hidden text-sm text-foreground"
+                    className="text-foreground mb-1 overflow-hidden text-sm"
                     style={{
                       display: "-webkit-box",
                       WebkitLineClamp: 2,
@@ -84,7 +84,7 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
                   >
                     {item.text}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {formatTimestamp(item.timestamp)}
                   </p>
                 </button>
@@ -93,7 +93,7 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
                     e.stopPropagation();
                     removeFromHistory(item.id);
                   }}
-                  className="rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-muted"
+                  className="hover:bg-muted rounded p-1 opacity-0 transition-opacity group-hover:opacity-100"
                 >
                   <X className="h-3 w-3 text-gray-400 hover:text-gray-600" />
                 </button>
