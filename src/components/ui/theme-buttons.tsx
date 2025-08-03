@@ -172,14 +172,14 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={handleCloseModal}
         >
           <div
-            className="flex max-h-[90svh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
+            className="flex max-h-[90svh] w-full max-w-4xl flex-col rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
-            <div className="border-border bg-background flex-shrink-0 border-b p-4 sm:p-6">
+            <div className="border-border bg-background flex-shrink-0 border-b p-4 sm:p-6 rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Select Themes</h3>
                 <button
