@@ -257,7 +257,8 @@ export function PublishButton() {
       if (isPublishing) {
         event.preventDefault();
         // Modern browsers require returnValue to be set
-        event.returnValue = "Your design is being published. Are you sure you want to leave?";
+        event.returnValue =
+          "Your design is being published. Are you sure you want to leave?";
         return "Your design is being published. Are you sure you want to leave?";
       }
     };

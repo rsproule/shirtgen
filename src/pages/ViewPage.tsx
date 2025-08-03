@@ -137,7 +137,8 @@ export function ViewPage() {
       if (shirtData?.isPartial) {
         event.preventDefault();
         // Modern browsers require returnValue to be set
-        event.returnValue = "Your design is still generating. Are you sure you want to leave?";
+        event.returnValue =
+          "Your design is still generating. Are you sure you want to leave?";
         return "Your design is still generating. Are you sure you want to leave?";
       }
     };

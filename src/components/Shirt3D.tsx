@@ -54,7 +54,6 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     return cloned;
   }, [scene]);
 
-
   // Create custom texture based on placement
   const customTexture = useMemo(() => {
     const canvas = document.createElement("canvas");

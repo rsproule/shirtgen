@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { useEcho } from "@zdql/echo-react-sdk";
 import type { ShirtData, TexturePlacement } from "@/types";
 
@@ -36,7 +42,8 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
       if (isLoading) {
         event.preventDefault();
         // Modern browsers require returnValue to be set
-        event.returnValue = "Your design is still generating. Are you sure you want to leave?";
+        event.returnValue =
+          "Your design is still generating. Are you sure you want to leave?";
         return "Your design is still generating. Are you sure you want to leave?";
       }
     };
