@@ -83,8 +83,8 @@ function PublishModal({
 
           // Calculate compressed size if image will be compressed (>2MB)
           if (sizeInMB > 2) {
-            // Estimate compression based on resize to 800x1200 max + 70% JPEG quality
-            const compressionRatio = 0.15; // More aggressive compression with JPEG + smaller dimensions
+            // Estimate compression based on resize to 800x1200 max + 90% JPEG quality
+            const compressionRatio = 0.25; // Moderate compression with JPEG + smaller dimensions
             const compressedSizeInMB = sizeInMB * compressionRatio;
             setCompressedSizeMB(Math.round(compressedSizeInMB * 100) / 100);
           } else {
@@ -127,7 +127,7 @@ function PublishModal({
                 <div className="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">
                   <div>Image size: {fileSizeMB} MB</div>
                   {compressedSizeMB ? (
-                    <div>Upload size: ~{compressedSizeMB} MB (resized to 800x1200 max, JPEG 70%)</div>
+                    <div>Upload size: ~{compressedSizeMB} MB (resized to 800x1200 max, JPEG 90%)</div>
                   ) : (
                     <div>Upload size: {fileSizeMB} MB (no compression needed)</div>
                   )}

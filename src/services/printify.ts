@@ -191,7 +191,7 @@ class PrintifyService {
             }
           },
           "image/jpeg",
-          0.7, // 70% quality for better compression
+          0.9, // 90% quality
         );
       };
 
