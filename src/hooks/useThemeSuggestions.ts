@@ -339,6 +339,54 @@ const themeSuggestions: ThemeSuggestion[] = [
     examples: ["dark academia", "moody", "rich browns", "golds"],
     keyword: "dark academia",
   },
+  {
+    theme: "Sci-Fi",
+    description: "Futuristic design aesthetic",
+    promptEnhancers: [
+      "in a sci-fi style with futuristic design aesthetic, sleek metallic surfaces, advanced technology lighting, and otherworldly atmosphere",
+      "sci-fi aesthetic, futuristic design style, sleek metallic surfaces, advanced technology lighting, otherworldly atmosphere",
+      "futuristic sci-fi style, design aesthetic, sleek metallic surfaces, advanced technology lighting, otherworldly atmosphere",
+      "sci-fi design style, futuristic aesthetic, sleek metallic surfaces, advanced technology lighting, otherworldly atmosphere",
+    ],
+    examples: ["sci-fi", "futuristic", "metallic", "advanced lighting"],
+    keyword: "sci-fi",
+  },
+  {
+    theme: "Tattoo",
+    description: "Traditional ink aesthetic",
+    promptEnhancers: [
+      "in a tattoo style with traditional ink aesthetic, bold black outlines, solid colors, and permanent art quality",
+      "tattoo aesthetic, traditional ink style, bold black outlines, solid colors, permanent art quality",
+      "traditional tattoo style, ink aesthetic, bold black outlines, solid colors, permanent art quality",
+      "tattoo ink style, traditional aesthetic, bold black outlines, solid colors, permanent art quality",
+    ],
+    examples: ["tattoo", "traditional", "bold outlines", "solid colors"],
+    keyword: "tattoo",
+  },
+  {
+    theme: "Charcoal",
+    description: "Soft monochromatic drawing",
+    promptEnhancers: [
+      "in a charcoal style with soft monochromatic drawing aesthetic, rich blacks and grays, smudged textures, and artistic depth",
+      "charcoal aesthetic, soft monochromatic drawing style, rich blacks and grays, smudged textures, artistic depth",
+      "soft charcoal style, monochromatic drawing aesthetic, rich blacks and grays, smudged textures, artistic depth",
+      "charcoal drawing style, soft monochromatic aesthetic, rich blacks and grays, smudged textures, artistic depth",
+    ],
+    examples: ["charcoal", "monochromatic", "rich blacks", "smudged"],
+    keyword: "charcoal",
+  },
+  {
+    theme: "Mid-Century Modern",
+    description: "Clean geometric aesthetic",
+    promptEnhancers: [
+      "in a mid-century modern style with clean geometric aesthetic, warm earth tones, organic curves, and minimalist elegance",
+      "mid-century modern aesthetic, clean geometric style, warm earth tones, organic curves, minimalist elegance",
+      "clean mid-century modern style, geometric aesthetic, warm earth tones, organic curves, minimalist elegance",
+      "mid-century modern geometric style, clean aesthetic, warm earth tones, organic curves, minimalist elegance",
+    ],
+    examples: ["mid-century modern", "geometric", "earth tones", "minimalist"],
+    keyword: "mid-century modern",
+  },
 ];
 
 export function useThemeSuggestions() {
