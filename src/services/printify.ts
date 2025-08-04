@@ -1,94 +1,16 @@
-import { db } from "./db";
 import { generateImageHash } from "./imageHash";
 import { createProductIdentifier } from "./nameGeneration";
-import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
-
-// Shirt configuration presets
-interface ShirtConfig {
-  name: string;
-  blueprint_id: number;
-  print_provider_id: number;
-  variants: number[];
-}
-
-const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
-  shaka: {
-    name: "Unisex Garment-Dyed Drop-Shoulder T-Shirt (Shaka)",
-    blueprint_id: 1723,
-    print_provider_id: 74,
-    variants: [
-      118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
-      118102, 118106, 118107,
-    ],
-  },
-};
-
-interface PrintifyImage {
-  id: string;
-  src: string;
-  width: number;
-  height: number;
-}
-
-interface PrintifyProduct {
-  id: string;
-  title: string;
-  handle: string;
-  description: string;
-  variants: PrintifyVariant[];
-  options: PrintifyOption[];
-  external?: {
-    id: string;
-    handle: string;
-  };
-}
-
-interface PrintifyOption {
-  name: string;
-  type: string;
-  values: Array<{
-    id: number;
-    title: string;
-    colors?: string[];
-  }>;
-}
-
-interface PrintifyVariant {
-  id: number;
-  title: string;
-  price: number;
-  options: number[];
-  external?: {
-    id: string;
-  };
-}
-
-interface CreateProductVariant {
-  id: number;
-  price: number; // Price in cents
-  is_enabled: boolean;
-}
-
-interface CreateProductPayload {
-  title: string;
-  description: string;
-  blueprint_id: number;
-  print_provider_id: number;
-  variants: CreateProductVariant[];
-  print_areas: Array<{
-    variant_ids: number[];
-    placeholders: Array<{
-      position: string;
-      images: Array<{
-        id: string;
-        x: number;
-        y: number;
-        scale: number;
-        angle: number;
-      }>;
-    }>;
-  }>;
-}
+import { ImageProcessor } from "./printify/ImageProcessor";
+import {
+  ProductBuilder,
+  type CreateProductPayload,
+} from "./printify/ProductBuilder";
+import { ShirtDatabase } from "./printify/ShirtDatabase";
+import type {
+  PrintifyImage,
+  PrintifyProduct,
+  ShirtCreationResult,
+} from "./printify/types";
 
 
 
@@ -136,34 +58,16 @@ class PrintifyService {
           console.log(
             `🗜️ Compressing image from ${(imageBlob.size / 1024 / 1024).toFixed(2)}MB at ${quality * 100}% quality`,
           );
-          processedBlob = await this.compressImage(imageBlob, quality);
+          processedBlob = await ImageProcessor.compressImage(
+            imageBlob,
+            quality,
+          );
           console.log(
             `✅ Compressed to ${(processedBlob.size / 1024 / 1024).toFixed(2)}MB`,
           );
         }
 
-        const result = await new Promise<PrintifyImage>((resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = async () => {
-            try {
-              const dataUrl = reader.result as string;
-              const uploadResult = await this.makeRequest<PrintifyImage>(
-                "upload",
-                {
-                  imageUrl: dataUrl,
-                },
-              );
-              resolve(uploadResult);
-            } catch (error) {
-              reject(error);
-            }
-          };
-
-          reader.onerror = reject;
-          reader.readAsDataURL(processedBlob);
-        });
-
+        const result = await this.uploadImageToAPI(processedBlob);
         return result; // Success, return the result
       } catch (error) {
         const isLastAttempt = i === qualityLevels.length - 1;
@@ -187,49 +91,24 @@ class PrintifyService {
     );
   }
 
-  private async compressImage(
-    blob: Blob,
-    quality: number = 0.9,
-  ): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const img = new Image();
+  private async uploadImageToAPI(processedBlob: Blob): Promise<PrintifyImage> {
+    return new Promise<PrintifyImage>((resolve, reject) => {
+      const reader = new FileReader();
 
-      img.onload = () => {
-        // Calculate new dimensions while maintaining aspect ratio
-        // More aggressive sizing for large files
-        const maxWidth = 800;
-        const maxHeight = 1200;
-        let { width, height } = img;
-
-        if (width > maxWidth || height > maxHeight) {
-          const ratio = Math.min(maxWidth / width, maxHeight / height);
-          width *= ratio;
-          height *= ratio;
+      reader.onload = async () => {
+        try {
+          const dataUrl = reader.result as string;
+          const uploadResult = await this.makeRequest<PrintifyImage>("upload", {
+            imageUrl: dataUrl,
+          });
+          resolve(uploadResult);
+        } catch (error) {
+          reject(error);
         }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw and compress
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          compressedBlob => {
-            if (compressedBlob) {
-              resolve(compressedBlob);
-            } else {
-              reject(new Error("Failed to compress image"));
-            }
-          },
-          "image/jpeg",
-          quality, // Use passed quality parameter
-        );
       };
 
-      img.onerror = reject;
-      img.src = URL.createObjectURL(blob);
+      reader.onerror = reject;
+      reader.readAsDataURL(processedBlob);
     });
   }
 
@@ -254,163 +133,172 @@ class PrintifyService {
     return response.json();
   }
 
+  // Step-based shirt creation workflow
+  private async processImageAndCreateHash(
+    imageUrl: string,
+  ): Promise<{ imageBlob: Blob; imageHash: string }> {
+    console.log("📷 Step 1: Processing image...");
+    const imageBlob = await ImageProcessor.fetchImageAsBlob(imageUrl);
+    const imageHash = await generateImageHash(imageBlob);
+    console.log("🔑 Generated image hash:", imageHash);
+    return { imageBlob, imageHash };
+  }
+
+  private async uploadImageToService(imageBlob: Blob): Promise<PrintifyImage> {
+    console.log("⬆️ Step 2: Uploading image to Printify...");
+    const uploadedImage = await this.uploadImage(imageBlob);
+    console.log("✅ Image uploaded successfully, ID:", uploadedImage.id);
+    return uploadedImage;
+  }
+
+  private async createAndPublishProduct(
+    productName: string,
+    description: string,
+    uploadedImageId: string,
+    price: number,
+    imageHash: string,
+  ): Promise<PrintifyProduct> {
+    console.log("🏭 Step 3: Creating product on Printify...");
+    const identifier = createProductIdentifier(imageHash);
+    const productDescription = ProductBuilder.createDescription(
+      identifier,
+      description,
+    );
+    const payload = ProductBuilder.createProductPayload(
+      productName,
+      productDescription,
+      uploadedImageId,
+      price,
+    );
+
+    const product = await this.createProduct(payload);
+    console.log("✅ Product created successfully, ID:", product);
+
+    console.log("🛒 Step 4: Publishing to Shopify...");
+    await this.publishProduct(product.id);
+    console.log("✅ Product published to Shopify");
+
+    return product;
+  }
+
+  private async waitForSyncAndGetUpdatedProduct(
+    productId: string,
+  ): Promise<PrintifyProduct> {
+    console.log("⏳ Step 5: Polling for Shopify sync...");
+
+    const maxAttempts = 30; // Maximum 30 seconds
+    const pollInterval = 1500; // 1 second between attempts
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(
+        `🔄 Attempt ${attempt}/${maxAttempts}: Checking product sync status...`,
+      );
+
+      try {
+        const updatedProduct = await this.getProduct(productId);
+        const shopifyUrl = updatedProduct.external?.handle;
+
+        if (shopifyUrl) {
+          console.log(
+            `✅ Shopify sync complete! URL available after ${attempt} seconds`,
+          );
+          console.log("🛒 Shopify product URL:", shopifyUrl);
+          console.log(
+            "📊 Product variants count:",
+            updatedProduct.variants?.length || 0,
+          );
+          return updatedProduct;
+        }
+
+        console.log(
+          `⏳ External URL not ready yet, waiting ${pollInterval / 1000}s...`,
+        );
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+      } catch (error) {
+        console.warn(`⚠️ Attempt ${attempt} failed:`, error);
+        if (attempt === maxAttempts) {
+          throw new Error(
+            `Failed to get updated product after ${maxAttempts} attempts: ${error}`,
+          );
+        }
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+      }
+    }
+
+    throw new Error(
+      `Shopify sync timeout: External URL not available after ${maxAttempts} seconds`,
+    );
+  }
+
   async createShirtFromDesign(
     imageUrl: string,
     prompt: string,
     productName: string,
     description: string = "",
     price: number = 3500, // $35.00 in cents
-  ): Promise<{
-    product: PrintifyProduct;
-    variants: PrintifyVariant[];
-    options: PrintifyOption[];
-    imageHash: string;
-  }> {
+    onStatusUpdate?: (
+      status:
+        | "processing"
+        | "uploading"
+        | "creating"
+        | "publishing"
+        | "syncing",
+    ) => void,
+  ): Promise<ShirtCreationResult> {
     console.log("🚀 Starting shirt creation process...");
     console.log("📝 Original prompt:", prompt);
     console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
 
     try {
-      // 1. Convert image URL to blob and generate hash
-      console.log("📷 Step 1: Fetching and processing image...");
-      const imageResponse = await fetch(imageUrl);
-      console.log(
-        "✅ Image fetched, size:",
-        imageResponse.headers.get("content-length"),
-        "bytes",
-      );
+      // Step 1: Process image and generate hash
+      onStatusUpdate?.("processing");
+      const { imageBlob, imageHash } =
+        await this.processImageAndCreateHash(imageUrl);
 
-      const imageBlob = await imageResponse.blob();
-      console.log("🔄 Converting to blob, size:", imageBlob.size, "bytes");
-
-      // Generate hash from image content
-      const imageHash = await generateImageHash(imageBlob);
-      console.log("🔑 Generated image hash:", imageHash);
-
-      // Store product info in IndexedDB using new hash-based schema
-      const now = new Date().toISOString();
-      await db.shirtHistory.put({
-        hash: imageHash,
-        originalPrompt: prompt,
-        imageUrl,
-        createdAt: now,
-        updatedAt: now,
-        lifecycle: "drafted" as const,
-        generatedTitle: productName,
-
-        // Legacy compatibility fields
-        id: imageHash,
+      // Store draft record
+      await ShirtDatabase.createDraftRecord(
+        imageHash,
         prompt,
-        generatedAt: now,
-        timestamp: Date.now(),
+        imageUrl,
         productName,
-        isPublished: false,
-      });
-      console.log("💾 Stored product info in IndexedDB with hash:", imageHash);
+      );
       console.log("🏷️ Using product name:", productName);
 
-      console.log("⬆️ Uploading image to Printify...");
-      const uploadedImage = await this.uploadImage(imageBlob);
-      console.log("✅ Image uploaded successfully, ID:", uploadedImage.id);
-      console.log(
-        "📸 Uploaded image details:",
-        JSON.stringify(uploadedImage, null, 2),
+      // Step 2: Upload image
+      onStatusUpdate?.("uploading");
+      const uploadedImage = await this.uploadImageToService(imageBlob);
+
+      // Step 3: Create and publish product
+      onStatusUpdate?.("creating");
+      const product = await this.createAndPublishProduct(
+        productName,
+        description,
+        uploadedImage.id,
+        price,
+        imageHash,
       );
 
-      // 2. Use Shaka shirt configuration
-      const shirtConfig = SHIRT_CONFIGS.shaka;
-      console.log("📋 Step 2: Using shirt config:", shirtConfig.name);
-      console.log("📋 Variant IDs:", shirtConfig.variants);
-
-      // 3. Create product with Shaka shirt configuration
-      console.log("🏭 Step 3: Creating product on Printify...");
-      const identifier = createProductIdentifier(imageHash);
-      
-      const defaultDescription = PRODUCT_DESCRIPTION_TEMPLATE(identifier);
-
-      const productPayload: CreateProductPayload = {
-        title: productName,
-        description: description || defaultDescription,
-        blueprint_id: shirtConfig.blueprint_id,
-        print_provider_id: shirtConfig.print_provider_id,
-        variants: shirtConfig.variants.map(variantId => ({
-          id: variantId,
-          price: price,
-          is_enabled: true,
-        })),
-        print_areas: [
-          {
-            variant_ids: shirtConfig.variants,
-            placeholders: [
-              {
-                position: "front_dtg",
-                images: [
-                  {
-                    id: uploadedImage.id,
-                    x: 0.5, // Center horizontally
-                    y: 0.5, // Center vertically
-                    scale: 0.8, // Full size (same as bash script)
-                    angle: 0,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-
-      console.log(
-        `📦 Product payload prepared with blueprint ${shirtConfig.blueprint_id} and provider ${shirtConfig.print_provider_id}`,
+      // Step 4: Wait for sync and get updated details
+      onStatusUpdate?.("syncing");
+      const updatedProduct = await this.waitForSyncAndGetUpdatedProduct(
+        product.id,
       );
-      console.log(
-        "🖼️ Print areas config:",
-        JSON.stringify(productPayload.print_areas, null, 2),
-      );
-      const product = await this.createProduct(productPayload);
-      console.log("✅ Product created successfully, ID:", product.id);
 
-      // 4. Publish to Shopify
-      console.log("🛒 Step 4: Publishing to Shopify...");
-      await this.publishProduct(product.id);
-      console.log("✅ Product published to Shopify");
-
-      // 5. Wait for sync and get updated product details with variants
-      console.log("⏳ Step 5: Waiting 5 seconds for Shopify sync...");
-      await new Promise(resolve => setTimeout(resolve, 5000));
-
-      console.log("🔄 Fetching updated product details...");
-      const updatedProduct = await this.getProduct(product.id);
-      console.log(
-        "✅ Updated product fetched, variants count:",
-        updatedProduct.variants?.length || 0,
-      );
-      console.log("🔗 Product external data:", updatedProduct.external);
-
-      // Use the external handle directly as it contains the full Shopify URL
+      // Update database with published status
       const shopifyUrl = updatedProduct.external?.handle;
-
-      if (shopifyUrl) {
-        console.log("🛒 Shopify product URL:", shopifyUrl);
-      } else {
-        console.log("⚠️ No Shopify handle found in external data");
-      }
-
-      // Update IndexedDB with published status
-      await db.shirtHistory.update(imageHash, {
-        isPublished: true,
-        publishedAt: new Date().toISOString(),
-        printifyProductId: product.id,
+      await ShirtDatabase.updatePublishedRecord(
+        imageHash,
+        product.id,
         shopifyUrl,
-      });
+      );
 
-      console.log("💾 Updated published status in database");
       console.log("🎉 Shirt creation process completed successfully!");
 
       return {
         product: updatedProduct,
         variants: updatedProduct.variants || [],
         options: updatedProduct.options || [],
-        imageHash, // Include hash for tracking
+        imageHash,
       };
     } catch (error) {
       console.error("❌ Failed to create shirt:", error);
