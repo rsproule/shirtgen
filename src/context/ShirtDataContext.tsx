@@ -1,12 +1,12 @@
+import type { ShirtData, TexturePlacement } from "@/types";
+import { useEcho } from "@zdql/echo-react-sdk";
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
+  useState,
   type ReactNode,
 } from "react";
-import { useEcho } from "@zdql/echo-react-sdk";
-import type { ShirtData, TexturePlacement } from "@/types";
 
 interface ShirtDataContextType {
   shirtData: ShirtData | null;
@@ -31,7 +31,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   const [texturePlacement, setTexturePlacement] =
     useState<TexturePlacement>("front");
   const [isLoading, setIsLoading] = useState(false);
-  const [shirtColor, setShirtColor] = useState("hsl(var(--shirt-white))"); // Off-white default
+  const [shirtColor, setShirtColor] = useState("#f8f9fa"); // Lightest shirt color (White)
 
   // Centralize authentication state to prevent multiple useEcho calls
   const { isAuthenticated, isLoading: isAuthLoading, signIn } = useEcho();
