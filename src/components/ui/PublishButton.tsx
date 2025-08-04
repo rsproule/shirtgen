@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
+import type { TexturePlacement } from "@/types";
 
 type PublishStatus =
   | "processing"
@@ -192,7 +193,7 @@ function PublishModal({
 }
 
 export function PublishButton() {
-  const { shirtData, user } = useShirtData();
+  const { shirtData, user, texturePlacement } = useShirtData();
   const { updateLifecycle, updateExternalIds, getByHash } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -206,6 +207,12 @@ export function PublishButton() {
     shopifyUrl?: string;
     productName: string;
   } | null>(null);
+
+  // Convert TexturePlacement to Printify placement
+  const getPrintifyPlacement = (placement: TexturePlacement): "front" | "back" => {
+    // Printify only supports front and back, so map full-shirt to front
+    return placement === "back" ? "back" : "front";
+  };
 
   // Load design title from database
   useEffect(() => {
@@ -324,6 +331,7 @@ export function PublishButton() {
         confirmedProductName,
         description,
         3500,
+        getPrintifyPlacement(texturePlacement),
         (status: PublishStatus) => setPublishStatus(status),
       );
 
