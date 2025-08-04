@@ -54,10 +54,10 @@ const themeSuggestions: ThemeSuggestion[] = [
     theme: "Vintage",
     description: "Retro designs",
     promptEnhancers: [
-      "in a vintage retro t-shirt design style with distressed graphics and nostalgic 80s/90s aesthetic",
-      "vintage t-shirt design aesthetic, retro graphics style, distressed and nostalgic 80s/90s look",
+      "in a vintage retro style with distressed graphics and nostalgic 80s/90s aesthetic",
+      "vintage design aesthetic, retro graphics style, distressed and nostalgic 80s/90s look",
       "retro vintage, distressed graphics aesthetic, nostalgic 80s/90s style",
-      "nostalgic 80s/90s vintage t-shirt design, retro graphics, distressed aesthetic",
+      "nostalgic 80s/90s vintage design, retro graphics, distressed aesthetic",
     ],
     examples: [
       "vintage t-shirt",
