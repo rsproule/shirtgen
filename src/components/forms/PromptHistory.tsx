@@ -13,8 +13,8 @@ interface PromptHistoryProps {
 export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
   const { history, clearHistory, removeFromHistory } = usePromptHistory();
   const [isOpen, setIsOpen] = useState(false);
-
-  if (history.length === 0) return null;
+  
+  const hasHistory = history.length > 0;
 
   const handleSelectPrompt = (item: PromptHistoryItem) => {
     onSelectPrompt(item.text);
@@ -41,14 +41,15 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center border-0 p-0 transition-colors"
-        title={`Recent prompts (${history.length})`}
+        onClick={() => hasHistory && setIsOpen(!isOpen)}
+        disabled={!hasHistory}
+        className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center border-0 p-0 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        title={hasHistory ? `Recent prompts (${history.length})` : "No recent prompts"}
       >
         <Clock className="h-4 w-4" />
       </Button>
 
-      {isOpen && (
+      {isOpen && hasHistory && (
         <div className="border-border bg-background absolute top-full right-0 z-50 mt-2 max-h-80 w-80 overflow-y-auto rounded-lg border shadow-lg">
           <div className="border-border flex items-center justify-between border-b p-3">
             <h3 className="text-foreground text-sm font-medium">
