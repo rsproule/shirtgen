@@ -6,6 +6,7 @@ import { ActionButtons } from "@/components/forms/ActionButtons";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
 import { PulsatingButton } from "@/components/magicui/pulsating-button";
+import { Button } from "@/components/ui/button";
 import { useTypingStats } from "@/hooks/useTypingStats";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
@@ -28,7 +29,8 @@ export function PromptSection({
   const { isAuthenticated, signIn } = useShirtData();
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
-  const { selectedThemes, toggleTheme, enhancePromptWithThemes } = useThemeSuggestions();
+  const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
+    useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,7 +50,7 @@ export function PromptSection({
   const handleGenerate = () => {
     // Add selected themes to favorites when used
     selectedThemes.forEach(theme => addToFavorites(theme));
-    
+
     // Enhance prompt with selected themes before calling onGenerate
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     onGenerate(enhancedPrompt);
@@ -119,14 +121,25 @@ export function PromptSection({
         {/* Sign-in overlay for non-authenticated users */}
         {!isAuthenticated && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <PulsatingButton
-              onClick={signIn}
-              className="bg-primary text-primary-foreground hover:bg-primary/80"
-              pulseColor="var(--primary-light)"
-              disabledAnimation={false}
-            >
-              Login to create
-            </PulsatingButton>
+            <div className="flex flex-col items-center gap-2">
+              <PulsatingButton
+                onClick={signIn}
+                className="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2"
+                pulseColor="var(--primary-light)"
+                disabledAnimation={false}
+              >
+                Login to create
+              </PulsatingButton>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  window.open("https://shirt-slop.myshopify.com/", "_blank")
+                }
+                className="px-3 py-1 text-sm"
+              >
+                or view others works
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -13,9 +13,9 @@ export function Branding({
 }: BrandingProps) {
   const sizeClasses = {
     small: {
-      logo: "h-12",
-      text: "text-2xl",
-      tagline: "text-base",
+      logo: "h-8 sm:h-12",
+      text: "text-lg sm:text-2xl",
+      tagline: "text-sm sm:text-base",
     },
     medium: {
       logo: "h-20 sm:h-28",
