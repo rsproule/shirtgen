@@ -192,7 +192,7 @@ function PublishModal({
 }
 
 export function PublishButton() {
-  const { shirtData } = useShirtData();
+  const { shirtData, user } = useShirtData();
   const { updateLifecycle, updateExternalIds, getByHash } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -311,7 +311,7 @@ export function PublishButton() {
       setPublishStatus("uploading");
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
-      const description = PRODUCT_DESCRIPTION_TEMPLATE();
+      const description = PRODUCT_DESCRIPTION_TEMPLATE(user);
 
       // Update lifecycle to PUBLISHING before creating product
       setPublishStatus("creating");
@@ -386,12 +386,12 @@ export function PublishButton() {
     setShowModal(false);
     setError(undefined);
     setShopifyUrl(undefined);
-    
+
     // If we just published successfully, update the navbar button state
     if (isPublished) {
       await checkPublishedStatus();
     }
-    
+
     setIsPublished(false);
   };
 

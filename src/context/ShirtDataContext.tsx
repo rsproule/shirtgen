@@ -1,5 +1,5 @@
 import type { ShirtData, TexturePlacement } from "@/types";
-import { useEcho } from "@zdql/echo-react-sdk";
+import { useEcho, type EchoUser } from "@zdql/echo-react-sdk";
 import {
   createContext,
   useContext,
@@ -20,6 +20,7 @@ interface ShirtDataContextType {
   shirtColor: string;
   setShirtColor: (color: string) => void;
   signIn: () => void;
+  user: EchoUser | null;
 }
 
 const ShirtDataContext = createContext<ShirtDataContextType | undefined>(
@@ -34,7 +35,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   const [shirtColor, setShirtColor] = useState("#f8f9fa"); // Lightest shirt color (White)
 
   // Centralize authentication state to prevent multiple useEcho calls
-  const { isAuthenticated, isLoading: isAuthLoading, signIn } = useEcho();
+  const { isAuthenticated, isLoading: isAuthLoading, signIn, user } = useEcho();
 
   // Prevent navigation/refresh during loading
   useEffect(() => {
@@ -71,6 +72,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
         shirtColor,
         setShirtColor,
         signIn,
+        user,
       }}
     >
       {children}
