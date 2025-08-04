@@ -136,21 +136,17 @@ class PrintifyService {
     imageUrl: string,
     scale: number = 1.0,
   ): Promise<{ imageBlob: Blob; imageHash: string }> {
-    console.log("📷 Step 1: Processing image...");
     const imageBlob = await ImageProcessor.fetchImageAsBlob(imageUrl);
     
     // Process image specifically for Printify DTG printing with scale
     const processedBlob = await ImageProcessor.processForPrintify(imageBlob, scale);
     
     const imageHash = await generateImageHash(processedBlob);
-    console.log("🔑 Generated image hash:", imageHash);
     return { imageBlob: processedBlob, imageHash };
   }
 
   private async uploadImageToService(imageBlob: Blob): Promise<PrintifyImage> {
-    console.log("⬆️ Step 2: Uploading image to Printify...");
     const uploadedImage = await this.uploadImage(imageBlob);
-    console.log("✅ Image uploaded successfully, ID:", uploadedImage.id);
     return uploadedImage;
   }
 
@@ -164,10 +160,6 @@ class PrintifyService {
     imageScale: number = 1.0,
     imagePosition: { x: number; y: number } = { x: 0, y: 0 },
   ): Promise<PrintifyProduct> {
-    console.log("🏭 Step 3: Creating product on Printify...");
-    console.log("📍 Placement:", placement);
-    console.log("📏 Scale:", imageScale);
-    console.log("📍 Position:", imagePosition);
     
     const identifier = createProductIdentifier(imageHash);
     const productDescription = ProductBuilder.createDescription(
@@ -185,11 +177,7 @@ class PrintifyService {
     );
 
     const product = await this.createProduct(payload);
-    console.log("✅ Product created successfully, ID:", product);
-
-    console.log("🛒 Step 4: Publishing to Shopify...");
     await this.publishProduct(product.id);
-    console.log("✅ Product published to Shopify");
 
     return product;
   }
@@ -197,35 +185,18 @@ class PrintifyService {
   private async waitForSyncAndGetUpdatedProduct(
     productId: string,
   ): Promise<PrintifyProduct> {
-    console.log("⏳ Step 5: Polling for Shopify sync...");
-
     const maxAttempts = 30; // Maximum 30 seconds
     const pollInterval = 1500; // 1 second between attempts
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      console.log(
-        `🔄 Attempt ${attempt}/${maxAttempts}: Checking product sync status...`,
-      );
 
       try {
         const updatedProduct = await this.getProduct(productId);
         const shopifyUrl = updatedProduct.external?.handle;
 
         if (shopifyUrl) {
-          console.log(
-            `✅ Shopify sync complete! URL available after ${attempt} seconds`,
-          );
-          console.log("🛒 Shopify product URL:", shopifyUrl);
-          console.log(
-            "📊 Product variants count:",
-            updatedProduct.variants?.length || 0,
-          );
           return updatedProduct;
         }
-
-        console.log(
-          `⏳ External URL not ready yet, waiting ${pollInterval / 1000}s...`,
-        );
         await new Promise(resolve => setTimeout(resolve, pollInterval));
       } catch (error) {
         console.warn(`⚠️ Attempt ${attempt} failed:`, error);
@@ -261,12 +232,6 @@ class PrintifyService {
         | "syncing",
     ) => void,
   ): Promise<ShirtCreationResult> {
-    console.log("🚀 Starting shirt creation process...");
-    console.log("📝 Original prompt:", prompt);
-    console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
-    console.log("📍 Placement:", placement);
-    console.log("📏 Image scale:", imageScale);
-    console.log("📍 Image position:", imagePosition);
 
     try {
       // Step 1: Process image and generate hash
@@ -281,7 +246,6 @@ class PrintifyService {
         imageUrl,
         productName,
       );
-      console.log("🏷️ Using product name:", productName);
 
       // Step 2: Upload image
       onStatusUpdate?.("uploading");
@@ -313,8 +277,6 @@ class PrintifyService {
         product.id,
         shopifyUrl,
       );
-
-      console.log("🎉 Shirt creation process completed successfully!");
 
       return {
         product: updatedProduct,
