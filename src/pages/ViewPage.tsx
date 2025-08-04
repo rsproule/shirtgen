@@ -18,6 +18,7 @@ import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
 import { Shirt3D } from "@/components/Shirt3D";
 import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
 import { PublishButton } from "@/components/ui/PublishButton";
+import { ImageResizeControls } from "@/components/ui/ImageResizeControls";
 import type { ShirtData } from "@/types";
 import { generateDataUrlHash } from "@/services/imageHash";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
@@ -35,6 +36,8 @@ export function ViewPage() {
     setShirtData,
     texturePlacement,
     setTexturePlacement,
+    imageScale,
+    setImageScale,
     setIsLoading,
   } = useShirtData();
   const { autoSaveStatus, lastSavedAt } = useAutoSave();
@@ -361,6 +364,7 @@ export function ViewPage() {
               <Shirt3D
                 imageUrl={shirtData.imageUrl}
                 texturePlacement={texturePlacement}
+                imageScale={imageScale}
               />
             )}
           </Scene3D>
@@ -436,6 +440,18 @@ export function ViewPage() {
                 />
               </div>
             </div>
+
+            {/* Image Resize Controls */}
+            {shirtData.imageUrl && !shirtData.isPartial && (
+              <div className="mt-3">
+                <ImageResizeControls
+                  currentScale={imageScale}
+                  onResizeChange={setImageScale}
+                  onReset={() => setImageScale(1.0)}
+                  disabled={shirtData.isPartial}
+                />
+              </div>
+            )}
 
             {/* Debug Controls - Only in development */}
             {import.meta.env.DEV && shirtData.imageUrl && (

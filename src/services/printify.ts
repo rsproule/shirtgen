@@ -134,12 +134,13 @@ class PrintifyService {
   // Step-based shirt creation workflow
   private async processImageAndCreateHash(
     imageUrl: string,
+    scale: number = 1.0,
   ): Promise<{ imageBlob: Blob; imageHash: string }> {
     console.log("📷 Step 1: Processing image...");
     const imageBlob = await ImageProcessor.fetchImageAsBlob(imageUrl);
     
-    // Process image specifically for Printify DTG printing
-    const processedBlob = await ImageProcessor.processForPrintify(imageBlob);
+    // Process image specifically for Printify DTG printing with scale
+    const processedBlob = await ImageProcessor.processForPrintify(imageBlob, scale);
     
     const imageHash = await generateImageHash(processedBlob);
     console.log("🔑 Generated image hash:", imageHash);
@@ -243,6 +244,7 @@ class PrintifyService {
     description: string = "",
     price: number = 3500, // $35.00 in cents
     placement: "front" | "back" = "front",
+    imageScale: number = 1.0,
     onStatusUpdate?: (
       status:
         | "processing"
@@ -256,12 +258,13 @@ class PrintifyService {
     console.log("📝 Original prompt:", prompt);
     console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
     console.log("📍 Placement:", placement);
+    console.log("📏 Image scale:", imageScale);
 
     try {
       // Step 1: Process image and generate hash
       onStatusUpdate?.("processing");
       const { imageBlob, imageHash } =
-        await this.processImageAndCreateHash(imageUrl);
+        await this.processImageAndCreateHash(imageUrl, imageScale);
 
       // Store draft record
       await ShirtDatabase.createDraftRecord(
