@@ -84,9 +84,19 @@ export class ProductBuilder {
     uploadedImageId: string,
     price: number,
     placement: "front" | "back" = "front",
+    imageScale: number = 1.0,
+    imagePosition: { x: number; y: number } = { x: 0, y: 0 },
   ): CreateProductPayload {
     const shirtConfig = SHIRT_CONFIGS.shaka;
     const printifyPlacement = this.getPrintifyPlacement(placement);
+
+    // Convert position from normalized coordinates (-1 to 1) to Printify coordinates (0 to 1)
+    // Printify uses 0.5 as center, so we map our -1 to 1 range to 0 to 1
+    const printifyX = 0.5 + (imagePosition.x * 0.3); // Scale position to reasonable bounds
+    const printifyY = 0.5 + (imagePosition.y * 0.3); // Scale position to reasonable bounds
+
+    // Apply scale to the Printify scale parameter
+    const printifyScale = 0.8 * imageScale; // Base scale of 0.8, then apply user's scale
 
     return {
       title: productName,
@@ -107,9 +117,9 @@ export class ProductBuilder {
               images: [
                 {
                   id: uploadedImageId,
-                  x: 0.5, // Center horizontally
-                  y: 0.5, // Center vertically
-                  scale: 0.8, // Full size
+                  x: printifyX, // Use calculated position
+                  y: printifyY, // Use calculated position
+                  scale: printifyScale, // Use calculated scale
                   angle: 0,
                 },
               ],
