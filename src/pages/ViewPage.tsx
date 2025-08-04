@@ -241,7 +241,7 @@ export function ViewPage() {
   };
 
   const downloadImage = (dataUrl: string, filename: string) => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = dataUrl;
     link.download = filename;
     document.body.appendChild(link);
@@ -260,20 +260,28 @@ export function ViewPage() {
 
     try {
       // Convert data URL to blob
-      const imageBlob = await ImageProcessor.fetchImageAsBlob(shirtData.imageUrl);
-      
+      const imageBlob = await ImageProcessor.fetchImageAsBlob(
+        shirtData.imageUrl,
+      );
+
       // Compress it
-      const compressedBlob = await ImageProcessor.compressImage(imageBlob, 0.75);
-      
+      const compressedBlob = await ImageProcessor.compressImage(
+        imageBlob,
+        0.75,
+      );
+
       // Convert back to data URL
       const reader = new FileReader();
       reader.onload = () => {
         const compressedDataUrl = reader.result as string;
-        downloadImage(compressedDataUrl, `shirt-design-compressed-${Date.now()}.png`);
+        downloadImage(
+          compressedDataUrl,
+          `shirt-design-compressed-${Date.now()}.png`,
+        );
       };
       reader.readAsDataURL(compressedBlob);
     } catch (error) {
-      console.error('Failed to compress and download image:', error);
+      console.error("Failed to compress and download image:", error);
     }
   };
 
@@ -431,7 +439,7 @@ export function ViewPage() {
 
             {/* Debug Controls - Only in development */}
             {import.meta.env.DEV && shirtData.imageUrl && (
-              <div className="mt-2 flex justify-center gap-2 border-t border-border pt-2">
+              <div className="border-border mt-2 flex justify-center gap-2 border-t pt-2">
                 <Button
                   variant="outline"
                   size="sm"
