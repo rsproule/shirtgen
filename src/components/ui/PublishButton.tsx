@@ -114,11 +114,10 @@ function PublishModal({
             <div className="bg-primary/10 flex items-center gap-3 rounded-lg p-4">
               <Loader2 className="text-primary h-5 w-5 animate-spin" />
               <div>
-                <p className="font-medium">Publishing...</p>
+                <p className="font-medium">Your shirt is nearly ready!</p>
                 <p className="text-muted-foreground text-sm">
-                  {publishStatus === "processing" ||
-                    (publishStatus === "uploading" &&
-                      "Uploading your design...")}
+                  {publishStatus === "processing" && "Uploading your design..."}
+                  {publishStatus === "uploading" && "Uploading your design..."}
                   {publishStatus === "creating" && "Creating product..."}
                   {publishStatus === "publishing" && "Publishing to store..."}
                   {publishStatus === "syncing" && "Syncing..."}
