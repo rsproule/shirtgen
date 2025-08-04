@@ -176,15 +176,15 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
           onClick={handleCloseModal}
         >
           <div
-            className="flex h-[90vh] w-full max-w-4xl flex-col rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden"
+            className="flex h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="border-border bg-background flex-shrink-0 border-b p-3 sm:p-6 rounded-t-2xl">
+            <div className="border-border bg-background flex-shrink-0 rounded-t-2xl border-b p-3 sm:p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Select Themes</h3>
                 <button
                   onClick={handleCloseModal}
-                  className="text-muted-foreground hover:text-foreground p-2 touch-manipulation"
+                  className="text-muted-foreground hover:text-foreground touch-manipulation p-2"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -203,15 +203,15 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                 {themeSuggestions.map(themeData => (
                   <button
                     key={themeData.theme}
-                    onClick={(e) => {
+                    onClick={e => {
                       // Don't trigger if clicking on the star
-                      if ((e.target as Element).closest('[data-star-button]')) {
+                      if ((e.target as Element).closest("[data-star-button]")) {
                         return;
                       }
                       handleThemeToggle(themeData.theme);
                     }}
                     className={cn(
-                      "h-16 rounded-lg border p-3 text-left transition-all duration-200 touch-manipulation",
+                      "h-16 touch-manipulation rounded-lg border p-3 text-left transition-all duration-200",
                       "relative flex flex-col justify-center hover:shadow-md",
                       activeThemes.includes(themeData.theme)
                         ? "border-primary bg-primary/10 text-foreground"
@@ -227,7 +227,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
                     <div
                       data-star-button
                       onClick={e => handleFavoriteToggle(themeData.theme, e)}
-                      className="absolute top-2 right-2 cursor-pointer rounded p-2 hover:bg-gray-100 touch-manipulation"
+                      className="absolute top-2 right-2 cursor-pointer touch-manipulation rounded p-2 hover:bg-gray-100"
                     >
                       <Star
                         className={cn(

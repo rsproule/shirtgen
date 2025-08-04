@@ -401,13 +401,13 @@ const themeSuggestions: ThemeSuggestion[] = [
   },
 ];
 
+// Sort themes alphabetically once at module level
+const sortedThemeSuggestions = [...themeSuggestions].sort((a, b) =>
+  a.theme.localeCompare(b.theme),
+);
+
 export function useThemeSuggestions() {
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
-
-  // Sort themes alphabetically
-  const sortedThemeSuggestions = [...themeSuggestions].sort((a, b) =>
-    a.theme.localeCompare(b.theme),
-  );
 
   const getThemeSuggestion = (theme: string): ThemeSuggestion | undefined => {
     return sortedThemeSuggestions.find(t => t.theme === theme);
