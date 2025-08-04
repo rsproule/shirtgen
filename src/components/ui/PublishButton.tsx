@@ -30,13 +30,6 @@ type PublishStatus =
   | "publishing"
   | "syncing";
 
-type PublishStatus =
-  | "processing"
-  | "uploading"
-  | "creating"
-  | "publishing"
-  | "syncing";
-
 interface PublishModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -369,9 +362,6 @@ export function PublishButton() {
       }
 
       setIsPublished(true);
-
-      // Refetch published status to update the navbar button
-      await checkPublishedStatus();
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to publish shirt";
@@ -392,10 +382,16 @@ export function PublishButton() {
     }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
     setShowModal(false);
     setError(undefined);
     setShopifyUrl(undefined);
+    
+    // If we just published successfully, update the navbar button state
+    if (isPublished) {
+      await checkPublishedStatus();
+    }
+    
     setIsPublished(false);
   };
 
