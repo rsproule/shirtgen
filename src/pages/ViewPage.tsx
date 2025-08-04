@@ -430,7 +430,7 @@ export function ViewPage() {
             )}
 
             {/* Controls - Responsive Layout */}
-            <div className="mb-1 flex flex-col items-center gap-1 sm:flex-row sm:justify-between sm:gap-3">
+            <div className="mb-2 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-4">
               {/* Shirt Color Selection */}
               <div>
                 <ShirtColorPicker />
@@ -447,7 +447,7 @@ export function ViewPage() {
 
             {/* Image Controls - Resize and Position */}
             {shirtData.imageUrl && !shirtData.isPartial && (
-              <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
                 {/* Image Resize Controls */}
                 <ImageResizeControls
                   currentScale={imageScale}

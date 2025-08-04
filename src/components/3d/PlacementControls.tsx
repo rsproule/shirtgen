@@ -20,17 +20,23 @@ export function PlacementControls({
         }}
         variant="outline"
         size="sm"
-        className="flex-row"
+        className="grid grid-cols-3"
       >
-        <ToggleGroupItem value="front" className="px-3 py-1 sm:px-4 sm:py-2">
+        <ToggleGroupItem 
+          value="front" 
+          className="px-3 py-1.5 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+        >
           Front
         </ToggleGroupItem>
-        <ToggleGroupItem value="back" className="px-3 py-1 sm:px-4 sm:py-2">
+        <ToggleGroupItem 
+          value="back" 
+          className="px-3 py-1.5 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+        >
           Back
         </ToggleGroupItem>
         <ToggleGroupItem
           value="full-shirt"
-          className="px-3 py-1 sm:px-4 sm:py-2"
+          className="px-3 py-1.5 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
         >
           Full Shirt
         </ToggleGroupItem>
