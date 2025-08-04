@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { generateImageHash } from "./imageHash";
 import { createProductIdentifier } from "./nameGeneration";
+import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
 
 // Shirt configuration presets
 interface ShirtConfig {
@@ -88,6 +89,8 @@ interface CreateProductPayload {
     }>;
   }>;
 }
+
+
 
 class PrintifyService {
   constructor() {
@@ -322,25 +325,12 @@ class PrintifyService {
       // 3. Create product with Shaka shirt configuration
       console.log("🏭 Step 3: Creating product on Printify...");
       const identifier = createProductIdentifier(imageHash);
+      
+      const defaultDescription = PRODUCT_DESCRIPTION_TEMPLATE(identifier);
+
       const productPayload: CreateProductPayload = {
         title: productName,
-        description:
-          description ||
-          `Created on https://shirtslop.com
-
-ShirtSlop Tees
-So Soft. So Shirt. So Slop.
-
-At ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.
-
-Product Details:
-• Printed on 100% ring-spun cotton Comfort Colors tees
-• Pre-shrunk, soft-washed, garment-dyed fabric
-• Relaxed fit with vintage fade
-• Double-stitched for durability
-• Unisex sizing: comfortable, built for slopping
-
-ID: ${identifier}`,
+        description: description || defaultDescription,
         blueprint_id: shirtConfig.blueprint_id,
         print_provider_id: shirtConfig.print_provider_id,
         variants: shirtConfig.variants.map(variantId => ({
