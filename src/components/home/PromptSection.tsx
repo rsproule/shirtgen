@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { PromptInput } from "@/components/forms/PromptInput";
 import { PromptHistory } from "@/components/forms/PromptHistory";
@@ -32,8 +31,6 @@ export function PromptSection({
   const {
     selectedThemes,
     toggleTheme,
-    enhancePromptWithThemes,
-    getThemeSuggestion,
   } = useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
 
