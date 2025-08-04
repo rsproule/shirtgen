@@ -27,7 +27,7 @@ export function HomePage() {
     };
   }, [setIsLoading]);
 
-  const handleGenerate = () => {
+  const handleGenerate = (enhancedPrompt?: string) => {
     // Clear any previous errors
     setError(null);
 
@@ -36,9 +36,9 @@ export function HomePage() {
       addPromptToHistory(prompt).catch(console.error);
     }
 
-    // Enhance prompt with selected themes invisibly
-    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
-    generateImage(enhancedPrompt);
+    // Use the enhanced prompt if provided, otherwise enhance it here
+    const finalPrompt = enhancedPrompt || enhancePromptWithThemes(prompt, selectedThemes);
+    generateImage(finalPrompt);
   };
 
   const handleRetryGeneration = () => {
