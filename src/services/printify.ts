@@ -137,9 +137,13 @@ class PrintifyService {
   ): Promise<{ imageBlob: Blob; imageHash: string }> {
     console.log("📷 Step 1: Processing image...");
     const imageBlob = await ImageProcessor.fetchImageAsBlob(imageUrl);
-    const imageHash = await generateImageHash(imageBlob);
+    
+    // Process image specifically for Printify DTG printing
+    const processedBlob = await ImageProcessor.processForPrintify(imageBlob);
+    
+    const imageHash = await generateImageHash(processedBlob);
     console.log("🔑 Generated image hash:", imageHash);
-    return { imageBlob, imageHash };
+    return { imageBlob: processedBlob, imageHash };
   }
 
   private async uploadImageToService(imageBlob: Blob): Promise<PrintifyImage> {
@@ -155,8 +159,11 @@ class PrintifyService {
     uploadedImageId: string,
     price: number,
     imageHash: string,
+    placement: "front" | "back" = "front",
   ): Promise<PrintifyProduct> {
     console.log("🏭 Step 3: Creating product on Printify...");
+    console.log("📍 Placement:", placement);
+    
     const identifier = createProductIdentifier(imageHash);
     const productDescription = ProductBuilder.createDescription(
       identifier,
@@ -167,6 +174,7 @@ class PrintifyService {
       productDescription,
       uploadedImageId,
       price,
+      placement,
     );
 
     const product = await this.createProduct(payload);
@@ -234,6 +242,7 @@ class PrintifyService {
     productName: string,
     description: string = "",
     price: number = 3500, // $35.00 in cents
+    placement: "front" | "back" = "front",
     onStatusUpdate?: (
       status:
         | "processing"
@@ -246,6 +255,7 @@ class PrintifyService {
     console.log("🚀 Starting shirt creation process...");
     console.log("📝 Original prompt:", prompt);
     console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
+    console.log("📍 Placement:", placement);
 
     try {
       // Step 1: Process image and generate hash
@@ -274,6 +284,7 @@ class PrintifyService {
         uploadedImage.id,
         price,
         imageHash,
+        placement,
       );
 
       // Step 4: Wait for sync and get updated details
