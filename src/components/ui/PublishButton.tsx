@@ -22,11 +22,19 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+type PublishStatus =
+  | "processing"
+  | "uploading"
+  | "creating"
+  | "publishing"
+  | "syncing";
+
 interface PublishModalProps {
   isOpen: boolean;
   onClose: () => void;
   designName: string;
   isPublishing?: boolean;
+  publishStatus?: PublishStatus;
   error?: string;
   shopifyUrl?: string;
   isPublished?: boolean;
@@ -38,6 +46,7 @@ function PublishModal({
   onClose,
   designName,
   isPublishing,
+  publishStatus,
   error,
   shopifyUrl,
   isPublished,
@@ -105,9 +114,14 @@ function PublishModal({
             <div className="bg-primary/10 flex items-center gap-3 rounded-lg p-4">
               <Loader2 className="text-primary h-5 w-5 animate-spin" />
               <div>
-                <p className="font-medium">Publishing...</p>
+                <p className="font-medium">Your shirt is nearly ready!</p>
                 <p className="text-muted-foreground text-sm">
-                  Creating "{productName}"...
+                  {publishStatus === "processing" && "Uploading your design..."}
+                  {publishStatus === "uploading" && "Uploading your design..."}
+                  {publishStatus === "creating" && "Creating product..."}
+                  {publishStatus === "publishing" && "Publishing to store..."}
+                  {publishStatus === "syncing" && "Syncing..."}
+                  {!publishStatus && `Creating "${productName}"...`}
                 </p>
               </div>
             </div>
@@ -184,6 +198,8 @@ export function PublishButton() {
   const [error, setError] = useState<string>();
   const [shopifyUrl, setShopifyUrl] = useState<string>();
   const [isPublished, setIsPublished] = useState(false);
+  const [publishStatus, setPublishStatus] =
+    useState<PublishStatus>("processing");
   const [designTitle, setDesignTitle] = useState<string>("");
   const [alreadyPublished, setAlreadyPublished] = useState<{
     shopifyUrl?: string;
@@ -218,36 +234,37 @@ export function PublishButton() {
     loadDesignTitle();
   }, [shirtData?.imageUrl, shirtData?.prompt, getByHash]);
 
+  // Function to check published status
+  const checkPublishedStatus = async () => {
+    if (!shirtData?.imageUrl) {
+      setAlreadyPublished(null);
+      return;
+    }
+
+    try {
+      const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+      const publishedProduct = await getPublishedProduct(imageHash);
+
+      if (publishedProduct) {
+        console.log(
+          "📦 Found already published product:",
+          publishedProduct.productName,
+        );
+        setAlreadyPublished({
+          shopifyUrl: publishedProduct.shopifyUrl,
+          productName: publishedProduct.productName,
+        });
+      } else {
+        setAlreadyPublished(null);
+      }
+    } catch (error) {
+      console.warn("Failed to check published status:", error);
+      setAlreadyPublished(null);
+    }
+  };
+
   // Check if this image is already published when shirtData changes
   useEffect(() => {
-    const checkPublishedStatus = async () => {
-      if (!shirtData?.imageUrl) {
-        setAlreadyPublished(null);
-        return;
-      }
-
-      try {
-        const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-        const publishedProduct = await getPublishedProduct(imageHash);
-
-        if (publishedProduct) {
-          console.log(
-            "📦 Found already published product:",
-            publishedProduct.productName,
-          );
-          setAlreadyPublished({
-            shopifyUrl: publishedProduct.shopifyUrl,
-            productName: publishedProduct.productName,
-          });
-        } else {
-          setAlreadyPublished(null);
-        }
-      } catch (error) {
-        console.warn("Failed to check published status:", error);
-        setAlreadyPublished(null);
-      }
-    };
-
     checkPublishedStatus();
   }, [shirtData?.imageUrl]);
 
@@ -281,6 +298,7 @@ export function PublishButton() {
     if (!shirtData?.imageUrl || !shirtData?.prompt) return;
 
     setIsPublishing(true);
+    setPublishStatus("processing");
     setError(undefined);
     setShopifyUrl(undefined);
     setIsPublished(false);
@@ -289,18 +307,23 @@ export function PublishButton() {
       const imageHash = await generateDataUrlHash(shirtData.imageUrl);
 
       // Update lifecycle to UPLOADING
+      setPublishStatus("uploading");
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
       const description = `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a>\n\nShirtSlop Tees\nSo Soft. So Shirt. So Slop.\n\nAt ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.\n\nProduct Details:\n– Printed on 100% ring-spun cotton Comfort Colors tees\n– Pre-shrunk, soft-washed, garment-dyed fabric\n– Relaxed fit with vintage fade\n– Double-stitched for durability\n– Unisex sizing: comfortable, built for slopping`;
 
       // Update lifecycle to PUBLISHING before creating product
+      setPublishStatus("creating");
       await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHING);
 
+      setPublishStatus("publishing");
       const result = await printifyService.createShirtFromDesign(
         shirtData.imageUrl,
         shirtData.prompt,
         confirmedProductName,
         description,
+        3500,
+        (status: PublishStatus) => setPublishStatus(status),
       );
 
       // Set the Shopify URL using the external handle directly
@@ -338,6 +361,9 @@ export function PublishButton() {
       }
 
       setIsPublished(true);
+
+      // Refetch published status to update the navbar button
+      await checkPublishedStatus();
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to publish shirt";
@@ -415,6 +441,7 @@ export function PublishButton() {
         onClose={handleCloseModal}
         designName={designTitle || "Untitled Design"}
         isPublishing={isPublishing}
+        publishStatus={publishStatus}
         error={error}
         shopifyUrl={shopifyUrl}
         isPublished={isPublished}
