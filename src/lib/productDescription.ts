@@ -1,4 +1,6 @@
-export const PRODUCT_DESCRIPTION_TEMPLATE = (identifier?: string) => `Created on https://shirtslop.com
+export const PRODUCT_DESCRIPTION_TEMPLATE = (
+  identifier?: string,
+) => `Created on https://shirtslop.com
 
 ShirtSlop Tees
 So Soft. So Shirt. So Slop.
@@ -10,4 +12,4 @@ Product Details:
 • Pre-shrunk, soft-washed, garment-dyed fabric
 • Relaxed fit with vintage fade
 • Double-stitched for durability
-• Unisex sizing: comfortable, built for slopping${identifier ? `\n\nID: ${identifier}` : ''}`; 
+• Unisex sizing: comfortable, built for slopping${identifier ? `\n\nID: ${identifier}` : ""}`;

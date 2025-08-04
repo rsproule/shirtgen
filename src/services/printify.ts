@@ -12,8 +12,6 @@ import type {
   ShirtCreationResult,
 } from "./printify/types";
 
-
-
 class PrintifyService {
   constructor() {
     // All API calls go through our server-side /api/printify endpoint
