@@ -2,7 +2,7 @@ import { PulsatingButton } from "@/components/magicui/pulsating-button";
 import { useShirtData } from "@/context/ShirtDataContext";
 
 interface ActionButtonsProps {
-  onGenerate: () => void;
+  onGenerate: (enhancedPrompt?: string) => void;
   promptLength: number;
 }
 
