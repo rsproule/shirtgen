@@ -47,6 +47,9 @@ export interface CreateProductPayload {
   }>;
 }
 
+// Printify placement mapping
+export type PrintifyPlacement = "front_dtg" | "back_dtg";
+
 /**
  * Product configuration and payload building utilities
  * Handles product descriptions, configurations, and API payload creation
@@ -66,6 +69,13 @@ export class ProductBuilder {
   }
 
   /**
+   * Convert UI placement to Printify placement
+   */
+  static getPrintifyPlacement(placement: "front" | "back"): PrintifyPlacement {
+    return placement === "front" ? "front_dtg" : "back_dtg";
+  }
+
+  /**
    * Create complete product payload for Printify API
    */
   static createProductPayload(
@@ -73,8 +83,10 @@ export class ProductBuilder {
     description: string,
     uploadedImageId: string,
     price: number,
+    placement: "front" | "back" = "front",
   ): CreateProductPayload {
     const shirtConfig = SHIRT_CONFIGS.shaka;
+    const printifyPlacement = this.getPrintifyPlacement(placement);
 
     return {
       title: productName,
@@ -91,7 +103,7 @@ export class ProductBuilder {
           variant_ids: shirtConfig.variants,
           placeholders: [
             {
-              position: "front_dtg",
+              position: printifyPlacement,
               images: [
                 {
                   id: uploadedImageId,

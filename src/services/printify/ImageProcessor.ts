@@ -65,4 +65,96 @@ export class ImageProcessor {
       img.src = URL.createObjectURL(blob);
     });
   }
+
+  /**
+   * Resize image for Printify DTG printing requirements
+   * Optimal dimensions for DTG printing are typically 12" x 16" at 300 DPI
+   * This converts to approximately 3600 x 4800 pixels
+   */
+  static async resizeForPrintify(blob: Blob): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      img.onload = () => {
+        // Printify DTG optimal dimensions
+        const targetWidth = 3600;
+        const targetHeight = 4800;
+        
+        // Calculate dimensions maintaining aspect ratio
+        const imgAspectRatio = img.width / img.height;
+        const targetAspectRatio = targetWidth / targetHeight;
+        
+        let finalWidth, finalHeight;
+        
+        if (imgAspectRatio > targetAspectRatio) {
+          // Image is wider than target ratio - fit to width
+          finalWidth = targetWidth;
+          finalHeight = targetWidth / imgAspectRatio;
+        } else {
+          // Image is taller than target ratio - fit to height
+          finalHeight = targetHeight;
+          finalWidth = targetHeight * imgAspectRatio;
+        }
+
+        // Ensure minimum dimensions for quality
+        const minDimension = 1800; // Minimum 1800px for quality
+        if (finalWidth < minDimension || finalHeight < minDimension) {
+          const scale = minDimension / Math.min(finalWidth, finalHeight);
+          finalWidth *= scale;
+          finalHeight *= scale;
+        }
+
+        canvas.width = finalWidth;
+        canvas.height = finalHeight;
+
+        // Enable high-quality image rendering
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+        }
+
+        // Draw the resized image
+        ctx?.drawImage(img, 0, 0, finalWidth, finalHeight);
+
+        // Convert to blob with high quality
+        canvas.toBlob(
+          resizedBlob => {
+            if (resizedBlob) {
+              console.log(`🖨️ Resized image for Printify: ${finalWidth}x${finalHeight}px`);
+              resolve(resizedBlob);
+            } else {
+              reject(new Error("Failed to resize image for Printify"));
+            }
+          },
+          "image/png", // Use PNG for better quality
+          1.0, // Maximum quality
+        );
+      };
+
+      img.onerror = reject;
+      img.src = URL.createObjectURL(blob);
+    });
+  }
+
+  /**
+   * Process image for Printify: resize and compress as needed
+   */
+  static async processForPrintify(blob: Blob): Promise<Blob> {
+    console.log("🖨️ Processing image for Printify...");
+    
+    // First resize for optimal DTG printing
+    const resizedBlob = await this.resizeForPrintify(blob);
+    
+    // Then compress if still too large (Printify has 20MB limit)
+    const maxSize = 20 * 1024 * 1024; // 20MB
+    
+    if (resizedBlob.size > maxSize) {
+      console.log("🗜️ Image still too large, compressing...");
+      return await this.compressImage(resizedBlob, 0.9);
+    }
+    
+    return resizedBlob;
+  }
 }
