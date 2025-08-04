@@ -291,7 +291,7 @@ export function PublishButton() {
       // Update lifecycle to UPLOADING
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
-      const description = `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a>\n\nShirtSlop Tees\nSo Soft. So Shirt. So Slop.\n\nAt ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.\n\nProduct Details:\n– Printed on 100% ring-spun cotton Comfort Colors tees\n– Pre-shrunk, soft-washed, garment-dyed fabric\n– Relaxed fit with vintage fade\n– Double-stitched for durability\n– Unisex sizing: comfortable, built for slopping`;
+      const description = `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a><br><br>ShirtSlop Tees<br>So Soft. So Shirt. So Slop.<br><br>At ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.<br><br><strong>Product Details:</strong><br>• Printed on 100% ring-spun cotton Comfort Colors tees<br>• Pre-shrunk, soft-washed, garment-dyed fabric<br>• Relaxed fit with vintage fade<br>• Double-stitched for durability<br>• Unisex sizing: comfortable, built for slopping`;
 
       // Update lifecycle to PUBLISHING before creating product
       await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHING);
