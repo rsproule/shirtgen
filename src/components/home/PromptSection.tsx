@@ -1,0 +1,152 @@
+import { ActionButtons } from "@/components/forms/ActionButtons";
+import { PromptHistory } from "@/components/forms/PromptHistory";
+import { PromptInput } from "@/components/forms/PromptInput";
+import { TypingStats } from "@/components/forms/TypingStats";
+import { PulsatingButton } from "@/components/magicui/pulsating-button";
+import { Button } from "@/components/ui/button";
+import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
+import { ThemeButtons } from "@/components/ui/theme-buttons";
+import { useShirtData } from "@/context/ShirtDataContext";
+import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
+import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
+import { useTypingStats } from "@/hooks/useTypingStats";
+import { StoreIcon } from "lucide-react";
+
+interface PromptSectionProps {
+  prompt: string;
+  setPrompt: (prompt: string) => void;
+  onGenerate: (enhancedPrompt?: string) => void;
+  onSelectFromHistory: (prompt: string) => void;
+  createFullPrompt: (userPrompt: string, themes: string[]) => string;
+}
+
+export function PromptSection({
+  prompt,
+  setPrompt,
+  onGenerate,
+  onSelectFromHistory,
+  createFullPrompt,
+}: PromptSectionProps) {
+  const { isAuthenticated, signIn } = useShirtData();
+  const { typingStats, handleInputChange, setPromptWithoutStats } =
+    useTypingStats(prompt);
+  const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
+    useThemeSuggestions();
+  const { addToFavorites } = useFavoriteThemes();
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    handleInputChange(newValue);
+    setPrompt(newValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Cmd+Enter or Ctrl+Enter to submit
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleGenerate();
+    }
+  };
+
+  const handleGenerate = () => {
+    // Add selected themes to favorites when used
+    selectedThemes.forEach(theme => addToFavorites(theme));
+
+    // Enhance prompt with selected themes before calling onGenerate
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
+    onGenerate(enhancedPrompt);
+  };
+
+  const handleSelectFromHistory = (selectedPrompt: string) => {
+    setPrompt(selectedPrompt);
+    setPromptWithoutStats();
+    onSelectFromHistory(selectedPrompt);
+  };
+
+  const handleThemeSelect = (theme: string) => {
+    toggleTheme(theme);
+  };
+
+  const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
+
+  return (
+    <div className="mx-auto mt-8 w-full max-w-7xl px-8">
+      {/* Chat UI Container - with blur overlay when not authenticated */}
+      <div className="relative">
+        {/* Main Chat UI */}
+        <div
+          className={`${!isAuthenticated ? "pointer-events-none blur-sm" : ""}`}
+        >
+          {/* Top Section */}
+          <div className="mb-1 flex items-start justify-between">
+            {/* Favorites Display - Top Left */}
+            <div className="flex-1">
+              <FavoritesDisplay
+                onThemeSelect={handleThemeSelect}
+                activeThemes={selectedThemes}
+              />
+            </div>
+            {/* History Button - Top Right */}
+            <div className="flex-shrink-0">
+              <PromptHistory onSelectPrompt={handleSelectFromHistory} />
+            </div>
+          </div>
+
+          <PromptInput
+            value={prompt}
+            onChange={handleTextChange}
+            onKeyDown={handleKeyDown}
+            fullPrompt={fullPromptPreview}
+            activeThemes={selectedThemes}
+            onThemeRemove={handleThemeSelect}
+          />
+
+          {/* Stats Bar */}
+          <TypingStats stats={typingStats} promptLength={prompt.length} />
+
+          {/* Action Buttons */}
+          <ActionButtons
+            onGenerate={handleGenerate}
+            promptLength={prompt.length}
+          />
+
+          {/* Theme Buttons */}
+          <div className="mt-4">
+            <ThemeButtons
+              onThemeSelect={handleThemeSelect}
+              activeThemes={selectedThemes}
+            />
+          </div>
+        </div>
+
+        {/* Sign-in overlay for non-authenticated users */}
+        {!isAuthenticated && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <PulsatingButton
+                onClick={signIn}
+                className="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2"
+                pulseColor="var(--primary-light)"
+                disabledAnimation={false}
+              >
+                Login to create
+              </PulsatingButton>
+
+              <div className="flex items-center gap-2">or</div>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  window.open("https://shirt-slop.myshopify.com/", "_blank")
+                }
+                className="px-3 py-1 text-sm"
+              >
+                <StoreIcon className="size-3" />
+                View the store
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
