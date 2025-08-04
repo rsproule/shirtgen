@@ -37,7 +37,8 @@ export function HomePage() {
     }
 
     // Use the enhanced prompt if provided, otherwise enhance it here
-    const finalPrompt = enhancedPrompt || enhancePromptWithThemes(prompt, selectedThemes);
+    const finalPrompt =
+      enhancedPrompt || enhancePromptWithThemes(prompt, selectedThemes);
     generateImage(finalPrompt);
   };
 

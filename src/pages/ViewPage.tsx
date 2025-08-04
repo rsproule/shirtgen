@@ -6,7 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Check, Edit3, Save, X } from "lucide-react";
+import { Check, Download, Edit3, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShirtData } from "@/context/ShirtDataContext";
@@ -21,6 +21,7 @@ import { PublishButton } from "@/components/ui/PublishButton";
 import type { ShirtData } from "@/types";
 import { generateDataUrlHash } from "@/services/imageHash";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { ImageProcessor } from "@/services/printify/ImageProcessor";
 
 export function ViewPage() {
   const navigate = useNavigate();
@@ -239,6 +240,51 @@ export function ViewPage() {
     setIsEditingTitle(false);
   };
 
+  const downloadImage = (dataUrl: string, filename: string) => {
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadFullRes = () => {
+    if (shirtData?.imageUrl) {
+      downloadImage(shirtData.imageUrl, `shirt-design-full-${Date.now()}.png`);
+    }
+  };
+
+  const handleDownloadCompressed = async () => {
+    if (!shirtData?.imageUrl) return;
+
+    try {
+      // Convert data URL to blob
+      const imageBlob = await ImageProcessor.fetchImageAsBlob(
+        shirtData.imageUrl,
+      );
+
+      // Compress it
+      const compressedBlob = await ImageProcessor.compressImage(
+        imageBlob,
+        0.75,
+      );
+
+      // Convert back to data URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        const compressedDataUrl = reader.result as string;
+        downloadImage(
+          compressedDataUrl,
+          `shirt-design-compressed-${Date.now()}.png`,
+        );
+      };
+      reader.readAsDataURL(compressedBlob);
+    } catch (error) {
+      console.error("Failed to compress and download image:", error);
+    }
+  };
+
   return (
     <div className="bg-background flex h-svh flex-col">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
@@ -390,6 +436,30 @@ export function ViewPage() {
                 />
               </div>
             </div>
+
+            {/* Debug Controls - Only in development */}
+            {import.meta.env.DEV && shirtData.imageUrl && (
+              <div className="border-border mt-2 flex justify-center gap-2 border-t pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadFullRes}
+                  className="text-xs"
+                >
+                  <Download className="mr-1 h-3 w-3" />
+                  Full Res
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadCompressed}
+                  className="text-xs"
+                >
+                  <Download className="mr-1 h-3 w-3" />
+                  Compressed
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
