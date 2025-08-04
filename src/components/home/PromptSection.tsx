@@ -27,7 +27,8 @@ export function PromptSection({
   createFullPrompt,
 }: PromptSectionProps) {
   const { isAuthenticated, signIn } = useShirtData();
-  const { typingStats, handleInputChange, setPromptWithoutStats } = useTypingStats(prompt);
+  const { typingStats, handleInputChange, setPromptWithoutStats } =
+    useTypingStats(prompt);
   const {
     selectedThemes,
     toggleTheme,
@@ -73,7 +74,9 @@ export function PromptSection({
       {/* Chat UI Container - with blur overlay when not authenticated */}
       <div className="relative">
         {/* Main Chat UI */}
-        <div className={`${!isAuthenticated ? "pointer-events-none blur-sm" : ""}`}>
+        <div
+          className={`${!isAuthenticated ? "pointer-events-none blur-sm" : ""}`}
+        >
           {/* Top Section */}
           <div className="mb-1 flex items-start justify-between">
             {/* Favorites Display - Top Left */}

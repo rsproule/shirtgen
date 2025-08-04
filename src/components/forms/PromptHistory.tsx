@@ -13,7 +13,7 @@ interface PromptHistoryProps {
 export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
   const { history, clearHistory, removeFromHistory } = usePromptHistory();
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const hasHistory = history.length > 0;
 
   const handleSelectPrompt = (item: PromptHistoryItem) => {
@@ -43,8 +43,12 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
         size="sm"
         onClick={() => hasHistory && setIsOpen(!isOpen)}
         disabled={!hasHistory}
-        className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center border-0 p-0 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        title={hasHistory ? `Recent prompts (${history.length})` : "No recent prompts"}
+        className="text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center border-0 p-0 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        title={
+          hasHistory
+            ? `Recent prompts (${history.length})`
+            : "No recent prompts"
+        }
       >
         <Clock className="h-4 w-4" />
       </Button>
