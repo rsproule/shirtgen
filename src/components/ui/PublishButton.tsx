@@ -291,7 +291,7 @@ export function PublishButton() {
       // Update lifecycle to UPLOADING
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
-      const description = `Created on https://shirtslop.com\n\n${shirtData.prompt.length > 50 ? shirtData.prompt.substring(0, 50) + "..." : shirtData.prompt}`;
+      const description = `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a>\n\nShirtSlop Tee\nSo Soft. So Shirt. So Sloppy.\n\nAt ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.\n\nProduct Details:\n– Printed on 100% ring-spun cotton Comfort Colors tees\n– Pre-shrunk, soft-washed, garment-dyed fabric\n– Relaxed fit with vintage fade\n– Double-stitched for durability\n– Unisex sizing: comfortable, built for slopping`;
 
       // Update lifecycle to PUBLISHING before creating product
       await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHING);

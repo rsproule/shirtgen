@@ -326,7 +326,7 @@ class PrintifyService {
         title: productName,
         description:
           description ||
-          `Created on https://shirtslop.com\n\n${prompt.length > 50 ? prompt.substring(0, 50) + "..." : prompt}\n\nID: ${identifier}`,
+          `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a>\n\nShirtSlop Tee\nSo Soft. So shirt. So Sloppy.\n\nAt ShirtSlop, we take your weirdest ideas, worst inside jokes, and most chaotic designs — and print them on Comfort Colors tees.\n\nProduct Details:\n– Printed on 100% ring-spun cotton Comfort Colors tees\n– Pre-shrunk, soft-washed, garment-dyed fabric\n– Relaxed fit with vintage fade\n– Double-stitched for durability\n– Unisex sizing: comfortable, built for slopping\n\nID: ${identifier}`,
         blueprint_id: shirtConfig.blueprint_id,
         print_provider_id: shirtConfig.print_provider_id,
         variants: shirtConfig.variants.map(variantId => ({
