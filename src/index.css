@@ -42,7 +42,6 @@
   --sidebar-ring: oklch(0 0 0);
   --shirt-white: oklch(0.95 0.02 100);
   --shirt-dark: oklch(0.2 0.01 0);
-  --shirt-oatmeal: oklch(0.75 0.05 60);
   --shirt-cream: oklch(0.85 0.04 75);
   --font-sans: Plus Jakarta Sans, sans-serif;
   --font-serif: Lora, serif;
@@ -107,7 +106,6 @@
   --sidebar-ring: oklch(0.6132 0.2294 291.7437);
   --shirt-white: oklch(0.9423 0.0097 72.6595);
   --shirt-dark: oklch(0.2683 0.0279 150.7681);
-  --shirt-oatmeal: oklch(0.6291 0.1543 144.2031);
   --shirt-cream: oklch(0.7185 0.1417 144.8887);
   --font-sans: Plus Jakarta Sans, sans-serif;
   --font-serif: Lora, serif;
@@ -171,7 +169,6 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-shirt-white: var(--shirt-white);
   --color-shirt-dark: var(--shirt-dark);
-  --color-shirt-oatmeal: var(--shirt-oatmeal);
   --color-shirt-cream: var(--shirt-cream);
 
   --font-sans: Plus Jakarta Sans, sans-serif;
