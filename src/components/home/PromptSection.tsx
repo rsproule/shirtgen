@@ -10,6 +10,7 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useTypingStats } from "@/hooks/useTypingStats";
+import { StoreIcon } from "lucide-react";
 
 interface PromptSectionProps {
   prompt: string;
@@ -121,7 +122,7 @@ export function PromptSection({
         {/* Sign-in overlay for non-authenticated users */}
         {!isAuthenticated && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-2">
               <PulsatingButton
                 onClick={signIn}
                 className="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2"
@@ -130,6 +131,8 @@ export function PromptSection({
               >
                 Login to create
               </PulsatingButton>
+
+              <div className="flex items-center gap-2">or</div>
               <Button
                 variant="outline"
                 onClick={() =>
@@ -137,7 +140,8 @@ export function PromptSection({
                 }
                 className="px-3 py-1 text-sm"
               >
-                or view others works
+                <StoreIcon className="size-3" />
+                View the store
               </Button>
             </div>
           </div>
