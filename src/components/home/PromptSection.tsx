@@ -1,15 +1,15 @@
-import { useShirtData } from "@/context/ShirtDataContext";
-import { PromptInput } from "@/components/forms/PromptInput";
-import { PromptHistory } from "@/components/forms/PromptHistory";
-import { TypingStats } from "@/components/forms/TypingStats";
 import { ActionButtons } from "@/components/forms/ActionButtons";
-import { ThemeButtons } from "@/components/ui/theme-buttons";
-import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
+import { PromptHistory } from "@/components/forms/PromptHistory";
+import { PromptInput } from "@/components/forms/PromptInput";
+import { TypingStats } from "@/components/forms/TypingStats";
 import { PulsatingButton } from "@/components/magicui/pulsating-button";
 import { Button } from "@/components/ui/button";
-import { useTypingStats } from "@/hooks/useTypingStats";
-import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
+import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
+import { ThemeButtons } from "@/components/ui/theme-buttons";
+import { useShirtData } from "@/context/ShirtDataContext";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
+import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
+import { useTypingStats } from "@/hooks/useTypingStats";
 
 interface PromptSectionProps {
   prompt: string;
@@ -121,7 +121,7 @@ export function PromptSection({
         {/* Sign-in overlay for non-authenticated users */}
         {!isAuthenticated && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-6">
               <PulsatingButton
                 onClick={signIn}
                 className="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2"
