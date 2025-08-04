@@ -1,15 +1,9 @@
-export const PRODUCT_DESCRIPTION_TEMPLATE = (
-  identifier?: string,
-) => `Created on https://shirtslop.com
+import type { EchoUser } from "@zdql/echo-react-sdk";
 
-ShirtSlop Tees
-So Soft. So Shirt. So Slop.
-
-At ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.
-
-Product Details:
-• Printed on 100% ring-spun cotton Comfort Colors tees
-• Pre-shrunk, soft-washed, garment-dyed fabric
-• Relaxed fit with vintage fade
-• Double-stitched for durability
-• Unisex sizing: comfortable, built for slopping${identifier ? `\n\nID: ${identifier}` : ""}`;
+export const PRODUCT_DESCRIPTION_TEMPLATE = (creator: EchoUser | null) =>
+  `Created on https://shirtslop.com${
+    creator ? ` by\n\nID: ${creator.name || creator.email}` : ""
+  }
+\n 
+${creator?.id}
+`;
