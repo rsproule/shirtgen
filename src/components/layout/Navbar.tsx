@@ -17,12 +17,14 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.open("https://shirt-slop.myshopify.com/", "_blank")}
+            onClick={() =>
+              window.open("https://shirt-slop.myshopify.com/", "_blank")
+            }
             className="px-2 py-1"
           >
             <Store className="h-4 w-4" />
           </Button>
-          
+
           {isAuthLoading ? (
             <Skeleton className="h-8 w-24" />
           ) : isAuthenticated ? (

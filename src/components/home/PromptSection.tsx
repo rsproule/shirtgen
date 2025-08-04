@@ -29,7 +29,8 @@ export function PromptSection({
   const { isAuthenticated, signIn } = useShirtData();
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
-  const { selectedThemes, toggleTheme, enhancePromptWithThemes } = useThemeSuggestions();
+  const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
+    useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -49,7 +50,7 @@ export function PromptSection({
   const handleGenerate = () => {
     // Add selected themes to favorites when used
     selectedThemes.forEach(theme => addToFavorites(theme));
-    
+
     // Enhance prompt with selected themes before calling onGenerate
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     onGenerate(enhancedPrompt);
@@ -131,8 +132,10 @@ export function PromptSection({
               </PulsatingButton>
               <Button
                 variant="outline"
-                onClick={() => window.open("https://shirt-slop.myshopify.com/", "_blank")}
-                className="text-sm px-3 py-1"
+                onClick={() =>
+                  window.open("https://shirt-slop.myshopify.com/", "_blank")
+                }
+                className="px-3 py-1 text-sm"
               >
                 or view others works
               </Button>
