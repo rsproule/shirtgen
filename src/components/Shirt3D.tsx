@@ -10,9 +10,15 @@ interface Shirt3DProps {
   imageUrl: string;
   texturePlacement: TexturePlacement;
   imageScale?: number;
+  imagePosition?: { x: number; y: number };
 }
 
-export function Shirt3D({ imageUrl, texturePlacement, imageScale = 1.0 }: Shirt3DProps) {
+export function Shirt3D({ 
+  imageUrl, 
+  texturePlacement, 
+  imageScale = 1.0, 
+  imagePosition = { x: 0, y: 0 } 
+}: Shirt3DProps) {
   const groupRef = useRef<THREE.Group>(null!);
   const [targetRotation, setTargetRotation] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -113,7 +119,11 @@ export function Shirt3D({ imageUrl, texturePlacement, imageScale = 1.0 }: Shirt3
             drawWidth = frontHeight * imgAspectRatio;
           }
 
-          ctx.translate(frontX, frontY);
+          // Apply position offset only if user has moved from default
+          const positionOffsetX = imagePosition.x !== 0 ? imagePosition.x * canvas.width * 0.1 : 0;
+          const positionOffsetY = imagePosition.y !== 0 ? imagePosition.y * canvas.height * 0.1 : 0;
+
+          ctx.translate(frontX + positionOffsetX, frontY + positionOffsetY);
           ctx.rotate(Math.PI);
           ctx.scale(-1, 1); // Flip horizontally to fix mirroring
           ctx.drawImage(
@@ -141,7 +151,11 @@ export function Shirt3D({ imageUrl, texturePlacement, imageScale = 1.0 }: Shirt3
             drawWidth = maxSize * imgAspectRatio;
           }
 
-          ctx.translate(frontX + maxSize / 2, frontY + maxSize / 2);
+          // Apply position offset only if user has moved from default
+          const positionOffsetX = imagePosition.x !== 0 ? imagePosition.x * canvas.width * 0.15 : 0;
+          const positionOffsetY = imagePosition.y !== 0 ? imagePosition.y * canvas.height * 0.15 : 0;
+
+          ctx.translate(frontX + maxSize / 2 + positionOffsetX, frontY + maxSize / 2 + positionOffsetY);
           ctx.rotate(Math.PI);
           ctx.scale(-1, 1); // Flip horizontally to fix mirroring
           ctx.drawImage(
@@ -169,7 +183,11 @@ export function Shirt3D({ imageUrl, texturePlacement, imageScale = 1.0 }: Shirt3
             drawWidth = maxSize * imgAspectRatio;
           }
 
-          ctx.translate(backX + maxSize / 2, backY + maxSize / 2);
+          // Apply position offset only if user has moved from default
+          const positionOffsetX = imagePosition.x !== 0 ? imagePosition.x * canvas.width * 0.15 : 0;
+          const positionOffsetY = imagePosition.y !== 0 ? imagePosition.y * canvas.height * 0.15 : 0;
+
+          ctx.translate(backX + maxSize / 2 + positionOffsetX, backY + maxSize / 2 + positionOffsetY);
           ctx.rotate(Math.PI);
           ctx.scale(-1, 1); // Flip horizontally to fix mirroring
           ctx.drawImage(
@@ -190,7 +208,7 @@ export function Shirt3D({ imageUrl, texturePlacement, imageScale = 1.0 }: Shirt3
       texture.needsUpdate = true;
       return texture;
     });
-  }, [cachedImage, texturePlacement, shirtColor, imageScale]);
+  }, [cachedImage, texturePlacement, shirtColor, imageScale, imagePosition]);
 
   // Smooth rotation animation
   useFrame((_, delta) => {

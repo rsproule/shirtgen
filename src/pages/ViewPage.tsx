@@ -19,6 +19,7 @@ import { Shirt3D } from "@/components/Shirt3D";
 import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
 import { PublishButton } from "@/components/ui/PublishButton";
 import { ImageResizeControls } from "@/components/ui/ImageResizeControls";
+import { ImagePositionControls } from "@/components/ui/ImagePositionControls";
 import type { ShirtData } from "@/types";
 import { generateDataUrlHash } from "@/services/imageHash";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
@@ -38,6 +39,8 @@ export function ViewPage() {
     setTexturePlacement,
     imageScale,
     setImageScale,
+    imagePosition,
+    setImagePosition,
     setIsLoading,
   } = useShirtData();
   const { autoSaveStatus, lastSavedAt } = useAutoSave();
@@ -365,6 +368,7 @@ export function ViewPage() {
                 imageUrl={shirtData.imageUrl}
                 texturePlacement={texturePlacement}
                 imageScale={imageScale}
+                imagePosition={imagePosition}
               />
             )}
           </Scene3D>
@@ -441,13 +445,22 @@ export function ViewPage() {
               </div>
             </div>
 
-            {/* Image Resize Controls */}
+            {/* Image Controls - Resize and Position */}
             {shirtData.imageUrl && !shirtData.isPartial && (
-              <div className="mt-3">
+              <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                {/* Image Resize Controls */}
                 <ImageResizeControls
                   currentScale={imageScale}
                   onResizeChange={setImageScale}
                   onReset={() => setImageScale(1.0)}
+                  disabled={shirtData.isPartial}
+                />
+
+                {/* Image Position Controls */}
+                <ImagePositionControls
+                  currentPosition={imagePosition}
+                  onPositionChange={setImagePosition}
+                  onReset={() => setImagePosition({ x: 0, y: 0 })}
                   disabled={shirtData.isPartial}
                 />
               </div>

@@ -161,9 +161,13 @@ class PrintifyService {
     price: number,
     imageHash: string,
     placement: "front" | "back" = "front",
+    imageScale: number = 1.0,
+    imagePosition: { x: number; y: number } = { x: 0, y: 0 },
   ): Promise<PrintifyProduct> {
     console.log("🏭 Step 3: Creating product on Printify...");
     console.log("📍 Placement:", placement);
+    console.log("📏 Scale:", imageScale);
+    console.log("📍 Position:", imagePosition);
     
     const identifier = createProductIdentifier(imageHash);
     const productDescription = ProductBuilder.createDescription(
@@ -176,6 +180,8 @@ class PrintifyService {
       uploadedImageId,
       price,
       placement,
+      imageScale,
+      imagePosition,
     );
 
     const product = await this.createProduct(payload);
@@ -245,6 +251,7 @@ class PrintifyService {
     price: number = 3500, // $35.00 in cents
     placement: "front" | "back" = "front",
     imageScale: number = 1.0,
+    imagePosition: { x: number; y: number } = { x: 0, y: 0 },
     onStatusUpdate?: (
       status:
         | "processing"
@@ -259,6 +266,7 @@ class PrintifyService {
     console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
     console.log("📍 Placement:", placement);
     console.log("📏 Image scale:", imageScale);
+    console.log("📍 Image position:", imagePosition);
 
     try {
       // Step 1: Process image and generate hash
@@ -288,6 +296,8 @@ class PrintifyService {
         price,
         imageHash,
         placement,
+        imageScale,
+        imagePosition,
       );
 
       // Step 4: Wait for sync and get updated details
