@@ -36,7 +36,6 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   // Centralize authentication state to prevent multiple useEcho calls
   const { isAuthenticated, isLoading: isAuthLoading, signIn } = useEcho();
 
-
   // Prevent navigation/refresh during loading
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {

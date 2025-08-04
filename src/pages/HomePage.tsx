@@ -17,7 +17,8 @@ export function HomePage() {
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
-  const { enhancePromptWithThemes, getThemeSuggestion, selectedThemes } = useThemeSuggestions();
+  const { enhancePromptWithThemes, getThemeSuggestion, selectedThemes } =
+    useThemeSuggestions();
 
   // Reset loading state when component unmounts
   useEffect(() => {

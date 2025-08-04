@@ -16,11 +16,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
   // This timeout prevents showing content until auth state stabilizes.
   // TODO: Remove this hack when Echo SDK is fixed or replaced.
   useEffect(() => {
-    if (!isAuthLoading && typeof isAuthenticated === 'boolean') {
+    if (!isAuthLoading && typeof isAuthenticated === "boolean") {
       const timer = setTimeout(() => {
         setShowContent(true);
       }, 100); // Small delay to let Echo's broken state settle
-      
+
       return () => clearTimeout(timer);
     } else {
       setShowContent(false);
