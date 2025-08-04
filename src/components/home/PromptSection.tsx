@@ -77,12 +77,16 @@ export function PromptSection({
           {/* Top Section */}
           <div className="mb-1 flex items-start justify-between">
             {/* Favorites Display - Top Left */}
-            <FavoritesDisplay
-              onThemeSelect={handleThemeSelect}
-              activeThemes={selectedThemes}
-            />
+            <div className="flex-1">
+              <FavoritesDisplay
+                onThemeSelect={handleThemeSelect}
+                activeThemes={selectedThemes}
+              />
+            </div>
             {/* History Button - Top Right */}
-            <PromptHistory onSelectPrompt={handleSelectFromHistory} />
+            <div className="flex-shrink-0">
+              <PromptHistory onSelectPrompt={handleSelectFromHistory} />
+            </div>
           </div>
 
           <PromptInput

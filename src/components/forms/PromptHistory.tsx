@@ -37,7 +37,7 @@ export function PromptHistory({ onSelectPrompt }: PromptHistoryProps) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative flex justify-end">
       <Button
         variant="ghost"
         size="sm"
