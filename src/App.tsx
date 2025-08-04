@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { EchoProvider } from "@zdql/echo-react-sdk";
 import { ShirtDataProvider } from "@/context/ShirtDataContext";
+import { AuthGuard } from "@/components/layout/AuthGuard";
 import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
 import { useEchoErrorToast } from "@/hooks/useEchoErrorToast";
 import { RecoveryPrompt } from "@/components/ui/RecoveryPrompt";
@@ -27,12 +28,14 @@ function AppContent() {
 
   return (
     <>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/view" element={<ViewPage />} />
-        </Routes>
-      </Router>
+      <AuthGuard>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/view" element={<ViewPage />} />
+          </Routes>
+        </Router>
+      </AuthGuard>
 
       {/* Recovery Prompt - Global overlay */}
       {showRecoveryPrompt && recoveryData && (

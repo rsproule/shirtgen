@@ -13,7 +13,12 @@ export function ActionButtons({
   const { isAuthenticated } = useShirtData();
 
   const handleGenerate = () => {
-    console.log('Generate button clicked - isAuthenticated:', isAuthenticated, 'promptLength:', promptLength);
+    console.log(
+      "Generate button clicked - isAuthenticated:",
+      isAuthenticated,
+      "promptLength:",
+      promptLength,
+    );
     if (!isAuthenticated) {
       alert("Please sign in to generate shirt designs");
       return;

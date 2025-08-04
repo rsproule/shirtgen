@@ -1,41 +1,23 @@
-import { useEffect, useState } from "react";
+import { LoadingScreen } from "@/components/layout/LoadingScreen";
+import { Navbar } from "@/components/layout/Navbar";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { ShirtHistory } from "@/components/forms/ShirtHistory";
+import { PromptSection } from "@/components/home/PromptSection";
 import { useShirtData } from "@/context/ShirtDataContext";
-import { useTypingStats } from "@/hooks/useTypingStats";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
-import { LoadingScreen } from "@/components/layout/LoadingScreen";
-import { Navbar } from "@/components/layout/Navbar";
-import { PromptInput } from "@/components/forms/PromptInput";
-import { PromptHistory } from "@/components/forms/PromptHistory";
-import { TypingStats } from "@/components/forms/TypingStats";
-import { ActionButtons } from "@/components/forms/ActionButtons";
-import { ShirtHistory } from "@/components/forms/ShirtHistory";
-import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import { ThemeButtons } from "@/components/ui/theme-buttons";
-import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
-import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
-import { PulsatingButton } from "@/components/magicui/pulsating-button";
+import { useEffect, useState } from "react";
 
 export function HomePage() {
-  const { isLoading, setIsLoading, isAuthLoading, isAuthenticated, signIn } =
-    useShirtData();
+  const { isLoading, setIsLoading } = useShirtData();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const { typingStats, handleInputChange, setPromptWithoutStats } =
-    useTypingStats(prompt);
   const { addToHistory: addPromptToHistory } = usePromptHistory();
   const { addToHistory: addShirtToHistory } = useShirtHistory();
-
   const { generateImage } = useImageGeneration(addShirtToHistory, setError);
-  const {
-    selectedThemes,
-    toggleTheme,
-    enhancePromptWithThemes,
-    getThemeSuggestion,
-  } = useThemeSuggestions();
-  const { addToFavorites } = useFavoriteThemes();
+  const { enhancePromptWithThemes, getThemeSuggestion, selectedThemes } = useThemeSuggestions();
 
   // Reset loading state when component unmounts
   useEffect(() => {
@@ -43,20 +25,6 @@ export function HomePage() {
       setIsLoading(false);
     };
   }, [setIsLoading]);
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    handleInputChange(newValue);
-    setPrompt(newValue);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Cmd+Enter or Ctrl+Enter to submit
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-      e.preventDefault();
-      handleGenerate();
-    }
-  };
 
   const handleGenerate = () => {
     // Clear any previous errors
@@ -67,9 +35,6 @@ export function HomePage() {
       addPromptToHistory(prompt).catch(console.error);
     }
 
-    // Add selected themes to favorites when used
-    selectedThemes.forEach(theme => addToFavorites(theme));
-
     // Enhance prompt with selected themes invisibly
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     generateImage(enhancedPrompt);
@@ -77,11 +42,6 @@ export function HomePage() {
 
   const handleRetryGeneration = () => {
     setError(null);
-
-    // Add selected themes to favorites when used
-    selectedThemes.forEach(theme => addToFavorites(theme));
-
-    // Enhance prompt with selected themes invisibly
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
     generateImage(enhancedPrompt);
   };
@@ -92,11 +52,6 @@ export function HomePage() {
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
-    setPromptWithoutStats();
-  };
-
-  const handleThemeSelect = (theme: string) => {
-    toggleTheme(theme);
   };
 
   // Create the full prompt that would be sent to the API
@@ -124,20 +79,6 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
     return fullPrompt;
   };
 
-  const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
-
-  // Show loading screen while auth state is being determined
-  if (isAuthLoading || (!isAuthLoading && !isAuthenticated && typeof isAuthenticated === 'boolean')) {
-    return (
-      <div className="flex min-h-svh flex-col bg-white">
-        <Navbar />
-        <div className="flex flex-1 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
       <>
@@ -160,67 +101,17 @@ IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
       {/* Navbar */}
       <Navbar />
 
-      {/* Main Input Area */}
+      {/* Prompt Section */}
+      <PromptSection
+        prompt={prompt}
+        setPrompt={setPrompt}
+        onGenerate={handleGenerate}
+        onSelectFromHistory={handleSelectFromHistory}
+        createFullPrompt={createFullPrompt}
+      />
+
+      {/* Shirt History - always show */}
       <div className="mx-auto mt-8 w-full max-w-7xl px-8">
-        {/* Top Section */}
-        <div className="mb-1 flex items-start justify-between">
-          {/* Favorites Display - Top Left */}
-          <FavoritesDisplay
-            onThemeSelect={handleThemeSelect}
-            activeThemes={selectedThemes}
-          />
-          {/* History Button - Top Right */}
-          <PromptHistory onSelectPrompt={handleSelectFromHistory} />
-        </div>
-
-        {/* Chat UI Container - with blur overlay when not authenticated */}
-        <div className="relative">
-          {/* Main Chat UI */}
-          <div
-            className={`${!isAuthenticated ? "pointer-events-none blur-sm" : ""}`}
-          >
-            <PromptInput
-              value={prompt}
-              onChange={handleTextChange}
-              onKeyDown={handleKeyDown}
-              fullPrompt={fullPromptPreview}
-              activeThemes={selectedThemes}
-              onThemeRemove={handleThemeSelect}
-            />
-
-            {/* Stats Bar */}
-            <TypingStats stats={typingStats} promptLength={prompt.length} />
-
-            {/* Action Buttons */}
-            <ActionButtons
-              onGenerate={handleGenerate}
-              promptLength={prompt.length}
-            />
-
-            {/* Theme Buttons */}
-            <div className="mt-4">
-              <ThemeButtons
-                onThemeSelect={handleThemeSelect}
-                activeThemes={selectedThemes}
-              />
-            </div>
-          </div>
-
-          {/* Sign-in overlay for non-authenticated users */}
-          {!isAuthenticated && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <PulsatingButton
-                onClick={signIn}
-                className="bg-primary text-primary-foreground hover:bg-primary/80"
-                pulseColor="hsl(var(--muted-foreground))"
-              >
-                Sign in to create a shirt
-              </PulsatingButton>
-            </div>
-          )}
-        </div>
-
-        {/* Shirt History - always show */}
         <ShirtHistory />
       </div>
 

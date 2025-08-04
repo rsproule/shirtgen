@@ -39,9 +39,15 @@ export function useFavoriteThemes() {
       setFavoriteThemes(e.detail);
     };
 
-    window.addEventListener('favoritesUpdated', handleFavoritesUpdated as EventListener);
+    window.addEventListener(
+      "favoritesUpdated",
+      handleFavoritesUpdated as EventListener,
+    );
     return () => {
-      window.removeEventListener('favoritesUpdated', handleFavoritesUpdated as EventListener);
+      window.removeEventListener(
+        "favoritesUpdated",
+        handleFavoritesUpdated as EventListener,
+      );
     };
   }, []);
 
@@ -55,9 +61,11 @@ export function useFavoriteThemes() {
       };
       localStorage.setItem(FAVORITE_THEMES_KEY, JSON.stringify(storage));
       setFavoriteThemes(themes);
-      
+
       // Dispatch custom event to notify other components
-      window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: themes }));
+      window.dispatchEvent(
+        new CustomEvent("favoritesUpdated", { detail: themes }),
+      );
     } catch (error) {
       console.error("Failed to save favorite themes:", error);
     }
