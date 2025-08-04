@@ -13,6 +13,8 @@ interface ShirtDataContextType {
   setShirtData: (data: ShirtData | null) => void;
   texturePlacement: TexturePlacement;
   setTexturePlacement: (placement: TexturePlacement) => void;
+  imageScale: number;
+  setImageScale: (scale: number) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   isAuthenticated: boolean;
@@ -31,6 +33,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   const [shirtData, setShirtData] = useState<ShirtData | null>(null);
   const [texturePlacement, setTexturePlacement] =
     useState<TexturePlacement>("front");
+  const [imageScale, setImageScale] = useState<number>(1.0);
   const [isLoading, setIsLoading] = useState(false);
   const [shirtColor, setShirtColor] = useState("#f8f9fa"); // Lightest shirt color (White)
 
@@ -65,6 +68,8 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
         setShirtData,
         texturePlacement,
         setTexturePlacement,
+        imageScale,
+        setImageScale,
         isLoading,
         setIsLoading,
         isAuthenticated,
