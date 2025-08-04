@@ -445,9 +445,9 @@ export function ViewPage() {
               </div>
             </div>
 
-            {/* Image Controls - Resize and Position */}
+            {/* Image Controls - Resize and Position (Desktop Only) */}
             {shirtData.imageUrl && !shirtData.isPartial && (
-              <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+              <div className="hidden lg:grid grid-cols-1 gap-2 lg:grid-cols-2">
                 {/* Image Resize Controls */}
                 <ImageResizeControls
                   currentScale={imageScale}
