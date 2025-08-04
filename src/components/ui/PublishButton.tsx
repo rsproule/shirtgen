@@ -21,6 +21,14 @@ import {
   Share2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
+
+type PublishStatus =
+  | "processing"
+  | "uploading"
+  | "creating"
+  | "publishing"
+  | "syncing";
 
 type PublishStatus =
   | "processing"
@@ -310,7 +318,7 @@ export function PublishButton() {
       setPublishStatus("uploading");
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
-      const description = `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a>\n\nShirtSlop Tees\nSo Soft. So Shirt. So Slop.\n\nAt ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.\n\nProduct Details:\n– Printed on 100% ring-spun cotton Comfort Colors tees\n– Pre-shrunk, soft-washed, garment-dyed fabric\n– Relaxed fit with vintage fade\n– Double-stitched for durability\n– Unisex sizing: comfortable, built for slopping`;
+      const description = PRODUCT_DESCRIPTION_TEMPLATE();
 
       // Update lifecycle to PUBLISHING before creating product
       setPublishStatus("creating");
