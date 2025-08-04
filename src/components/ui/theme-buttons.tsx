@@ -89,7 +89,7 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       const success = addToFavorites(theme);
       if (!success) {
         setFavoritesError(
-          "Maximum 3 favorites allowed. Remove one to add another.",
+          "Maximum 10 favorites allowed. Remove one to add another.",
         );
         // Clear error after 3 seconds
         setTimeout(() => setFavoritesError(null), 3000);
@@ -172,19 +172,19 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={handleCloseModal}
         >
           <div
-            className="flex max-h-[90svh] w-full max-w-4xl flex-col rounded-lg border border-gray-200 bg-white shadow-lg"
+            className="flex h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="border-border bg-background flex-shrink-0 border-b p-4 sm:p-6">
+            <div className="border-border bg-background flex-shrink-0 rounded-t-2xl border-b p-3 sm:p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Select Themes</h3>
                 <button
                   onClick={handleCloseModal}
-                  className="text-muted-foreground hover:text-foreground p-1"
+                  className="text-muted-foreground hover:text-foreground touch-manipulation p-2"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -198,33 +198,40 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <div className="xs:grid-cols-2 grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {themeSuggestions.map(themeData => (
                   <button
                     key={themeData.theme}
-                    onClick={() => handleThemeToggle(themeData.theme)}
+                    onClick={e => {
+                      // Don't trigger if clicking on the star
+                      if ((e.target as Element).closest("[data-star-button]")) {
+                        return;
+                      }
+                      handleThemeToggle(themeData.theme);
+                    }}
                     className={cn(
-                      "h-14 rounded-lg border p-3 text-left transition-all duration-200",
+                      "h-16 touch-manipulation rounded-lg border p-3 text-left transition-all duration-200",
                       "relative flex flex-col justify-center hover:shadow-md",
                       activeThemes.includes(themeData.theme)
                         ? "border-primary bg-primary/10 text-foreground"
                         : "border-border bg-background text-foreground hover:border-primary hover:bg-primary/10",
                     )}
                   >
-                    <div className="truncate pr-6 text-xs leading-tight font-semibold">
+                    <div className="truncate pr-8 text-xs leading-tight font-semibold">
                       {themeData.theme}
                     </div>
-                    <div className="truncate pr-6 text-xs leading-tight text-gray-500">
+                    <div className="truncate pr-8 text-xs leading-tight text-gray-500">
                       {themeData.description}
                     </div>
                     <div
+                      data-star-button
                       onClick={e => handleFavoriteToggle(themeData.theme, e)}
-                      className="absolute top-1 right-1 cursor-pointer rounded p-1 hover:bg-gray-100"
+                      className="absolute top-2 right-2 cursor-pointer touch-manipulation rounded p-2 hover:bg-gray-100"
                     >
                       <Star
                         className={cn(
-                          "h-3 w-3",
+                          "h-4 w-4",
                           isFavorite(themeData.theme)
                             ? "fill-current text-yellow-500"
                             : "text-gray-400 hover:text-yellow-500",

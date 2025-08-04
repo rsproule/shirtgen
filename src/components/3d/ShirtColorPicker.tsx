@@ -9,7 +9,6 @@ import { useShirtData } from "@/context/ShirtDataContext";
 const SHIRT_COLORS = [
   { name: "White", color: "#f8f9fa", description: "Off-white" },
   { name: "Shadow", color: "#343a40", description: "Charcoal black" },
-  { name: "Oatmeal", color: "#d4b896", description: "Warm oatmeal" },
   { name: "Cream", color: "#f5f5dc", description: "Warm cream" },
 ];
 
