@@ -193,7 +193,7 @@ function PublishModal({
 }
 
 export function PublishButton() {
-  const { shirtData, user, texturePlacement, imageScale } = useShirtData();
+  const { shirtData, user, texturePlacement, imageScale, imagePosition } = useShirtData();
   const { updateLifecycle, updateExternalIds, getByHash } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -333,6 +333,7 @@ export function PublishButton() {
         3500,
         getPrintifyPlacement(texturePlacement),
         imageScale,
+        imagePosition,
         (status: PublishStatus) => setPublishStatus(status),
       );
 
