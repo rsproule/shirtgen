@@ -49,25 +49,11 @@ export const ThemeButtons: React.FC<ThemeButtonsProps> = ({
   const { addToFavorites, removeFromFavorites, isFavorite } =
     useFavoriteThemes();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedThemes, setSelectedThemes] = useState<string[]>(activeThemes);
   const [isHovered, setIsHovered] = useState(false);
   const [favoritesError, setFavoritesError] = useState<string | null>(null);
 
   const handleThemeToggle = (theme: string) => {
-    const newSelectedThemes = selectedThemes.includes(theme)
-      ? selectedThemes.filter(t => t !== theme)
-      : [...selectedThemes, theme];
-
-    setSelectedThemes(newSelectedThemes);
-
-    // Auto-apply the change
-    if (selectedThemes.includes(theme)) {
-      // Remove theme
-      onThemeSelect(theme);
-    } else {
-      // Add theme
-      onThemeSelect(theme);
-    }
+    onThemeSelect(theme);
   };
 
   const handleCloseModal = () => {
