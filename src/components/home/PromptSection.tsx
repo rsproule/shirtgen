@@ -13,7 +13,7 @@ import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 interface PromptSectionProps {
   prompt: string;
   setPrompt: (prompt: string) => void;
-  onGenerate: () => void;
+  onGenerate: (enhancedPrompt?: string) => void;
   onSelectFromHistory: (prompt: string) => void;
   createFullPrompt: (userPrompt: string, themes: string[]) => string;
 }
@@ -28,7 +28,7 @@ export function PromptSection({
   const { isAuthenticated, signIn } = useShirtData();
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
-  const { selectedThemes, toggleTheme } = useThemeSuggestions();
+  const { selectedThemes, toggleTheme, enhancePromptWithThemes } = useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,7 +48,10 @@ export function PromptSection({
   const handleGenerate = () => {
     // Add selected themes to favorites when used
     selectedThemes.forEach(theme => addToFavorites(theme));
-    onGenerate();
+    
+    // Enhance prompt with selected themes before calling onGenerate
+    const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
+    onGenerate(enhancedPrompt);
   };
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
