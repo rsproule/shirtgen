@@ -13,10 +13,9 @@ interface ImageResizeControlsProps {
 }
 
 const PRESET_SCALES = [
-  { label: "Small", value: 0.5 },
-  { label: "Medium", value: 0.8 },
-  { label: "Large", value: 1.2 },
-  { label: "Extra Large", value: 1.5 },
+  { label: "Small", value: 0.4 },
+  { label: "Medium", value: 0.6 },
+  { label: "Large", value: 1.0 },
 ];
 
 export function ImageResizeControls({
@@ -67,76 +66,53 @@ export function ImageResizeControls({
     onReset();
   };
 
-  return (
-    <div className="space-y-3 rounded-lg border border-border bg-background p-3">
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">Design Size</Label>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            disabled={disabled}
-            className="h-6 px-2 text-xs"
-          >
-            <RotateCcw className="mr-1 h-3 w-3" />
-            Reset
-          </Button>
-        </div>
-      </div>
+  // Find the closest preset value for the current scale
+  const getCurrentPresetValue = () => {
+    const closest = PRESET_SCALES.reduce((prev, curr) => {
+      return Math.abs(curr.value - scale) < Math.abs(prev.value - scale) ? curr : prev;
+    });
+    return closest.value.toString();
+  };
 
-      {/* Preset Buttons */}
-      <div className="flex justify-center">
+  return (
+    <div className="rounded-lg border bg-card p-2 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <Label className="text-xs font-medium text-foreground">Size</Label>
+        
         <ToggleGroup
           type="single"
-          value={scale.toString()}
+          value={getCurrentPresetValue()}
           onValueChange={handlePresetChange}
           variant="outline"
           size="sm"
-          className="flex-row"
+          className="grid grid-cols-3"
           disabled={disabled}
         >
           {PRESET_SCALES.map((preset) => (
             <ToggleGroupItem
               key={preset.value}
               value={preset.value.toString()}
-              className="px-2 py-1 text-xs"
+              className="px-2 py-1 text-xs font-medium data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
             >
               {preset.label}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-      </div>
 
-      {/* Slider */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Minimize2 className="h-3 w-3" />
-            <span>Small</span>
-          </div>
-          <span className="font-medium">{Math.round(scale * 100)}%</span>
-          <div className="flex items-center gap-1">
-            <span>Large</span>
-            <Maximize2 className="h-3 w-3" />
-          </div>
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-medium text-foreground min-w-[2.5rem] text-center">
+            {Math.round(scale * 100)}%
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleReset}
+            disabled={disabled}
+            className="h-6 w-6 p-0 text-xs hover:bg-muted"
+          >
+            <RotateCcw className="h-3 w-3" />
+          </Button>
         </div>
-        <Slider
-          value={[scale]}
-          onValueChange={handleScaleChange}
-          min={0.3}
-          max={2.0}
-          step={0.1}
-          disabled={disabled}
-          className="w-full"
-        />
-      </div>
-
-      {/* Scale Info */}
-      <div className="text-center text-xs text-muted-foreground">
-        {scale < 0.8 && "Small design - good for subtle prints"}
-        {scale >= 0.8 && scale <= 1.2 && "Standard size - balanced design"}
-        {scale > 1.2 && "Large design - bold statement piece"}
       </div>
     </div>
   );

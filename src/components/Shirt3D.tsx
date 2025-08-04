@@ -107,7 +107,7 @@ export function Shirt3D({
           const frontWidth = canvas.width * 0.45; // Slightly larger (45% of canvas)
           const frontHeight = canvas.height * 0.55; // Slightly larger (55% of canvas)
           const frontX = canvas.width * 0.3; // Center on front of T-shirt
-          const frontY = canvas.height * 0.35; // Move up slightly (35% instead of 30%)
+          const frontY = canvas.height * 0.5; // Center vertically on the shirt
 
           // Calculate dimensions preserving aspect ratio
           let drawWidth = frontWidth * imageScale;
@@ -124,8 +124,6 @@ export function Shirt3D({
           const positionOffsetY = imagePosition.y !== 0 ? imagePosition.y * canvas.height * 0.1 : 0;
 
           ctx.translate(frontX + positionOffsetX, frontY + positionOffsetY);
-          ctx.rotate(Math.PI);
-          ctx.scale(-1, 1); // Flip horizontally to fix mirroring
           ctx.drawImage(
             img,
             -drawWidth / 2,
@@ -140,7 +138,7 @@ export function Shirt3D({
           // Small patch on chest area - adjust position for front placement
           const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
           const frontX = canvas.width * 0.2; // Move toward left side of UV
-          const frontY = canvas.height * 0.3; // Upper area
+          const frontY = canvas.height * 0.5; // Center vertically on the shirt
 
           // Calculate dimensions preserving aspect ratio
           let drawWidth = maxSize * imageScale;
@@ -156,8 +154,6 @@ export function Shirt3D({
           const positionOffsetY = imagePosition.y !== 0 ? imagePosition.y * canvas.height * 0.15 : 0;
 
           ctx.translate(frontX + maxSize / 2 + positionOffsetX, frontY + maxSize / 2 + positionOffsetY);
-          ctx.rotate(Math.PI);
-          ctx.scale(-1, 1); // Flip horizontally to fix mirroring
           ctx.drawImage(
             img,
             -drawWidth / 2,
@@ -172,7 +168,7 @@ export function Shirt3D({
           // Small patch on back area - adjust position for back placement
           const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
           const backX = canvas.width * 0.84 - maxSize; // Move toward right side of UV
-          const backY = canvas.height * 0.3; // Upper area
+          const backY = canvas.height * 0.5; // Center vertically on the shirt
 
           // Calculate dimensions preserving aspect ratio
           let drawWidth = maxSize * imageScale;
@@ -188,8 +184,6 @@ export function Shirt3D({
           const positionOffsetY = imagePosition.y !== 0 ? imagePosition.y * canvas.height * 0.15 : 0;
 
           ctx.translate(backX + maxSize / 2 + positionOffsetX, backY + maxSize / 2 + positionOffsetY);
-          ctx.rotate(Math.PI);
-          ctx.scale(-1, 1); // Flip horizontally to fix mirroring
           ctx.drawImage(
             img,
             -drawWidth / 2,
