@@ -9,9 +9,10 @@ type TexturePlacement = "front" | "back" | "full-shirt";
 interface Shirt3DProps {
   imageUrl: string;
   texturePlacement: TexturePlacement;
+  imageScale?: number;
 }
 
-export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
+export function Shirt3D({ imageUrl, texturePlacement, imageScale = 1.0 }: Shirt3DProps) {
   const groupRef = useRef<THREE.Group>(null!);
   const [targetRotation, setTargetRotation] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -19,6 +20,17 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
   // Load the GLB model
   const { scene } = useGLTF("/oversized_t-shirt.glb");
+
+  // Cache the loaded image to avoid reloading on every scale change
+  const cachedImage = useMemo(() => {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = imageUrl;
+    });
+  }, [imageUrl]);
 
   // Create a single instance of the shirt that we'll reuse
   const shirtScene = useMemo(() => {
@@ -54,163 +66,131 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
     return cloned;
   }, [scene]);
 
-  // Create custom texture based on placement
+  // Create custom texture based on placement and scale
   const customTexture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
+    return cachedImage.then(img => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
 
-    // Set canvas size to higher resolution for better quality
-    canvas.width = 2048;
-    canvas.height = 2048;
+      // Set canvas size to higher resolution for better quality
+      canvas.width = 2048;
+      canvas.height = 2048;
 
-    return new Promise<THREE.CanvasTexture>(resolve => {
       // Always start with a solid shirt color as the base
       ctx.fillStyle = shirtColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Create a temporary image to draw the design texture
-      const img = new Image();
-      img.crossOrigin = "anonymous";
+      // Enable high-quality image rendering
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
 
-      img.onload = () => {
-        // Enable high-quality image rendering
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
+      // Ensure the generated image is drawn at full opacity on top
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1.0;
 
-        // Ensure the generated image is drawn at full opacity on top
-        ctx.globalCompositeOperation = "source-over";
-        ctx.globalAlpha = 1.0;
+      // Calculate image aspect ratio
+      const imgAspectRatio = img.width / img.height;
 
-        // Calculate image aspect ratio
-        const imgAspectRatio = img.width / img.height;
+      // Rotate context to fix 90-degree offset
+      ctx.save();
 
-        // Rotate context to fix 90-degree offset
-        ctx.save();
+      switch (texturePlacement) {
+        case "full-shirt": {
+          // Center on front of shirt and extend to sleeves
+          const frontWidth = canvas.width * 0.45; // Slightly larger (45% of canvas)
+          const frontHeight = canvas.height * 0.55; // Slightly larger (55% of canvas)
+          const frontX = canvas.width * 0.3; // Center on front of T-shirt
+          const frontY = canvas.height * 0.35; // Move up slightly (35% instead of 30%)
 
-        switch (texturePlacement) {
-          case "full-shirt": {
-            // Center on front of shirt and extend to sleeves
-            const frontWidth = canvas.width * 0.45; // Slightly larger (45% of canvas)
-            const frontHeight = canvas.height * 0.55; // Slightly larger (55% of canvas)
-            const frontX = canvas.width * 0.3; // Center on front of T-shirt
-            const frontY = canvas.height * 0.35; // Move up slightly (35% instead of 30%)
+          // Calculate dimensions preserving aspect ratio
+          let drawWidth = frontWidth * imageScale;
+          let drawHeight = (frontWidth / imgAspectRatio) * imageScale;
 
-            // Calculate dimensions preserving aspect ratio
-            let drawWidth = frontWidth;
-            let drawHeight = frontWidth / imgAspectRatio;
-
-            // If height exceeds front area, scale down proportionally
-            if (drawHeight > frontHeight) {
-              drawHeight = frontHeight;
-              drawWidth = frontHeight * imgAspectRatio;
-            }
-
-            ctx.translate(frontX, frontY);
-            ctx.rotate(Math.PI);
-            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
-            ctx.drawImage(
-              img,
-              -drawWidth / 2,
-              -drawHeight / 2,
-              drawWidth,
-              drawHeight,
-            );
-            break;
+          // If height exceeds front area, scale down proportionally
+          if (drawHeight > frontHeight) {
+            drawHeight = frontHeight;
+            drawWidth = frontHeight * imgAspectRatio;
           }
 
-          case "front": {
-            // Small patch on chest area - adjust position for front placement
-            const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
-            const frontX = canvas.width * 0.2; // Move toward left side of UV
-            const frontY = canvas.height * 0.3; // Upper area
-
-            // Calculate dimensions preserving aspect ratio
-            let drawWidth = maxSize;
-            let drawHeight = maxSize / imgAspectRatio;
-
-            if (drawHeight > maxSize) {
-              drawHeight = maxSize;
-              drawWidth = maxSize * imgAspectRatio;
-            }
-
-            ctx.translate(frontX + maxSize / 2, frontY + maxSize / 2);
-            ctx.rotate(Math.PI);
-            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
-            ctx.drawImage(
-              img,
-              -drawWidth / 2,
-              -drawHeight / 2,
-              drawWidth,
-              drawHeight,
-            );
-            break;
-          }
-
-          case "back": {
-            // Small patch on back area - adjust position for back placement
-            const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
-            const backX = canvas.width * 0.84 - maxSize; // Move toward right side of UV
-            const backY = canvas.height * 0.3; // Upper area
-
-            // Calculate dimensions preserving aspect ratio
-            let drawWidth = maxSize;
-            let drawHeight = maxSize / imgAspectRatio;
-
-            if (drawHeight > maxSize) {
-              drawHeight = maxSize;
-              drawWidth = maxSize * imgAspectRatio;
-            }
-
-            ctx.translate(backX + maxSize / 2, backY + maxSize / 2);
-            ctx.rotate(Math.PI);
-            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
-            ctx.drawImage(
-              img,
-              -drawWidth / 2,
-              -drawHeight / 2,
-              drawWidth,
-              drawHeight,
-            );
-            break;
-          }
+          ctx.translate(frontX, frontY);
+          ctx.rotate(Math.PI);
+          ctx.scale(-1, 1); // Flip horizontally to fix mirroring
+          ctx.drawImage(
+            img,
+            -drawWidth / 2,
+            -drawHeight / 2,
+            drawWidth,
+            drawHeight,
+          );
+          break;
         }
 
-        ctx.restore();
+        case "front": {
+          // Small patch on chest area - adjust position for front placement
+          const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
+          const frontX = canvas.width * 0.2; // Move toward left side of UV
+          const frontY = canvas.height * 0.3; // Upper area
 
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.flipY = false;
-        texture.wrapS = THREE.ClampToEdgeWrapping;
-        texture.wrapT = THREE.ClampToEdgeWrapping;
+          // Calculate dimensions preserving aspect ratio
+          let drawWidth = maxSize * imageScale;
+          let drawHeight = (maxSize / imgAspectRatio) * imageScale;
 
-        // Improve texture quality
-        texture.magFilter = THREE.LinearFilter;
-        texture.minFilter = THREE.LinearMipmapLinearFilter;
-        texture.anisotropy = Math.max(1, 4); // Improve quality at angles
-        texture.generateMipmaps = true;
-        texture.colorSpace = THREE.SRGBColorSpace;
+          if (drawHeight > maxSize) {
+            drawHeight = maxSize;
+            drawWidth = maxSize * imgAspectRatio;
+          }
 
-        resolve(texture);
-      };
+          ctx.translate(frontX + maxSize / 2, frontY + maxSize / 2);
+          ctx.rotate(Math.PI);
+          ctx.scale(-1, 1); // Flip horizontally to fix mirroring
+          ctx.drawImage(
+            img,
+            -drawWidth / 2,
+            -drawHeight / 2,
+            drawWidth,
+            drawHeight,
+          );
+          break;
+        }
 
-      img.onerror = () => {
-        // If image fails to load, create white texture
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.flipY = false;
-        resolve(texture);
-      };
+        case "back": {
+          // Small patch on back area - adjust position for back placement
+          const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
+          const backX = canvas.width * 0.84 - maxSize; // Move toward right side of UV
+          const backY = canvas.height * 0.3; // Upper area
 
-      // Handle different image sources
-      if (imageUrl.startsWith("data:")) {
-        img.src = imageUrl;
-      } else if (imageUrl.startsWith("/")) {
-        img.src = imageUrl;
-      } else {
-        // For external URLs, we might need to handle CORS
-        img.src = imageUrl;
+          // Calculate dimensions preserving aspect ratio
+          let drawWidth = maxSize * imageScale;
+          let drawHeight = (maxSize / imgAspectRatio) * imageScale;
+
+          if (drawHeight > maxSize) {
+            drawHeight = maxSize;
+            drawWidth = maxSize * imgAspectRatio;
+          }
+
+          ctx.translate(backX + maxSize / 2, backY + maxSize / 2);
+          ctx.rotate(Math.PI);
+          ctx.scale(-1, 1); // Flip horizontally to fix mirroring
+          ctx.drawImage(
+            img,
+            -drawWidth / 2,
+            -drawHeight / 2,
+            drawWidth,
+            drawHeight,
+          );
+          break;
+        }
       }
+
+      ctx.restore();
+
+      // Create texture from canvas
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
     });
-  }, [imageUrl, texturePlacement, shirtColor]);
+  }, [cachedImage, texturePlacement, shirtColor, imageScale]);
 
   // Smooth rotation animation
   useFrame((_, delta) => {
