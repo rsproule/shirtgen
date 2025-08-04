@@ -1,0 +1,117 @@
+// Note: createProductIdentifier is used by the main service, not directly here
+
+// Shirt configuration presets
+interface ShirtConfig {
+  name: string;
+  blueprint_id: number;
+  print_provider_id: number;
+  variants: number[];
+}
+
+const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
+  shaka: {
+    name: "Unisex Garment-Dyed Drop-Shoulder T-Shirt (Shaka)",
+    blueprint_id: 1723,
+    print_provider_id: 74,
+    variants: [
+      118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
+      118102, 118106, 118107,
+    ],
+  },
+};
+
+interface CreateProductVariant {
+  id: number;
+  price: number; // Price in cents
+  is_enabled: boolean;
+}
+
+export interface CreateProductPayload {
+  title: string;
+  description: string;
+  blueprint_id: number;
+  print_provider_id: number;
+  variants: CreateProductVariant[];
+  print_areas: Array<{
+    variant_ids: number[];
+    placeholders: Array<{
+      position: string;
+      images: Array<{
+        id: string;
+        x: number;
+        y: number;
+        scale: number;
+        angle: number;
+      }>;
+    }>;
+  }>;
+}
+
+/**
+ * Product configuration and payload building utilities
+ * Handles product descriptions, configurations, and API payload creation
+ */
+export class ProductBuilder {
+  /**
+   * Create standardized product description with branding
+   */
+  static createDescription(
+    identifier: string,
+    customDescription?: string,
+  ): string {
+    return (
+      customDescription ||
+      `Created on <a href="https://shirtslop.com" target="_blank">https://shirtslop.com</a>\n\nShirtSlop Tees\nSo Soft. So Shirt. So Slop.\n\nAt ShirtSlop, we take your ideas, inside jokes, and designs — and print them on Comfort Colors tees.\n\nProduct Details:\n– Printed on 100% ring-spun cotton Comfort Colors tees\n– Pre-shrunk, soft-washed, garment-dyed fabric\n– Relaxed fit with vintage fade\n– Double-stitched for durability\n– Unisex sizing: comfortable, built for slopping\n\nID: ${identifier}`
+    );
+  }
+
+  /**
+   * Create complete product payload for Printify API
+   */
+  static createProductPayload(
+    productName: string,
+    description: string,
+    uploadedImageId: string,
+    price: number,
+  ): CreateProductPayload {
+    const shirtConfig = SHIRT_CONFIGS.shaka;
+
+    return {
+      title: productName,
+      description,
+      blueprint_id: shirtConfig.blueprint_id,
+      print_provider_id: shirtConfig.print_provider_id,
+      variants: shirtConfig.variants.map(variantId => ({
+        id: variantId,
+        price: price,
+        is_enabled: true,
+      })),
+      print_areas: [
+        {
+          variant_ids: shirtConfig.variants,
+          placeholders: [
+            {
+              position: "front_dtg",
+              images: [
+                {
+                  id: uploadedImageId,
+                  x: 0.5, // Center horizontally
+                  y: 0.5, // Center vertically
+                  scale: 0.8, // Full size
+                  angle: 0,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  /**
+   * Get available shirt configurations
+   */
+  static getShirtConfigs(): Record<string, ShirtConfig> {
+    return SHIRT_CONFIGS;
+  }
+}

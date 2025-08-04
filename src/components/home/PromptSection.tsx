@@ -28,10 +28,7 @@ export function PromptSection({
   const { isAuthenticated, signIn } = useShirtData();
   const { typingStats, handleInputChange, setPromptWithoutStats } =
     useTypingStats(prompt);
-  const {
-    selectedThemes,
-    toggleTheme,
-  } = useThemeSuggestions();
+  const { selectedThemes, toggleTheme } = useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
