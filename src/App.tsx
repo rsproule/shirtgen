@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { EchoProvider } from "@zdql/echo-react-sdk";
-import { ShirtDataProvider } from "@/context/ShirtDataContext";
+import { ShirtDataProvider, useShirtData } from "@/context/ShirtDataContext";
 import { AuthGuard } from "@/components/layout/AuthGuard";
 import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
 import { useEchoErrorToast } from "@/hooks/useEchoErrorToast";
 import { RecoveryPrompt } from "@/components/ui/RecoveryPrompt";
 import { Toast } from "@/components/ui/Toast";
+import { InsufficientBalanceModal } from "@/components/ui/InsufficientBalanceModal";
 import { HomePage } from "@/pages/HomePage";
 import { ViewPage } from "@/pages/ViewPage";
 import { Analytics } from "@vercel/analytics/react";
@@ -25,6 +26,8 @@ function AppContent() {
   } = useRecoveryPrompt();
 
   const { toast, hideToast } = useEchoErrorToast();
+  const { showInsufficientBalanceModal, setShowInsufficientBalanceModal } =
+    useShirtData();
 
   return (
     <>
@@ -53,6 +56,12 @@ function AppContent() {
         isVisible={toast.isVisible}
         onClose={hideToast}
         duration={4000}
+      />
+
+      {/* Insufficient Balance Modal */}
+      <InsufficientBalanceModal
+        isOpen={showInsufficientBalanceModal}
+        onClose={() => setShowInsufficientBalanceModal(false)}
       />
     </>
   );
