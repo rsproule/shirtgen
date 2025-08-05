@@ -1,5 +1,5 @@
 import type { ShirtData, TexturePlacement } from "@/types";
-import { useEcho } from "@zdql/echo-react-sdk";
+import { useEcho, type EchoUser } from "@zdql/echo-react-sdk";
 import {
   createContext,
   useContext,
@@ -22,6 +22,7 @@ interface ShirtDataContextType {
   signIn: () => void;
   showInsufficientBalanceModal: boolean;
   setShowInsufficientBalanceModal: (show: boolean) => void;
+  user: EchoUser | null;
 }
 
 const ShirtDataContext = createContext<ShirtDataContextType | undefined>(
@@ -94,6 +95,7 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
         signIn,
         showInsufficientBalanceModal,
         setShowInsufficientBalanceModal,
+        user,
       }}
     >
       {children}
