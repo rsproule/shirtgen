@@ -44,12 +44,13 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isAuthenticated && user && !isAuthLoading) {
       console.log("User data:", user);
-      
+
       // Check if user has sufficient balance (>= $0.01)
       // Try common balance property names
       const userAny = user as any;
-      const balance = userAny.balance || userAny.credits || userAny.accountBalance || 0;
-      
+      const balance =
+        userAny.balance || userAny.credits || userAny.accountBalance || 0;
+
       if (balance < 0.01) {
         setShowInsufficientBalanceModal(true);
       }
