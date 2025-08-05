@@ -14,7 +14,7 @@ export interface ShirtData {
   partialIndex?: number;
 }
 
-export type TexturePlacement = "front" | "back";
+export type TexturePlacement = "front" | "back" | "full-shirt";
 
 export interface ImageGenerationResponse {
   output: Array<{
