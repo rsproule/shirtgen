@@ -311,7 +311,7 @@ export function PublishButton() {
       setPublishStatus("uploading");
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
-      const description = PRODUCT_DESCRIPTION_TEMPLATE(user);
+      const description = PRODUCT_DESCRIPTION_TEMPLATE(user, shirtData.prompt);
 
       // Update lifecycle to PUBLISHING before creating product
       setPublishStatus("creating");
