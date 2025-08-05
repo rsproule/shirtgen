@@ -20,6 +20,8 @@ interface ShirtDataContextType {
   shirtColor: string;
   setShirtColor: (color: string) => void;
   signIn: () => void;
+  showInsufficientBalanceModal: boolean;
+  setShowInsufficientBalanceModal: (show: boolean) => void;
 }
 
 const ShirtDataContext = createContext<ShirtDataContextType | undefined>(
@@ -32,9 +34,21 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
     useState<TexturePlacement>("front");
   const [isLoading, setIsLoading] = useState(false);
   const [shirtColor, setShirtColor] = useState("#f8f9fa"); // Lightest shirt color (White)
+  const [showInsufficientBalanceModal, setShowInsufficientBalanceModal] =
+    useState(false);
 
   // Centralize authentication state to prevent multiple useEcho calls
-  const { isAuthenticated, isLoading: isAuthLoading, signIn } = useEcho();
+  const { isAuthenticated, isLoading: isAuthLoading, signIn, user } = useEcho();
+
+  // Check balance when user data becomes available
+  useEffect(() => {
+    if (isAuthenticated && user && !isAuthLoading) {
+      console.log("User data:", user);
+      // Check if user has sufficient balance (>= $0.01)
+      // Once we know the correct property, we can check: user.balance < 0.01
+      // For now, this is handled by 402 API errors
+    }
+  }, [isAuthenticated, user, isAuthLoading]);
 
   // Prevent navigation/refresh during loading
   useEffect(() => {
@@ -71,6 +85,8 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
         shirtColor,
         setShirtColor,
         signIn,
+        showInsufficientBalanceModal,
+        setShowInsufficientBalanceModal,
       }}
     >
       {children}

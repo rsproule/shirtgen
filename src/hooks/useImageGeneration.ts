@@ -12,7 +12,8 @@ export function useImageGeneration(
 ) {
   const { openai } = useEchoOpenAI();
   const navigate = useNavigate();
-  const { setShirtData, setIsLoading } = useShirtData();
+  const { setShirtData, setIsLoading, setShowInsufficientBalanceModal } =
+    useShirtData();
   const { generateName } = useNameGeneration();
   const { updateExternalIds } = useShirtHistory();
 
@@ -108,12 +109,27 @@ export function useImageGeneration(
           errorMessage =
             "Content policy violation detected. Please revise your prompt to avoid inappropriate content.";
         } else if (error?.message) {
-          errorMessage = `Generation failed: ${error.message}`;
+          if (
+            error?.message?.includes("402") &&
+            error?.message?.includes("Payment Required")
+          ) {
+            // Show insufficient balance modal instead of error message
+            setShowInsufficientBalanceModal(true);
+            setIsLoading(false);
+            return;
+          } else {
+            errorMessage = `Generation failed: ${error}`;
+          }
         } else if (error?.error?.message) {
           errorMessage = `API Error: ${error.error.message}`;
         } else if (error?.status === 401) {
           errorMessage =
             "Authentication failed. Please check your login status.";
+        } else if (error?.status === 402) {
+          // Handle 402 Payment Required - show insufficient balance modal
+          setShowInsufficientBalanceModal(true);
+          setIsLoading(false);
+          return;
         } else if (error?.status === 429) {
           errorMessage =
             "Rate limit exceeded. Please wait a moment and try again.";
