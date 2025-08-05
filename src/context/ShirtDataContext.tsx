@@ -39,24 +39,22 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
     useState(false);
 
   // Centralize authentication state to prevent multiple useEcho calls
-  const { isAuthenticated, isLoading: isAuthLoading, signIn, user } = useEcho();
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    signIn,
+    user,
+    balance,
+  } = useEcho();
 
   // Check balance when user data becomes available
   useEffect(() => {
-    if (isAuthenticated && user && !isAuthLoading) {
-      console.log("User data:", user);
-
-      // Check if user has sufficient balance (>= $0.01)
-      // Try common balance property names
-      const userAny = user as any;
-      const balance =
-        userAny.balance || userAny.credits || userAny.accountBalance || 0;
-
-      if (balance < 0.01) {
+    if (isAuthenticated && user && !isAuthLoading && balance) {
+      if (balance.credits <= 0.01) {
         setShowInsufficientBalanceModal(true);
       }
     }
-  }, [isAuthenticated, user, isAuthLoading]);
+  }, [isAuthenticated, user, isAuthLoading, balance]);
 
   // Prevent navigation/refresh during loading
   useEffect(() => {
