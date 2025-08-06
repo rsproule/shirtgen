@@ -10,6 +10,7 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useTypingStats } from "@/hooks/useTypingStats";
+import { SHOPIFY_URL } from "@/lib/utils";
 import { StoreIcon } from "lucide-react";
 
 interface PromptSectionProps {
@@ -135,9 +136,7 @@ export function PromptSection({
               <div className="flex items-center gap-2">or</div>
               <Button
                 variant="outline"
-                onClick={() =>
-                  window.open("https://shirt-slop.myshopify.com/", "_blank")
-                }
+                onClick={() => window.open(SHOPIFY_URL, "_blank")}
                 className="px-3 py-1 text-sm"
               >
                 <StoreIcon className="size-3" />

@@ -2,7 +2,7 @@ import type { EchoUser } from "@zdql/echo-react-sdk";
 
 export const PRODUCT_DESCRIPTION_TEMPLATE = (
   creator: EchoUser | null,
-  prompt?: string
+  prompt?: string,
 ) => `
 Created on <a href="https://shirtslop.com" target="_blank" rel="noopener noreferrer">shirtslop.com</a>
 ${prompt ? `<br><br>Design: <em>"${prompt}"</em>` : ""}

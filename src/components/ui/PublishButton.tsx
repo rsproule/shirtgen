@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
+import { SHOPIFY_URL } from "@/lib/utils";
 
 type PublishStatus =
   | "processing"
@@ -406,10 +407,7 @@ export function PublishButton() {
     return (
       <Button
         onClick={() =>
-          window.open(
-            alreadyPublished.shopifyUrl || "https://shirt-slop.myshopify.com",
-            "_blank",
-          )
+          window.open(alreadyPublished.shopifyUrl || SHOPIFY_URL, "_blank")
         }
         size="sm"
         className="bg-primary text-primary-foreground hover:bg-primary/80 flex items-center gap-2"
