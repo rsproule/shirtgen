@@ -12,7 +12,7 @@ import { ViewPage } from "@/pages/ViewPage";
 import { Analytics } from "@vercel/analytics/react";
 
 const echoConfig = {
-  appId: "157aa247-4d72-473c-8e27-6927c602892c",
+  appId: "60601628-cdb7-481e-8f7e-921981220348",
   apiUrl: "https://echo.merit.systems",
 };
 
