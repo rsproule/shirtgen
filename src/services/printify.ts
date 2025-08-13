@@ -154,7 +154,6 @@ class PrintifyService {
     productName: string,
     description: string,
     uploadedImageId: string,
-    price: number,
     imageHash: string,
   ): Promise<PrintifyProduct> {
     console.log("🏭 Step 3: Creating product on Printify...");
@@ -167,7 +166,6 @@ class PrintifyService {
       productName,
       productDescription,
       uploadedImageId,
-      price,
     );
 
     const product = await this.createProduct(payload);
@@ -234,7 +232,6 @@ class PrintifyService {
     prompt: string,
     productName: string,
     description: string = "",
-    price: number = 3500, // $35.00 in cents
     onStatusUpdate?: (
       status:
         | "processing"
@@ -246,7 +243,6 @@ class PrintifyService {
   ): Promise<ShirtCreationResult> {
     console.log("🚀 Starting shirt creation process...");
     console.log("📝 Original prompt:", prompt);
-    console.log("💰 Price:", `$${(price / 100).toFixed(2)}`);
 
     try {
       // Step 1: Process image and generate hash
@@ -273,7 +269,6 @@ class PrintifyService {
         productName,
         description,
         uploadedImage.id,
-        price,
         imageHash,
       );
 

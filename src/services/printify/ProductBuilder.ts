@@ -6,6 +6,10 @@ interface ShirtConfig {
   blueprint_id: number;
   print_provider_id: number;
   variants: number[];
+  price: number;
+  scale: number;
+  x: number;
+  y: number;
 }
 
 const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
@@ -13,6 +17,10 @@ const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
     name: "Streetwear Style Baggy T-Shirt",
     blueprint_id: 1723,
     print_provider_id: 74,
+    price: 3500,
+    scale: 0.8,
+    x: 0.5,
+    y: 0.5,
     variants: [
       118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
       118102, 118106, 118107,
@@ -22,6 +30,10 @@ const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
     name: "Comfort Colors T-Shirt",
     blueprint_id: 706,
     print_provider_id: 99,
+    price: 2500,
+    scale: 0.5,
+    x: 0.5,
+    y: 0.4,
     variants: [
       78994, 73199, 78993, 78962, 78991, 78964, 78961, 78963, 73203, 78992,
       73211, 73207, 78965, 73215, 78995,
@@ -81,10 +93,10 @@ export class ProductBuilder {
     productName: string,
     description: string,
     uploadedImageId: string,
-    price: number,
   ): CreateProductPayload {
     const shirtConfig = SHIRT_CONFIGS.cc;
 
+    console.log("Creating product with shirtConfig", shirtConfig);
     return {
       title: productName,
       description,
@@ -92,7 +104,7 @@ export class ProductBuilder {
       print_provider_id: shirtConfig.print_provider_id,
       variants: shirtConfig.variants.map(variantId => ({
         id: variantId,
-        price: price,
+        price: shirtConfig.price,
         is_enabled: true,
       })),
       print_areas: [
@@ -104,9 +116,9 @@ export class ProductBuilder {
               images: [
                 {
                   id: uploadedImageId,
-                  x: 0.5, // Center horizontally
-                  y: 0.5, // Center vertically
-                  scale: 0.8, // Full size
+                  x: shirtConfig.x,
+                  y: shirtConfig.y,
+                  scale: shirtConfig.scale,
                   angle: 0,
                 },
               ],
