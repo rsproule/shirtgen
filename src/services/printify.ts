@@ -25,6 +25,7 @@ class PrintifyService {
   ): Promise<T> {
     const baseUrl = import.meta.env.DEV ? "http://localhost:3000" : "";
     const url = `${baseUrl}/api/printify?action=${action}`;
+
     const response = await fetch(url, {
       method,
       headers: {

@@ -10,12 +10,21 @@ interface ShirtConfig {
 
 const SHIRT_CONFIGS: Record<string, ShirtConfig> = {
   shaka: {
-    name: "Unisex Garment-Dyed Drop-Shoulder T-Shirt (Shaka)",
+    name: "Streetwear Style Baggy T-Shirt",
     blueprint_id: 1723,
     print_provider_id: 74,
     variants: [
       118073, 118074, 118075, 118081, 118082, 118083, 118089, 118090, 118091,
       118102, 118106, 118107,
+    ],
+  },
+  cc: {
+    name: "Comfort Colors T-Shirt",
+    blueprint_id: 706,
+    print_provider_id: 99,
+    variants: [
+      78994, 73199, 78993, 78962, 78991, 78964, 78961, 78963, 73203, 78992,
+      73211, 73207, 78965, 73215, 78995,
     ],
   },
 };
@@ -74,7 +83,7 @@ export class ProductBuilder {
     uploadedImageId: string,
     price: number,
   ): CreateProductPayload {
-    const shirtConfig = SHIRT_CONFIGS.shaka;
+    const shirtConfig = SHIRT_CONFIGS.cc;
 
     return {
       title: productName,
@@ -91,7 +100,7 @@ export class ProductBuilder {
           variant_ids: shirtConfig.variants,
           placeholders: [
             {
-              position: "front_dtg",
+              position: "front",
               images: [
                 {
                   id: uploadedImageId,
