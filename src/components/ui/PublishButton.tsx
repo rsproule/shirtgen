@@ -324,7 +324,6 @@ export function PublishButton() {
         shirtData.prompt,
         confirmedProductName,
         description,
-        3500,
         (status: PublishStatus) => setPublishStatus(status),
       );
 

@@ -47,16 +47,6 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
     // balance,
   } = useEcho();
 
-  // Check balance when user data becomes available
-  // No longer relevant with free tier!!
-  // useEffect(() => {
-  //   if (isAuthenticated && user && !isAuthLoading && balance) {
-  //     if (balance.credits <= 0.01) {
-  //       setShowInsufficientBalanceModal(true);
-  //     }
-  //   }
-  // }, [isAuthenticated, user, isAuthLoading, balance]);
-
   // Prevent navigation/refresh during loading
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {

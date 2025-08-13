@@ -1,27 +1,27 @@
+import { PlacementControls } from "@/components/3d/PlacementControls";
+import { Scene3D } from "@/components/3d/Scene3D";
+import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
+import { Header } from "@/components/layout/Header";
+import { Shirt3D } from "@/components/Shirt3D";
+import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PublishButton } from "@/components/ui/PublishButton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useShirtData } from "@/context/ShirtDataContext";
+import { useAutoSave } from "@/hooks/useAutoSave";
+import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { generateDataUrlHash } from "@/services/imageHash";
+import { ImageProcessor } from "@/services/printify/ImageProcessor";
+import type { ShirtData } from "@/types";
 import { Check, Download, Edit3, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useShirtData } from "@/context/ShirtDataContext";
-import { useAutoSave } from "@/hooks/useAutoSave";
-import { Header } from "@/components/layout/Header";
-import { Scene3D } from "@/components/3d/Scene3D";
-import { PlacementControls } from "@/components/3d/PlacementControls";
-import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
-import { Shirt3D } from "@/components/Shirt3D";
-import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
-import { PublishButton } from "@/components/ui/PublishButton";
-import type { ShirtData } from "@/types";
-import { generateDataUrlHash } from "@/services/imageHash";
-import { useShirtHistory } from "@/hooks/useShirtHistory";
-import { ImageProcessor } from "@/services/printify/ImageProcessor";
 
 export function ViewPage() {
   const navigate = useNavigate();
