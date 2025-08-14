@@ -1,10 +1,15 @@
 import { useShirtData } from "@/context/ShirtDataContext";
-import type { ShirtData } from "@/types";
-import { useEchoOpenAI } from "@zdql/echo-react-sdk";
-import { useNavigate } from "react-router-dom";
-import { useNameGeneration } from "@/services/nameGeneration";
-import { generateDataUrlHash } from "@/services/imageHash";
+import { ImageGenerationStreamProcessor } from "@/hooks/streamProcessor";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { generateDataUrlHash } from "@/services/imageHash";
+import { useNameGeneration } from "@/services/nameGeneration";
+import type { ShirtData } from "@/types";
+import { useEchoOpenAI } from "@merit-systems/echo-react-sdk";
+import { useNavigate } from "react-router-dom";
+
+// Type for Echo API request
+type EchoStreamRequest = Record<string, unknown>;
+type EchoStream = AsyncIterable<unknown>;
 
 export function useImageGeneration(
   onShirtComplete?: (shirtData: ShirtData) => void,
@@ -17,37 +22,24 @@ export function useImageGeneration(
   const { generateName } = useNameGeneration();
   const { updateExternalIds } = useShirtHistory();
 
-  // Generate smart title in background and update database
+  // Generate smart title in background
   const generateSmartTitle = async (prompt: string, imageUrl: string) => {
     try {
-      console.log("🎯 Generating smart title for:", prompt);
-
-      // Generate hash to identify the image record
       const imageHash = await generateDataUrlHash(imageUrl);
-
-      // Generate the smart title using AI
       const generatedTitle = await generateName(prompt);
-      console.log("✨ Generated title:", generatedTitle);
-
-      // Update the database with the generated title
-      await updateExternalIds(imageHash, {
-        generatedTitle: generatedTitle,
-      });
-
-      console.log("💾 Updated database with generated title");
+      await updateExternalIds(imageHash, { generatedTitle });
+      console.log("✨ Generated smart title:", generatedTitle);
     } catch (error) {
       console.warn("Failed to generate smart title:", error);
     }
   };
 
+  // Handle errors consistently
   const handleError = (error: string, originalError?: unknown) => {
     console.error("Image generation error:", originalError || error);
     setIsLoading(false);
-
-    // Reset shirt data on error
     setShirtData(null);
 
-    // Navigate back to home page if we're on view page
     if (window.location.pathname === "/view") {
       navigate("/");
     }
@@ -55,12 +47,79 @@ export function useImageGeneration(
     if (onError) {
       onError(error);
     } else {
-      // Fallback to alert if no error handler provided
       alert(error);
     }
   };
 
-  const generateImage = async (prompt: string) => {
+  // Create stream request configuration
+  const createStreamRequest = (
+    prompt: string,
+    base64Image?: string,
+    editResponseId?: string,
+  ) => {
+    const imagePrompt = `Generate an image for: ${prompt}.
+     
+    IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE`;
+
+    let input: unknown;
+
+    if (editResponseId) {
+      // Edit mode: reference previous generation
+      input = [
+        {
+          role: "user",
+          content: [{ type: "input_text", text: prompt }],
+        },
+        {
+          type: "image_generation_call",
+          id: editResponseId,
+        },
+      ];
+    } else if (base64Image) {
+      // Image input mode
+      input = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: imagePrompt,
+            },
+            {
+              type: "input_image",
+              image_url: `data:image/jpeg;base64,${base64Image}`,
+            },
+          ],
+        },
+      ];
+    } else {
+      // Text-only mode
+      input = imagePrompt;
+    }
+
+    return {
+      model: editResponseId ? "gpt-5" : "gpt-4o",
+      input: input as string,
+      stream: true,
+      tools: [
+        {
+          type: "image_generation" as const,
+          quality: editResponseId ? "high" : "low",
+          size: "1024x1536",
+          partial_images: 3,
+          moderation: "low",
+          input_fidelity: base64Image || editResponseId ? "high" : "low",
+        },
+      ],
+    } as unknown; // Type assertion for custom Echo API format
+  };
+
+  // Core image generation logic
+  const performImageGeneration = async (
+    prompt: string,
+    base64Image?: string,
+    editResponseId?: string,
+  ) => {
     if (prompt.length < 10) {
       alert("Please write at least 10 characters to describe your design");
       return;
@@ -69,280 +128,125 @@ export function useImageGeneration(
     setIsLoading(true);
 
     try {
-      // Create a detailed prompt for image generation
-      const imagePrompt = `Generate an image for: ${prompt}.
-     
-      IMPORTANT: DO NOT INCLUDE AN IMAGE ON A SHIRT. JUST INCLUDE THE IMAGE
-      `;
+      openai.baseURL = "http://localhost:3070";
 
-      let stream;
-      try {
-        // Use streaming OpenAI responses API via Echo SDK for partial images
-        stream = await openai.responses.create({
-          model: "gpt-4o",
-          input: imagePrompt,
-          stream: true,
-          tools: [
-            {
-              type: "image_generation",
-              quality: "high",
-              size: "1024x1536",
-              partial_images: 3,
-              moderation: "low",
-              background: "opaque",
-            },
-          ],
-        });
-      } catch (apiError: unknown) {
-        let errorMessage =
-          "Failed to start image generation. Please try again.";
-
-        const error = apiError as {
-          message?: string;
-          error?: { message?: string };
-          status?: number;
-        };
-        if (error?.message?.includes("safety system")) {
-          errorMessage =
-            "Your request was blocked by content safety filters. Please try a different prompt that doesn't involve potentially harmful content.";
-        } else if (error?.message?.includes("safety_violations")) {
-          errorMessage =
-            "Content policy violation detected. Please revise your prompt to avoid inappropriate content.";
-        } else if (error?.message) {
-          if (
-            error?.message?.includes("402") &&
-            error?.message?.includes("Payment Required")
-          ) {
-            // Show insufficient balance modal instead of error message
-            setShowInsufficientBalanceModal(true);
-            setIsLoading(false);
-            return;
-          } else {
-            errorMessage = `Generation failed: ${error}`;
-          }
-        } else if (error?.error?.message) {
-          errorMessage = `API Error: ${error.error.message}`;
-        } else if (error?.status === 401) {
-          errorMessage =
-            "Authentication failed. Please check your login status.";
-        } else if (error?.status === 402) {
-          // Handle 402 Payment Required - show insufficient balance modal
-          setShowInsufficientBalanceModal(true);
-          setIsLoading(false);
-          return;
-        } else if (error?.status === 429) {
-          errorMessage =
-            "Rate limit exceeded. Please wait a moment and try again.";
-        } else if (error?.status && error.status >= 500) {
-          errorMessage = "Server error. Please try again in a few moments.";
-        }
-
-        return handleError(errorMessage, apiError);
-      }
+      const requestConfig = createStreamRequest(
+        prompt,
+        base64Image,
+        editResponseId,
+      );
+      const stream = await openai.responses.create(
+        requestConfig as unknown as EchoStreamRequest,
+      );
 
       let hasNavigated = false;
-      let finalImageUrl = "";
-      let streamErrorOccurred = false;
+      let responseId: string | undefined;
 
-      try {
-        for await (const event of stream) {
-          console.log("Stream event:", event);
-
-          // Type assertion to handle the stream event types
-          const streamEvent = event as {
-            type: string;
-            partial_image_b64?: string;
-            partial_image_index?: number;
-            result?: string;
-            error?: {
-              message?: string;
-              type?: string;
-              code?: string;
-            };
-            response?: {
-              error?: {
-                message?: string;
-                type?: string;
-              };
-            };
+      const processor = new ImageGenerationStreamProcessor({
+        onResponseId: id => {
+          responseId = id;
+        },
+        onPartialImage: (imageUrl, partialIndex) => {
+          const shirtData: ShirtData = {
+            prompt,
+            imageUrl,
+            generatedAt: new Date().toISOString(),
+            isPartial: partialIndex < 2,
+            partialIndex,
+            responseId,
           };
 
-          // Handle stream errors
-          if (streamEvent.type === "error" || streamEvent.error) {
-            streamErrorOccurred = true;
-            const errorMessage =
-              streamEvent.error?.message ||
-              streamEvent.response?.error?.message ||
-              "An error occurred during image generation";
-            return handleError(
-              `Generation Error: ${errorMessage}`,
-              streamEvent,
-            );
+          setShirtData(shirtData);
+
+          // Navigate on first partial image
+          if (!hasNavigated) {
+            navigate("/view");
+            hasNavigated = true;
           }
 
-          // Handle response-level errors
-          if (
-            streamEvent.type === "response.error" ||
-            streamEvent.response?.error
-          ) {
-            streamErrorOccurred = true;
-            const errorMessage =
-              streamEvent.response?.error?.message || "Response error occurred";
-            return handleError(`Response Error: ${errorMessage}`, streamEvent);
-          }
-
-          if (
-            streamEvent.type === "response.image_generation_call.partial_image"
-          ) {
-            const imageBase64 = streamEvent.partial_image_b64;
-            console.log(
-              "Received partial image data:",
-              typeof imageBase64,
-              imageBase64?.length || 0,
-            );
-            const imageUrl = `data:image/png;base64,${imageBase64}`;
-            console.log("Created partial image URL length:", imageUrl.length);
-            console.log(
-              "Partial image URL preview:",
-              imageUrl.substring(0, 100) + "...",
-            );
-            const partialIndex = streamEvent.partial_image_index ?? 0;
-
-            // Track the latest image URL for final saving
-            finalImageUrl = imageUrl;
-
-            const shirtData = {
-              prompt,
-              imageUrl,
-              generatedAt: new Date().toISOString(),
-              isPartial: partialIndex < 2, // Mark as partial until final image
-              partialIndex,
+          // Mark as final on last partial
+          if (partialIndex >= 2) {
+            const finalData = {
+              ...shirtData,
+              isPartial: false,
+              partialIndex: -1,
             };
-
-            // Update context state with partial image
-            setShirtData(shirtData);
-
-            // Navigate on first partial image
-            if (!hasNavigated) {
-              navigate("/view");
-              hasNavigated = true;
-              // Keep loading state active for partial images
-            }
-          } else if (streamEvent.type === "response.completed") {
-            // Response is fully complete - save the final state
-            console.log(
-              "Response completed, saving to history with image:",
-              finalImageUrl,
-            );
-
-            if (finalImageUrl) {
-              const finalShirtData = {
-                prompt,
-                imageUrl: finalImageUrl,
-                generatedAt: new Date().toISOString(),
-                isPartial: false,
-                partialIndex: -1,
-              };
-
-              // Update final state
-              setShirtData(finalShirtData);
-              // Save to history
-              onShirtComplete?.(finalShirtData);
-
-              // Generate smart title in background
-              generateSmartTitle(prompt, finalImageUrl);
-            }
-
+            setShirtData(finalData);
             setIsLoading(false);
-          } else if (
-            streamEvent.type === "response.image_generation_call.complete"
-          ) {
-            // Legacy handler - keeping for backward compatibility
-            const imageData = streamEvent.result;
-            console.log(
-              "Received image data:",
-              typeof imageData,
-              imageData?.length || 0,
-            );
-            if (imageData) {
-              const imageUrl = `data:image/png;base64,${imageData}`;
-              console.log("Created image URL length:", imageUrl.length);
-              console.log(
-                "Image URL preview:",
-                imageUrl.substring(0, 100) + "...",
-              );
-
-              const finalShirtData = {
-                prompt,
-                imageUrl,
-                generatedAt: new Date().toISOString(),
-                isPartial: false,
-                partialIndex: -1,
-              };
-
-              setShirtData(finalShirtData);
-              onShirtComplete?.(finalShirtData);
-
-              // Generate smart title in background
-              generateSmartTitle(prompt, imageUrl);
-
-              setIsLoading(false);
-            }
+            generateSmartTitle(prompt, imageUrl);
+            onShirtComplete?.(finalData);
           }
-        } // Close for await loop
-      } catch (streamError: unknown) {
-        if (!streamErrorOccurred) {
-          let errorMessage = "Stream processing failed. Please try again.";
+        },
+        onFinalImage: imageUrl => {
+          const finalData: ShirtData = {
+            prompt,
+            imageUrl,
+            generatedAt: new Date().toISOString(),
+            responseId,
+            isPartial: false,
+            partialIndex: -1,
+          };
 
-          const error = streamError as { message?: string };
-          if (error?.message?.includes("network")) {
-            errorMessage =
-              "Network error during generation. Please check your connection and try again.";
-          } else if (error?.message?.includes("timeout")) {
-            errorMessage = "Generation timed out. Please try again.";
-          } else if (error?.message) {
-            errorMessage = `Stream Error: ${error.message}`;
+          setShirtData(finalData);
+          setIsLoading(false);
+          generateSmartTitle(prompt, imageUrl);
+          onShirtComplete?.(finalData);
+
+          if (!hasNavigated) {
+            navigate("/view");
           }
+        },
+        onError: error => {
+          handleError(error);
+        },
+      });
 
-          return handleError(errorMessage, streamError);
-        }
+      await processor.processStream(stream as unknown as EchoStream);
+    } catch (apiError: unknown) {
+      let errorMessage = "Failed to start image generation. Please try again.";
+
+      const error = apiError as {
+        message?: string;
+        error?: { message?: string };
+        status?: number;
+      };
+
+      if (error?.status === 401) {
+        errorMessage = "Authentication failed. Please try logging in again.";
+      } else if (error?.status === 429) {
+        errorMessage = "Too many requests. Please wait a moment and try again.";
+      } else if (error?.status === 402) {
+        setShowInsufficientBalanceModal(true);
+        setIsLoading(false);
+        return;
+      } else if (error?.message || error?.error?.message) {
+        errorMessage = error.message || error?.error?.message || errorMessage;
       }
 
-      // If we reach here and no image was generated, it's an error
-      if (!finalImageUrl && !streamErrorOccurred) {
-        return handleError(
-          "No image was generated. Please try again with a different prompt.",
-        );
-      }
-    } catch (error: unknown) {
-      let errorMessage = "An unexpected error occurred. Please try again.";
-
-      const err = error as { message?: string };
-      if (err?.message?.includes("fetch")) {
-        errorMessage =
-          "Network connection failed. Please check your internet connection.";
-      } else if (err?.message?.includes("timeout")) {
-        errorMessage = "Request timed out. Please try again.";
-      } else if (err?.message) {
-        errorMessage = `Error: ${err.message}`;
-      }
-
-      return handleError(errorMessage, error);
+      handleError(errorMessage, apiError);
     }
   };
 
+  // Public API
+  const generateImage = async (prompt: string, base64Image?: string) => {
+    return performImageGeneration(prompt, base64Image);
+  };
+
+  const editImage = async (newPrompt: string, originalResponseId: string) => {
+    return performImageGeneration(newPrompt, undefined, originalResponseId);
+  };
+
   const generateDebugImage = (prompt: string) => {
-    const shirtData = {
+    const shirtData: ShirtData = {
       prompt: prompt || "Debug: Gorilla image for testing",
       imageUrl: "/gorilla.jpg",
       generatedAt: new Date().toISOString(),
     };
 
     setShirtData(shirtData);
-    // Notify parent component that shirt is complete
     onShirtComplete?.(shirtData);
     navigate("/view");
   };
 
-  return { generateImage, generateDebugImage };
+  return { generateImage, editImage, generateDebugImage };
 }

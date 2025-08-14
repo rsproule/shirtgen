@@ -6,14 +6,17 @@ import { ShirtDataProvider, useShirtData } from "@/context/ShirtDataContext";
 import { useEchoErrorToast } from "@/hooks/useEchoErrorToast";
 import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
 import { HomePage } from "@/pages/HomePage";
+import { TestPage } from "@/pages/TestPage";
 import { ViewPage } from "@/pages/ViewPage";
+import { EchoProvider } from "@merit-systems/echo-react-sdk";
 import { Analytics } from "@vercel/analytics/react";
-import { EchoProvider } from "@zdql/echo-react-sdk";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 const echoConfig = {
-  appId: "60601628-cdb7-481e-8f7e-921981220348",
-  apiUrl: "https://echo.merit.systems",
+  // appId: "60601628-cdb7-481e-8f7e-921981220348",
+  // apiUrl: "https://echo.merit.systems",
+  appId: "c97aa711-aede-433d-a57b-8a2b15831f71",
+  apiUrl: "http://localhost:3000",
 };
 
 function AppContent() {
@@ -36,6 +39,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/view" element={<ViewPage />} />
+            <Route path="/test" element={<TestPage />} />
           </Routes>
         </Router>
       </AuthGuard>

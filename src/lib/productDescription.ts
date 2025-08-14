@@ -1,4 +1,4 @@
-import type { EchoUser } from "@zdql/echo-react-sdk";
+import type { EchoUser } from "@merit-systems/echo-react-sdk";
 
 export const PRODUCT_DESCRIPTION_TEMPLATE = (
   creator: EchoUser | null,

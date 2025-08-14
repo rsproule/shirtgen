@@ -12,6 +12,7 @@ export interface ShirtData {
   generatedAt?: string;
   isPartial?: boolean;
   partialIndex?: number;
+  responseId?: string; // For image editing functionality
 }
 
 export type TexturePlacement = "front" | "back" | "full-shirt";

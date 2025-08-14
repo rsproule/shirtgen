@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useAutoSave } from "@/hooks/useAutoSave";
+import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { generateDataUrlHash } from "@/services/imageHash";
 import { ImageProcessor } from "@/services/printify/ImageProcessor";
@@ -30,6 +31,8 @@ export function ViewPage() {
   const [title, setTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isSavingTitle, setIsSavingTitle] = useState(false);
+  const [isEditingImage, setIsEditingImage] = useState(false);
+  const [editPrompt, setEditPrompt] = useState("");
   const {
     shirtData,
     setShirtData,
@@ -46,6 +49,7 @@ export function ViewPage() {
     history,
     isLoading: isHistoryLoading,
   } = useShirtHistory();
+  const { editImage } = useImageGeneration();
 
   useEffect(() => {
     const loadShirtData = async () => {
@@ -285,6 +289,37 @@ export function ViewPage() {
     }
   };
 
+  const handleStartEdit = () => {
+    setIsEditingImage(true);
+    setEditPrompt("");
+  };
+
+  const handleCancelImageEdit = () => {
+    setIsEditingImage(false);
+    setEditPrompt("");
+  };
+
+  const handleSubmitEdit = () => {
+    if (!editPrompt.trim()) {
+      alert("Please enter an edit prompt");
+      return;
+    }
+
+    if (!shirtData?.responseId) {
+      alert(
+        "No response ID available for editing. Try generating a new image first.",
+      );
+      return;
+    }
+
+    // Start the editing process
+    editImage(editPrompt, shirtData.responseId);
+
+    // Reset edit state
+    setIsEditingImage(false);
+    setEditPrompt("");
+  };
+
   return (
     <div className="bg-background flex h-svh flex-col">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
@@ -439,25 +474,92 @@ export function ViewPage() {
 
             {/* Debug Controls - Only in development */}
             {import.meta.env.DEV && shirtData.imageUrl && (
-              <div className="border-border mt-2 flex justify-center gap-2 border-t pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownloadFullRes}
-                  className="text-xs"
-                >
-                  <Download className="mr-1 h-3 w-3" />
-                  Full Res
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownloadCompressed}
-                  className="text-xs"
-                >
-                  <Download className="mr-1 h-3 w-3" />
-                  Compressed
-                </Button>
+              <div className="border-border mt-2 border-t pt-2">
+                <div className="flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadFullRes}
+                    className="text-xs"
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    Full Res
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadCompressed}
+                    className="text-xs"
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    Compressed
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleStartEdit}
+                    className="text-xs"
+                    disabled={isEditingImage}
+                  >
+                    <Edit3 className="mr-1 h-3 w-3" />
+                    Edit
+                  </Button>
+                </div>
+
+                {/* Inline Edit UI */}
+                {isEditingImage && (
+                  <div className="mt-2 space-y-2">
+                    <Input
+                      placeholder="Describe how to edit the image..."
+                      value={editPrompt}
+                      onChange={e => setEditPrompt(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          handleSubmitEdit();
+                        } else if (e.key === "Escape") {
+                          handleCancelImageEdit();
+                        }
+                      }}
+                      className="text-xs"
+                      autoFocus
+                    />
+
+                    {/* Status indicator */}
+                    <div className="text-muted-foreground text-xs">
+                      {shirtData?.responseId ? (
+                        <span>
+                          ✅ Response ID: {shirtData.responseId.slice(0, 20)}...
+                        </span>
+                      ) : (
+                        <span>
+                          ⚠️ No response ID available - generate a new image
+                          first
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={handleSubmitEdit}
+                        disabled={!editPrompt.trim() || !shirtData?.responseId}
+                        className="text-xs"
+                      >
+                        <Check className="mr-1 h-3 w-3" />
+                        Edit Image
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelImageEdit}
+                        className="text-xs"
+                      >
+                        <X className="mr-1 h-3 w-3" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

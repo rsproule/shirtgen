@@ -11,12 +11,13 @@ import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { useTypingStats } from "@/hooks/useTypingStats";
 import { SHOPIFY_URL } from "@/lib/utils";
+import { useState } from "react";
 import { StoreIcon } from "lucide-react";
 
 interface PromptSectionProps {
   prompt: string;
   setPrompt: (prompt: string) => void;
-  onGenerate: (enhancedPrompt?: string) => void;
+  onGenerate: (enhancedPrompt?: string, base64Image?: string) => void;
   onSelectFromHistory: (prompt: string) => void;
   createFullPrompt: (userPrompt: string, themes: string[]) => string;
 }
@@ -34,6 +35,7 @@ export function PromptSection({
   const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
     useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
+  const [pastedImage, setPastedImage] = useState<string | null>(null);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -55,7 +57,7 @@ export function PromptSection({
 
     // Enhance prompt with selected themes before calling onGenerate
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
-    onGenerate(enhancedPrompt);
+    onGenerate(enhancedPrompt, pastedImage || undefined);
   };
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
@@ -66,6 +68,14 @@ export function PromptSection({
 
   const handleThemeSelect = (theme: string) => {
     toggleTheme(theme);
+  };
+
+  const handleImagePaste = (base64: string) => {
+    setPastedImage(base64);
+  };
+
+  const handleImageClear = () => {
+    setPastedImage(null);
   };
 
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
@@ -100,6 +110,9 @@ export function PromptSection({
             fullPrompt={fullPromptPreview}
             activeThemes={selectedThemes}
             onThemeRemove={handleThemeSelect}
+            pastedImage={pastedImage}
+            onImagePaste={handleImagePaste}
+            onImageClear={handleImageClear}
           />
 
           {/* Stats Bar */}

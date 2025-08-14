@@ -1,5 +1,5 @@
 import type { ShirtData, TexturePlacement } from "@/types";
-import { useEcho, type EchoUser } from "@zdql/echo-react-sdk";
+import { useEcho, type EchoUser } from "@merit-systems/echo-react-sdk";
 import {
   createContext,
   useContext,

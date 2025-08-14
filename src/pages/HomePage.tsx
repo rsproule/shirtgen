@@ -27,7 +27,7 @@ export function HomePage() {
     };
   }, [setIsLoading]);
 
-  const handleGenerate = (enhancedPrompt?: string) => {
+  const handleGenerate = (enhancedPrompt?: string, base64Image?: string) => {
     // Clear any previous errors
     setError(null);
 
@@ -39,7 +39,7 @@ export function HomePage() {
     // Use the enhanced prompt if provided, otherwise enhance it here
     const finalPrompt =
       enhancedPrompt || enhancePromptWithThemes(prompt, selectedThemes);
-    generateImage(finalPrompt);
+    generateImage(finalPrompt, base64Image);
   };
 
   const handleRetryGeneration = () => {
