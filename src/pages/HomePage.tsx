@@ -1,8 +1,9 @@
+import { type Quality } from "@/components/forms/QualitySelector";
+import { ShirtHistory } from "@/components/forms/ShirtHistory";
+import { PromptSection } from "@/components/home/PromptSection";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { Navbar } from "@/components/layout/Navbar";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import { ShirtHistory } from "@/components/forms/ShirtHistory";
-import { PromptSection } from "@/components/home/PromptSection";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
@@ -27,7 +28,11 @@ export function HomePage() {
     };
   }, [setIsLoading]);
 
-  const handleGenerate = (enhancedPrompt?: string, base64Images?: string[]) => {
+  const handleGenerate = (
+    enhancedPrompt?: string,
+    base64Images?: string[],
+    quality?: Quality,
+  ) => {
     // Clear any previous errors
     setError(null);
 
@@ -39,7 +44,7 @@ export function HomePage() {
     // Use the enhanced prompt if provided, otherwise enhance it here
     const finalPrompt =
       enhancedPrompt || enhancePromptWithThemes(prompt, selectedThemes);
-    generateImage(finalPrompt, base64Images);
+    generateImage(finalPrompt, base64Images, quality);
   };
 
   const handleRetryGeneration = () => {

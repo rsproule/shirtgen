@@ -7,9 +7,32 @@ import type { ShirtData } from "@/types";
 import { useEchoOpenAI } from "@merit-systems/echo-react-sdk";
 import { useNavigate } from "react-router-dom";
 
-// Type for Echo API request
-type EchoStreamRequest = Record<string, unknown>;
-type EchoStream = AsyncIterable<unknown>;
+type Quality = "high" | "medium" | "low";
+
+const QUALITY_LEVELS: Record<
+  Quality,
+  {
+    model: string;
+    partial_images: number;
+    quality: string;
+  }
+> = {
+  high: {
+    model: "gpt-5",
+    partial_images: 3,
+    quality: "high",
+  },
+  medium: {
+    model: "gpt-4o",
+    partial_images: 3,
+    quality: "medium",
+  },
+  low: {
+    model: "gpt-4o",
+    partial_images: 3,
+    quality: "low",
+  },
+};
 
 export function useImageGeneration(
   onShirtComplete?: (shirtData: ShirtData) => void,
@@ -55,6 +78,7 @@ export function useImageGeneration(
   const createStreamRequest = (
     prompt: string,
     base64Images?: string[],
+    quality: Quality = "high",
     editResponseId?: string,
   ) => {
     const imagePrompt = `Generate an image for: ${prompt}.
@@ -87,7 +111,7 @@ export function useImageGeneration(
           image_url: `data:image/jpeg;base64,${base64Image}`,
         })),
       ];
-      
+
       input = [
         {
           role: "user",
@@ -100,17 +124,20 @@ export function useImageGeneration(
     }
 
     return {
-      model: editResponseId ? "gpt-5" : "gpt-4o",
+      model: QUALITY_LEVELS[quality].model,
       input: input as string,
       stream: true,
       tools: [
         {
           type: "image_generation" as const,
-          quality: editResponseId ? "high" : "low",
+          quality: QUALITY_LEVELS[quality].quality,
           size: "1024x1536",
-          partial_images: 3,
+          partial_images: QUALITY_LEVELS[quality].partial_images,
           moderation: "low",
-          input_fidelity: (base64Images && base64Images.length > 0) || editResponseId ? "high" : "low",
+          input_fidelity:
+            (base64Images && base64Images.length > 0) || editResponseId
+              ? "high"
+              : "low",
         },
       ],
     } as unknown; // Type assertion for custom Echo API format
@@ -120,6 +147,7 @@ export function useImageGeneration(
   const performImageGeneration = async (
     prompt: string,
     base64Images?: string[],
+    quality?: Quality,
     editResponseId?: string,
   ) => {
     if (prompt.length < 10) {
@@ -135,25 +163,34 @@ export function useImageGeneration(
       const requestConfig = createStreamRequest(
         prompt,
         base64Images,
+        quality,
         editResponseId,
       );
       const stream = await openai.responses.create(
-        requestConfig as unknown as EchoStreamRequest,
+        requestConfig as Parameters<typeof openai.responses.create>[0],
       );
 
       let hasNavigated = false;
       let responseId: string | undefined;
+      let lastPartialImage:
+        | { imageUrl: string; partialIndex: number }
+        | undefined;
 
       const processor = new ImageGenerationStreamProcessor({
         onResponseId: id => {
           responseId = id;
         },
         onPartialImage: (imageUrl, partialIndex) => {
+          console.log(`🖼️ Partial image received - Index: ${partialIndex}`);
+
+          // Store the last partial image
+          lastPartialImage = { imageUrl, partialIndex };
+
           const shirtData: ShirtData = {
             prompt,
             imageUrl,
             generatedAt: new Date().toISOString(),
-            isPartial: partialIndex < 2,
+            isPartial: true, // Always partial until response.completed
             partialIndex,
             responseId,
           };
@@ -165,21 +202,34 @@ export function useImageGeneration(
             navigate("/view");
             hasNavigated = true;
           }
+        },
+        onResponseCompleted: () => {
+          console.log(
+            "🎯 Response completed - finalizing with last partial image",
+          );
 
-          // Mark as final on last partial
-          if (partialIndex >= 2) {
-            const finalData = {
-              ...shirtData,
+          if (lastPartialImage) {
+            const finalData: ShirtData = {
+              prompt,
+              imageUrl: lastPartialImage.imageUrl,
+              generatedAt: new Date().toISOString(),
               isPartial: false,
               partialIndex: -1,
+              responseId,
             };
+
             setShirtData(finalData);
             setIsLoading(false);
-            generateSmartTitle(prompt, imageUrl);
+            generateSmartTitle(prompt, lastPartialImage.imageUrl);
             onShirtComplete?.(finalData);
+          } else {
+            console.warn(
+              "⚠️ Response completed but no partial images received",
+            );
           }
         },
         onFinalImage: imageUrl => {
+          console.log("🎯 Final image received via onFinalImage callback");
           const finalData: ShirtData = {
             prompt,
             imageUrl,
@@ -203,7 +253,7 @@ export function useImageGeneration(
         },
       });
 
-      await processor.processStream(stream as unknown as EchoStream);
+      await processor.processStream(stream);
     } catch (apiError: unknown) {
       let errorMessage = "Failed to start image generation. Please try again.";
 
@@ -230,12 +280,21 @@ export function useImageGeneration(
   };
 
   // Public API
-  const generateImage = async (prompt: string, base64Images?: string[]) => {
-    return performImageGeneration(prompt, base64Images);
+  const generateImage = async (
+    prompt: string,
+    base64Images?: string[],
+    quality?: Quality,
+  ) => {
+    return performImageGeneration(prompt, base64Images, quality);
   };
 
   const editImage = async (newPrompt: string, originalResponseId: string) => {
-    return performImageGeneration(newPrompt, undefined, originalResponseId);
+    return performImageGeneration(
+      newPrompt,
+      undefined,
+      "high",
+      originalResponseId,
+    );
   };
 
   const generateDebugImage = (prompt: string) => {

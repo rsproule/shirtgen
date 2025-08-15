@@ -1,6 +1,10 @@
 import { ImagePreview } from "@/components/forms/ImagePreview";
 import { PromptHistory } from "@/components/forms/PromptHistory";
 import { PromptInput } from "@/components/forms/PromptInput";
+import {
+  QualitySelector,
+  type Quality,
+} from "@/components/forms/QualitySelector";
 import { PulsatingButton } from "@/components/magicui/pulsating-button";
 import { Button } from "@/components/ui/button";
 import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
@@ -10,12 +14,16 @@ import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { SHOPIFY_URL } from "@/lib/utils";
 import { StoreIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface PromptSectionProps {
   prompt: string;
   setPrompt: (prompt: string) => void;
-  onGenerate: (enhancedPrompt?: string, base64Images?: string[]) => void;
+  onGenerate: (
+    enhancedPrompt?: string,
+    base64Images?: string[],
+    quality?: Quality,
+  ) => void;
   onSelectFromHistory: (prompt: string) => void;
   createFullPrompt: (userPrompt: string, themes: string[]) => string;
 }
@@ -32,6 +40,21 @@ export function PromptSection({
     useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
   const [images, setImages] = useState<string[]>([]);
+  const [quality, setQuality] = useState<Quality>("high");
+
+  // Load quality preference from localStorage on mount
+  useEffect(() => {
+    const savedQuality = localStorage.getItem("imageQuality") as Quality;
+    if (savedQuality && ["low", "medium", "high"].includes(savedQuality)) {
+      setQuality(savedQuality);
+    }
+  }, []);
+
+  // Save quality preference to localStorage when it changes
+  const handleQualityChange = (newQuality: Quality) => {
+    setQuality(newQuality);
+    localStorage.setItem("imageQuality", newQuality);
+  };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -63,7 +86,7 @@ export function PromptSection({
 
     // Enhance prompt with selected themes before calling onGenerate
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
-    onGenerate(enhancedPrompt, images.length > 0 ? images : undefined);
+    onGenerate(enhancedPrompt, images.length > 0 ? images : undefined, quality);
   };
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
@@ -125,8 +148,13 @@ export function PromptSection({
               />
             </div>
 
-            {/* Generate Button - Far Right */}
-            <div className="flex-shrink-0">
+            {/* Generate Button and Quality Selector - Far Right */}
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <QualitySelector
+                quality={quality}
+                onQualityChange={handleQualityChange}
+                disabled={!isAuthenticated}
+              />
               <PulsatingButton
                 onClick={handleGenerate}
                 onTouchEnd={handleGenerate}

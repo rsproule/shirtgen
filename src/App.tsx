@@ -14,7 +14,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 const echoConfig = {
   // appId: "60601628-cdb7-481e-8f7e-921981220348",
   // apiUrl: "https://echo.merit.systems",
-  appId: "c97aa711-aede-433d-a57b-8a2b15831f71",
+  appId: "0e173291-6d49-49e4-8163-937d25ea7e34",
   apiUrl: "http://localhost:3000",
 };
 
