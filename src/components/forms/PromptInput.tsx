@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useShirtData } from "@/context/ShirtDataContext";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface PromptInputProps {
   value: string;
@@ -11,9 +10,7 @@ interface PromptInputProps {
   fullPrompt?: string; // The complete prompt including system prompt and enhancements
   activeThemes?: string[];
   onThemeRemove?: (theme: string) => void;
-  pastedImage?: string | null;
   onImagePaste?: (base64: string) => void;
-  onImageClear?: () => void;
 }
 
 export function PromptInput({
@@ -24,9 +21,7 @@ export function PromptInput({
   fullPrompt,
   activeThemes = [],
   onThemeRemove,
-  pastedImage,
   onImagePaste,
-  onImageClear,
 }: PromptInputProps) {
   const { isAuthenticated } = useShirtData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -49,6 +44,8 @@ export function PromptInput({
 
   // Handle paste events to capture images
   const handlePaste = async (e: React.ClipboardEvent) => {
+    if (!isAuthenticated || !onImagePaste) return;
+
     const items = e.clipboardData.items;
 
     for (let i = 0; i < items.length; i++) {
@@ -58,12 +55,12 @@ export function PromptInput({
         e.preventDefault();
         const file = item.getAsFile();
 
-        if (file && onImagePaste) {
+        if (file) {
           try {
             const base64 = await fileToBase64(file);
             onImagePaste(base64);
-          } catch {
-            console.error("Failed to process pasted image");
+          } catch (error) {
+            console.error("Failed to process pasted image:", error);
           }
         }
         break;
@@ -99,39 +96,10 @@ export function PromptInput({
           onChange={onChange}
           onKeyDown={onKeyDown}
           onPaste={handlePaste}
-          placeholder={`${placeholder}${isAuthenticated ? " (Ctrl+V to paste image)" : ""}`}
+          placeholder={placeholder}
           className="bg-muted/50 min-h-32 w-full resize-none overflow-hidden rounded-lg border-0 p-4 text-base shadow-none transition-shadow duration-200 focus:ring-0 sm:text-xl"
           disabled={!isAuthenticated}
         />
-
-        {/* Pasted Image Preview */}
-        {pastedImage && isAuthenticated && (
-          <div className="absolute top-full left-0 mt-2 z-10">
-            <div className="bg-background border rounded-lg p-3 shadow-lg max-w-xs">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">📷 Pasted Image</span>
-                <Button
-                  onClick={onImageClear}
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
-                >
-                  ✕
-                </Button>
-              </div>
-              <div className="bg-muted aspect-video w-full overflow-hidden rounded">
-                <img
-                  src={`data:image/jpeg;base64,${pastedImage}`}
-                  alt="Pasted input"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <p className="text-muted-foreground text-xs mt-2">
-                This image will be used as input for generation
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Active Theme Chips - Desktop */}
         {activeThemes.length > 0 && isAuthenticated && (

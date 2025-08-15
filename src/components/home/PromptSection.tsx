@@ -1,7 +1,6 @@
-import { ActionButtons } from "@/components/forms/ActionButtons";
+import { ImagePreview } from "@/components/forms/ImagePreview";
 import { PromptHistory } from "@/components/forms/PromptHistory";
 import { PromptInput } from "@/components/forms/PromptInput";
-import { TypingStats } from "@/components/forms/TypingStats";
 import { PulsatingButton } from "@/components/magicui/pulsating-button";
 import { Button } from "@/components/ui/button";
 import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
@@ -9,15 +8,14 @@ import { ThemeButtons } from "@/components/ui/theme-buttons";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
-import { useTypingStats } from "@/hooks/useTypingStats";
 import { SHOPIFY_URL } from "@/lib/utils";
-import { useState } from "react";
 import { StoreIcon } from "lucide-react";
+import { useState } from "react";
 
 interface PromptSectionProps {
   prompt: string;
   setPrompt: (prompt: string) => void;
-  onGenerate: (enhancedPrompt?: string, base64Image?: string) => void;
+  onGenerate: (enhancedPrompt?: string, base64Images?: string[]) => void;
   onSelectFromHistory: (prompt: string) => void;
   createFullPrompt: (userPrompt: string, themes: string[]) => string;
 }
@@ -30,16 +28,13 @@ export function PromptSection({
   createFullPrompt,
 }: PromptSectionProps) {
   const { isAuthenticated, signIn } = useShirtData();
-  const { typingStats, handleInputChange, setPromptWithoutStats } =
-    useTypingStats(prompt);
   const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
     useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
-  const [pastedImage, setPastedImage] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-    handleInputChange(newValue);
     setPrompt(newValue);
   };
 
@@ -52,17 +47,27 @@ export function PromptSection({
   };
 
   const handleGenerate = () => {
+    console.log(
+      "Generate button clicked - isAuthenticated:",
+      isAuthenticated,
+      "promptLength:",
+      prompt.length,
+    );
+    if (!isAuthenticated) {
+      alert("Please sign in to generate shirt designs");
+      return;
+    }
+
     // Add selected themes to favorites when used
     selectedThemes.forEach(theme => addToFavorites(theme));
 
     // Enhance prompt with selected themes before calling onGenerate
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
-    onGenerate(enhancedPrompt, pastedImage || undefined);
+    onGenerate(enhancedPrompt, images.length > 0 ? images : undefined);
   };
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
-    setPromptWithoutStats();
     onSelectFromHistory(selectedPrompt);
   };
 
@@ -71,11 +76,7 @@ export function PromptSection({
   };
 
   const handleImagePaste = (base64: string) => {
-    setPastedImage(base64);
-  };
-
-  const handleImageClear = () => {
-    setPastedImage(null);
+    setImages([...images, base64]);
   };
 
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
@@ -110,19 +111,38 @@ export function PromptSection({
             fullPrompt={fullPromptPreview}
             activeThemes={selectedThemes}
             onThemeRemove={handleThemeSelect}
-            pastedImage={pastedImage}
             onImagePaste={handleImagePaste}
-            onImageClear={handleImageClear}
           />
 
-          {/* Stats Bar */}
-          <TypingStats stats={typingStats} promptLength={prompt.length} />
+          {/* Bottom Section with Image Preview and Action Buttons */}
+          <div className="mt-4 flex items-center justify-between">
+            {/* Image Preview - Left Side */}
+            <div className="flex-shrink-0">
+              <ImagePreview
+                images={images}
+                onImagesChange={setImages}
+                isAuthenticated={isAuthenticated}
+              />
+            </div>
 
-          {/* Action Buttons */}
-          <ActionButtons
-            onGenerate={handleGenerate}
-            promptLength={prompt.length}
-          />
+            {/* Generate Button - Far Right */}
+            <div className="flex-shrink-0">
+              <PulsatingButton
+                onClick={handleGenerate}
+                onTouchEnd={handleGenerate}
+                disabled={!isAuthenticated || prompt.length < 10}
+                disabledAnimation={!isAuthenticated || prompt.length < 10}
+                pulseColor="var(--primary-light)"
+                className={`text-primary-foreground touch-manipulation ${
+                  !isAuthenticated || prompt.length < 10
+                    ? "bg-muted cursor-not-allowed"
+                    : "bg-primary"
+                }`}
+              >
+                Generate Design
+              </PulsatingButton>
+            </div>
+          </div>
 
           {/* Theme Buttons */}
           <div className="mt-4">

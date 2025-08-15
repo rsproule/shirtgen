@@ -54,7 +54,7 @@ export function useImageGeneration(
   // Create stream request configuration
   const createStreamRequest = (
     prompt: string,
-    base64Image?: string,
+    base64Images?: string[],
     editResponseId?: string,
   ) => {
     const imagePrompt = `Generate an image for: ${prompt}.
@@ -75,21 +75,23 @@ export function useImageGeneration(
           id: editResponseId,
         },
       ];
-    } else if (base64Image) {
+    } else if (base64Images && base64Images.length > 0) {
       // Image input mode
+      const content = [
+        {
+          type: "input_text",
+          text: imagePrompt,
+        },
+        ...base64Images.map(base64Image => ({
+          type: "input_image",
+          image_url: `data:image/jpeg;base64,${base64Image}`,
+        })),
+      ];
+      
       input = [
         {
           role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: imagePrompt,
-            },
-            {
-              type: "input_image",
-              image_url: `data:image/jpeg;base64,${base64Image}`,
-            },
-          ],
+          content,
         },
       ];
     } else {
@@ -108,7 +110,7 @@ export function useImageGeneration(
           size: "1024x1536",
           partial_images: 3,
           moderation: "low",
-          input_fidelity: base64Image || editResponseId ? "high" : "low",
+          input_fidelity: (base64Images && base64Images.length > 0) || editResponseId ? "high" : "low",
         },
       ],
     } as unknown; // Type assertion for custom Echo API format
@@ -117,7 +119,7 @@ export function useImageGeneration(
   // Core image generation logic
   const performImageGeneration = async (
     prompt: string,
-    base64Image?: string,
+    base64Images?: string[],
     editResponseId?: string,
   ) => {
     if (prompt.length < 10) {
@@ -132,7 +134,7 @@ export function useImageGeneration(
 
       const requestConfig = createStreamRequest(
         prompt,
-        base64Image,
+        base64Images,
         editResponseId,
       );
       const stream = await openai.responses.create(
@@ -228,8 +230,8 @@ export function useImageGeneration(
   };
 
   // Public API
-  const generateImage = async (prompt: string, base64Image?: string) => {
-    return performImageGeneration(prompt, base64Image);
+  const generateImage = async (prompt: string, base64Images?: string[]) => {
+    return performImageGeneration(prompt, base64Images);
   };
 
   const editImage = async (newPrompt: string, originalResponseId: string) => {

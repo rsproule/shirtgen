@@ -6,7 +6,6 @@ import { ShirtDataProvider, useShirtData } from "@/context/ShirtDataContext";
 import { useEchoErrorToast } from "@/hooks/useEchoErrorToast";
 import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
 import { HomePage } from "@/pages/HomePage";
-import { TestPage } from "@/pages/TestPage";
 import { ViewPage } from "@/pages/ViewPage";
 import { EchoProvider } from "@merit-systems/echo-react-sdk";
 import { Analytics } from "@vercel/analytics/react";
@@ -39,7 +38,6 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/view" element={<ViewPage />} />
-            <Route path="/test" element={<TestPage />} />
           </Routes>
         </Router>
       </AuthGuard>
