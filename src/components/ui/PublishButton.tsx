@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useShirtData } from "@/context/ShirtDataContext";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
+import { SHOPIFY_URL } from "@/lib/utils";
 import { db, ImageLifecycleState } from "@/services/db";
 import { generateDataUrlHash, getPublishedProduct } from "@/services/imageHash";
 import { printifyService } from "@/services/printify";
@@ -21,8 +23,6 @@ import {
   Share2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
-import { SHOPIFY_URL } from "@/lib/utils";
 
 type PublishStatus =
   | "processing"
@@ -194,7 +194,12 @@ function PublishModal({
 
 export function PublishButton() {
   const { shirtData, user } = useShirtData();
-  const { updateLifecycle, updateExternalIds, getByHash } = useShirtHistory();
+  const {
+    updateLifecycle,
+    updateExternalIds,
+    getByHash,
+    getVersionsByDesignId,
+  } = useShirtHistory();
   const [showModal, setShowModal] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string>();
@@ -312,7 +317,30 @@ export function PublishButton() {
       setPublishStatus("uploading");
       await updateLifecycle(imageHash, ImageLifecycleState.UPLOADING);
 
-      const description = PRODUCT_DESCRIPTION_TEMPLATE(user, shirtData.prompt);
+      // Get the prompt chain from the latest version
+      let promptChain: string[] | undefined;
+      if (shirtData.designId) {
+        try {
+          const versions = await getVersionsByDesignId(shirtData.designId);
+          const latestVersion = versions.find(v => v.isLatestVersion);
+          promptChain = latestVersion?.promptChain;
+          console.log(
+            "📝 Using prompt chain for product description:",
+            promptChain,
+          );
+        } catch (error) {
+          console.warn(
+            "Failed to get prompt chain for product description:",
+            error,
+          );
+        }
+      }
+
+      const description = PRODUCT_DESCRIPTION_TEMPLATE(
+        user,
+        shirtData.prompt,
+        promptChain,
+      );
 
       // Update lifecycle to PUBLISHING before creating product
       setPublishStatus("creating");

@@ -43,7 +43,25 @@ export function useImageGeneration(
   const { setShirtData, setIsLoading, setShowInsufficientBalanceModal } =
     useShirtData();
   const { generateName } = useNameGeneration();
-  const { updateExternalIds } = useShirtHistory();
+  const { updateExternalIds, getDesignIdByHash } = useShirtHistory();
+
+  // Update ShirtData context with designId after saving to database
+  const updateDesignIdInContext = async (shirtData: ShirtData) => {
+    if (!shirtData.imageUrl) return;
+
+    try {
+      const hash = await generateDataUrlHash(shirtData.imageUrl);
+      const designId = await getDesignIdByHash(hash);
+
+      if (designId) {
+        console.log("🔄 Updating context with designId:", designId);
+        const updatedShirtData = { ...shirtData, designId };
+        setShirtData(updatedShirtData);
+      }
+    } catch (error) {
+      console.error("Failed to update designId in context:", error);
+    }
+  };
 
   // Generate smart title in background
   const generateSmartTitle = async (prompt: string, imageUrl: string) => {
@@ -87,19 +105,7 @@ export function useImageGeneration(
 
     let input: unknown;
 
-    if (editResponseId) {
-      // Edit mode: reference previous generation
-      input = [
-        {
-          role: "user",
-          content: [{ type: "input_text", text: prompt }],
-        },
-        {
-          type: "image_generation_call",
-          id: editResponseId,
-        },
-      ];
-    } else if (base64Images && base64Images.length > 0) {
+    if (base64Images && base64Images.length > 0) {
       // Image input mode
       const content = [
         {
@@ -127,6 +133,7 @@ export function useImageGeneration(
       model: QUALITY_LEVELS[quality].model,
       input: input as string,
       stream: true,
+      previous_response_id: editResponseId,
       tools: [
         {
           type: "image_generation" as const,
@@ -135,9 +142,7 @@ export function useImageGeneration(
           partial_images: QUALITY_LEVELS[quality].partial_images,
           moderation: "low",
           input_fidelity:
-            (base64Images && base64Images.length > 0) || editResponseId
-              ? "high"
-              : "low",
+            base64Images && base64Images.length > 0 ? "high" : "low",
         },
       ],
     } as unknown; // Type assertion for custom Echo API format
@@ -149,12 +154,8 @@ export function useImageGeneration(
     base64Images?: string[],
     quality?: Quality,
     editResponseId?: string,
+    designId?: string,
   ) => {
-    if (prompt.length < 10) {
-      alert("Please write at least 10 characters to describe your design");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -178,6 +179,7 @@ export function useImageGeneration(
 
       const processor = new ImageGenerationStreamProcessor({
         onResponseId: id => {
+          console.log("🆔 Setting responseId in useImageGeneration:", id);
           responseId = id;
         },
         onPartialImage: (imageUrl, partialIndex) => {
@@ -193,6 +195,7 @@ export function useImageGeneration(
             isPartial: true, // Always partial until response.completed
             partialIndex,
             responseId,
+            designId, // Pass along the designId for versioning
           };
 
           setShirtData(shirtData);
@@ -203,10 +206,11 @@ export function useImageGeneration(
             hasNavigated = true;
           }
         },
-        onResponseCompleted: () => {
+        onResponseCompleted: async () => {
           console.log(
             "🎯 Response completed - finalizing with last partial image",
           );
+          console.log("🆔 ResponseId available in completion:", responseId);
 
           if (lastPartialImage) {
             const finalData: ShirtData = {
@@ -216,19 +220,52 @@ export function useImageGeneration(
               isPartial: false,
               partialIndex: -1,
               responseId,
+              designId, // Pass along the designId for versioning
             };
+
+            console.log("🎯 Final data being sent to onShirtComplete:", {
+              prompt: finalData.prompt,
+              responseId: finalData.responseId,
+              isPartial: finalData.isPartial,
+            });
 
             setShirtData(finalData);
             setIsLoading(false);
             generateSmartTitle(prompt, lastPartialImage.imageUrl);
-            onShirtComplete?.(finalData);
+
+            // Call the completion callback, which will save to history
+            // Wait for saving to complete before updating context
+            if (onShirtComplete) {
+              try {
+                console.log("📁 Calling onShirtComplete with finalData:", {
+                  prompt: finalData.prompt,
+                  responseId: finalData.responseId,
+                  designId: finalData.designId,
+                  isPartial: finalData.isPartial,
+                });
+                await onShirtComplete(finalData);
+                console.log("📁 onShirtComplete finished successfully");
+
+                // After saving, update the context with designId if it's a new design
+                if (!designId) {
+                  console.log(
+                    "📁 Updating context with designId for new design",
+                  );
+                  await updateDesignIdInContext(finalData);
+                }
+              } catch (error) {
+                console.error("Failed to save shirt or update context:", error);
+              }
+            } else {
+              console.warn("📁 No onShirtComplete callback provided");
+            }
           } else {
             console.warn(
               "⚠️ Response completed but no partial images received",
             );
           }
         },
-        onFinalImage: imageUrl => {
+        onFinalImage: async imageUrl => {
           console.log("🎯 Final image received via onFinalImage callback");
           const finalData: ShirtData = {
             prompt,
@@ -237,12 +274,27 @@ export function useImageGeneration(
             responseId,
             isPartial: false,
             partialIndex: -1,
+            designId, // Pass along the designId for versioning
           };
 
           setShirtData(finalData);
           setIsLoading(false);
           generateSmartTitle(prompt, imageUrl);
-          onShirtComplete?.(finalData);
+
+          // Call the completion callback, which will save to history
+          // Wait for saving to complete before updating context
+          if (onShirtComplete) {
+            try {
+              await onShirtComplete(finalData);
+
+              // After saving, update the context with designId if it's a new design
+              if (!designId) {
+                await updateDesignIdInContext(finalData);
+              }
+            } catch (error) {
+              console.error("Failed to save shirt or update context:", error);
+            }
+          }
 
           if (!hasNavigated) {
             navigate("/view");
@@ -288,12 +340,18 @@ export function useImageGeneration(
     return performImageGeneration(prompt, base64Images, quality);
   };
 
-  const editImage = async (newPrompt: string, originalResponseId: string) => {
+  const editImage = async (
+    newPrompt: string,
+    originalResponseId: string,
+    quality: Quality = "high",
+    designId?: string,
+  ) => {
     return performImageGeneration(
       newPrompt,
       undefined,
-      "high",
+      quality,
       originalResponseId,
+      designId,
     );
   };
 
