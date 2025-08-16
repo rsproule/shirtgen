@@ -155,6 +155,7 @@ class PrintifyService {
     description: string,
     uploadedImageId: string,
     imageHash: string,
+    placement: "front" | "back" | "full-shirt" = "front",
   ): Promise<PrintifyProduct> {
     console.log("🏭 Step 3: Creating product on Printify...");
     const identifier = createProductIdentifier(imageHash);
@@ -166,6 +167,7 @@ class PrintifyService {
       productName,
       productDescription,
       uploadedImageId,
+      placement,
     );
 
     const product = await this.createProduct(payload);
@@ -232,6 +234,7 @@ class PrintifyService {
     prompt: string,
     productName: string,
     description: string = "",
+    placement: "front" | "back" | "full-shirt" = "front",
     onStatusUpdate?: (
       status:
         | "processing"
@@ -243,6 +246,7 @@ class PrintifyService {
   ): Promise<ShirtCreationResult> {
     console.log("🚀 Starting shirt creation process...");
     console.log("📝 Original prompt:", prompt);
+    console.log("📍 Placement:", placement);
 
     try {
       // Step 1: Process image and generate hash
@@ -270,6 +274,7 @@ class PrintifyService {
         description,
         uploadedImage.id,
         imageHash,
+        placement,
       );
 
       // Step 4: Wait for sync and get updated details
