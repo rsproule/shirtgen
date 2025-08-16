@@ -428,7 +428,18 @@ export function ViewPage() {
               <div className="flex items-center gap-2">
                 <ShirtColorPicker />
                 {shirtData.imageUrl && (
-                  <SettingsModal imageUrl={shirtData.imageUrl} />
+                  <SettingsModal 
+                    imageUrl={shirtData.imageUrl}
+                    onApply={(editedImageUrl) => {
+                      // Update the shirt data with the edited image
+                      if (shirtData) {
+                        setShirtData({
+                          ...shirtData,
+                          imageUrl: editedImageUrl
+                        });
+                      }
+                    }}
+                  />
                 )}
               </div>
 
