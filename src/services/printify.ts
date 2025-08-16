@@ -23,7 +23,7 @@ class PrintifyService {
     body?: unknown,
     method: string = "POST",
   ): Promise<T> {
-    const baseUrl = import.meta.env.DEV ? "http://localhost:3001" : "";
+    const baseUrl = import.meta.env.DEV ? "http://localhost:3000" : "";
     const url = `${baseUrl}/api/printify?action=${action}`;
 
     const response = await fetch(url, {
@@ -120,7 +120,7 @@ class PrintifyService {
   }
 
   async getProduct(productId: string): Promise<PrintifyProduct> {
-    const baseUrl = import.meta.env.DEV ? "http://localhost:3001" : "";
+    const baseUrl = import.meta.env.DEV ? "http://localhost:3000" : "";
     const url = `${baseUrl}/api/printify?action=get-product&productId=${productId}`;
     const response = await fetch(url);
 
