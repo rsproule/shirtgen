@@ -161,8 +161,6 @@ export function useImageGeneration(
     setIsLoading(true);
 
     try {
-      openai.baseURL = "http://localhost:3070";
-
       const requestConfig = createStreamRequest(
         prompt,
         base64Images,
