@@ -2,6 +2,7 @@ import { PlacementControls } from "@/components/3d/PlacementControls";
 import { Scene3D } from "@/components/3d/Scene3D";
 import { ShirtColorPicker } from "@/components/3d/ShirtColorPicker";
 import { Header } from "@/components/layout/Header";
+import { SettingsModal } from "@/components/SettingsModal";
 import { Shirt3D } from "@/components/Shirt3D";
 import { AutoSaveIndicator } from "@/components/ui/AutoSaveIndicator";
 import { Button } from "@/components/ui/button";
@@ -424,8 +425,9 @@ export function ViewPage() {
             {/* Controls - Responsive Layout */}
             <div className="mb-1 flex flex-col items-center gap-1 sm:flex-row sm:justify-between sm:gap-3">
               {/* Shirt Color Selection */}
-              <div>
+              <div className="flex items-center gap-2">
                 <ShirtColorPicker />
+                <SettingsModal />
               </div>
 
               {/* Texture Placement */}
