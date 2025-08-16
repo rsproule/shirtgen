@@ -7,14 +7,14 @@ export interface TypingStats {
 }
 
 export interface ShirtData {
+  imageUrl: string;
   prompt: string;
-  imageUrl?: string;
   generatedAt?: string;
   isPartial?: boolean;
   partialIndex?: number;
 }
 
-export type TexturePlacement = "front" | "back" | "full-shirt";
+export type TexturePlacement = "front" | "back" | "full-shirt" | "pocket";
 
 export interface ImageGenerationResponse {
   output: Array<{

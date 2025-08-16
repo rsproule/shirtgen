@@ -93,10 +93,49 @@ export class ProductBuilder {
     productName: string,
     description: string,
     uploadedImageId: string,
+    placement: "front" | "back" | "full-shirt" | "pocket" = "front",
   ): CreateProductPayload {
     const shirtConfig = SHIRT_CONFIGS.cc;
 
     console.log("Creating product with shirtConfig", shirtConfig);
+    console.log("Placement:", placement);
+
+    // Determine the actual position to send to Printify
+    let printPosition: string;
+    let printScale: number;
+    let printX: number;
+    let printY: number;
+
+    switch (placement) {
+      case "back":
+        printPosition = "back";
+        printScale = shirtConfig.scale;
+        printX = shirtConfig.x;
+        printY = shirtConfig.y;
+        break;
+      case "full-shirt":
+        // For full-shirt, we still use front position but with larger scale
+        printPosition = "front";
+        printScale = shirtConfig.scale * 1.2; // 20% larger for full-shirt
+        printX = shirtConfig.x;
+        printY = shirtConfig.y;
+        break;
+      case "pocket":
+        // For pocket, use front position with smaller scale and left breast positioning
+        printPosition = "front";
+        printScale = shirtConfig.scale * 0.33; // 33% of normal size for pocket
+        printX = 0.29; // Left of center (29% from left edge) - matches Shirt3D.tsx
+        printY = 0.38; // Higher than center (38% from top) - matches Shirt3D.tsx
+        break;
+      case "front":
+      default:
+        printPosition = "front";
+        printScale = shirtConfig.scale;
+        printX = shirtConfig.x;
+        printY = shirtConfig.y;
+        break;
+    }
+
     return {
       title: productName,
       description,
@@ -112,13 +151,13 @@ export class ProductBuilder {
           variant_ids: shirtConfig.variants,
           placeholders: [
             {
-              position: "front",
+              position: printPosition,
               images: [
                 {
                   id: uploadedImageId,
-                  x: shirtConfig.x,
-                  y: shirtConfig.y,
-                  scale: shirtConfig.scale,
+                  x: printX,
+                  y: printY,
+                  scale: printScale,
                   angle: 0,
                 },
               ],

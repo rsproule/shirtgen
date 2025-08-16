@@ -34,6 +34,9 @@ export function PlacementControls({
         >
           Full Shirt
         </ToggleGroupItem>
+        <ToggleGroupItem value="pocket" className="px-3 py-1 sm:px-4 sm:py-2">
+          Pocket
+        </ToggleGroupItem>
       </ToggleGroup>
     </div>
   );

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useShirtData } from "@/context/ShirtDataContext";
 import * as THREE from "three";
 
-type TexturePlacement = "front" | "back" | "full-shirt";
+type TexturePlacement = "front" | "back" | "full-shirt" | "pocket";
 
 interface Shirt3DProps {
   imageUrl: string;
@@ -107,6 +107,34 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
             }
 
             ctx.translate(frontX, frontY);
+            ctx.rotate(Math.PI);
+            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
+            ctx.drawImage(
+              img,
+              -drawWidth / 2,
+              -drawHeight / 2,
+              drawWidth,
+              drawHeight,
+            );
+            break;
+          }
+
+          case "pocket": {
+            // Small pocket-sized image on left breast area
+            const maxSize = canvas.width * 0.12; // Smaller than front (12% of width)
+            const pocketX = canvas.width * 0.29; // Left of center (35% from left edge)
+            const pocketY = canvas.height * 0.38; // Higher than center (30% from top)
+
+            // Calculate dimensions preserving aspect ratio
+            let drawWidth = maxSize;
+            let drawHeight = maxSize / imgAspectRatio;
+
+            if (drawHeight > maxSize) {
+              drawHeight = maxSize;
+              drawWidth = maxSize * imgAspectRatio;
+            }
+
+            ctx.translate(pocketX + maxSize / 2, pocketY + maxSize / 2);
             ctx.rotate(Math.PI);
             ctx.scale(-1, 1); // Flip horizontally to fix mirroring
             ctx.drawImage(
