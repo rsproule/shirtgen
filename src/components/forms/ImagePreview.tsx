@@ -108,7 +108,7 @@ export function ImagePreview({
         variant="outline"
         size="sm"
         className="border-muted-foreground/30 hover:border-muted-foreground/50 bg-muted/20 hover:bg-muted/30 h-8 w-8 border-2 border-dashed p-0 transition-colors"
-        title="Upload images (or paste with Ctrl+V)"
+        title="Upload images (or paste)"
       >
         <ImageUp className="text-muted-foreground h-3 w-3" />
       </Button>
@@ -149,7 +149,7 @@ export function ImagePreview({
       {/* Helper text */}
       {images.length === 0 && (
         <div className="text-muted-foreground ml-2 hidden text-xs sm:block">
-          Upload images or paste with Ctrl+V
+          Upload images or paste
         </div>
       )}
     </div>
