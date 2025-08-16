@@ -34,73 +34,71 @@ export function useShirtHistory() {
           "designs",
         );
 
+        // OPTIMIZED: Get all versions for all designs in one query
+        const designIds = designs.map(d => d.designId);
+        const allVersions = await db.versions
+          .where("designId")
+          .anyOf(designIds)
+          .toArray();
+
+        console.log(
+          "🔍 DEBUG: Loaded all versions in one query:",
+          allVersions.length,
+        );
+
+        // Group versions by designId for efficient lookup
+        const versionsByDesign = new Map<string, ShirtVersion[]>();
+        allVersions.forEach(version => {
+          const designId = version.designId;
+          if (!versionsByDesign.has(designId)) {
+            versionsByDesign.set(designId, []);
+          }
+          versionsByDesign.get(designId)!.push(version);
+        });
+
         // Get the latest version for each design
         const historyItems: ShirtHistoryItem[] = [];
 
         for (const design of designs) {
-          console.log("🔍 DEBUG: Processing design:", design.designId);
+          const versionsForDesign = versionsByDesign.get(design.designId) || [];
 
-          // Check all versions for this design
-          const allVersionsForDesign = await db.versions
-            .where("designId")
-            .equals(design.designId)
-            .toArray();
-          console.log(
-            "🔍 DEBUG: All versions for design:",
-            allVersionsForDesign,
+          if (versionsForDesign.length === 0) {
+            console.warn("No versions found for design:", design.designId);
+            continue;
+          }
+
+          // Find latest version (first try isLatestVersion: true, then fallback to highest versionNumber)
+          let latestVersion = versionsForDesign.find(
+            v => v.isLatestVersion === true,
           );
 
-          // Check the isLatestVersion field on each version
-          allVersionsForDesign.forEach((version, index) => {
-            console.log(`🔍 DEBUG: Version ${index + 1}:`, {
-              versionNumber: version.versionNumber,
-              isLatestVersion: version.isLatestVersion,
-              hash: version.hash.substring(0, 8) + "...",
-            });
-          });
-
-          let latestVersion = await db.versions
-            .where({ designId: design.designId, isLatestVersion: true })
-            .first();
-
-          console.log("🔍 DEBUG: Latest version found:", latestVersion);
-
-          // Fallback: if no version marked as latest, use the highest version number
-          if (!latestVersion && allVersionsForDesign.length > 0) {
-            latestVersion = allVersionsForDesign.reduce((latest, current) =>
+          if (!latestVersion) {
+            latestVersion = versionsForDesign.reduce((latest, current) =>
               current.versionNumber > latest.versionNumber ? current : latest,
             );
-            console.log(
-              "🔍 DEBUG: Using fallback latest version:",
-              latestVersion,
-            );
           }
 
-          if (latestVersion) {
-            // Create a compatible ShirtHistoryItem for the UI
-            // Get version count for this design
-            const versionCount = allVersionsForDesign.length;
-
-            const historyItem: ShirtHistoryItem = {
-              hash: latestVersion.hash,
-              originalPrompt: design.originalPrompt,
-              generatedTitle: design.generatedTitle,
-              imageUrl: latestVersion.imageUrl,
-              createdAt: design.createdAt,
-              updatedAt: design.updatedAt,
-              lifecycle: design.lifecycle,
-              designId: design.designId,
-              versionNumber: latestVersion.versionNumber,
-              isLatestVersion: true,
-              responseId: latestVersion.responseId,
-              // Add version count for UI
-              versionCount: versionCount,
-              // Legacy compatibility
-              prompt: design.originalPrompt,
-              generatedAt: design.createdAt,
-            };
-            historyItems.push(historyItem);
-          }
+          const historyItem: ShirtHistoryItem = {
+            hash: latestVersion.hash,
+            originalPrompt: design.originalPrompt,
+            generatedTitle: design.generatedTitle,
+            imageUrl: latestVersion.imageUrl,
+            createdAt: design.createdAt,
+            updatedAt: design.updatedAt,
+            lifecycle: design.lifecycle,
+            designId: design.designId,
+            versionNumber: latestVersion.versionNumber,
+            isLatestVersion: true,
+            responseId: latestVersion.responseId,
+            // Add version count for UI
+            versionCount: versionsForDesign.length,
+            // Add prompt chain from the latest version
+            promptChain: latestVersion.promptChain,
+            // Legacy compatibility
+            prompt: design.originalPrompt,
+            generatedAt: design.createdAt,
+          };
+          historyItems.push(historyItem);
         }
 
         console.log(
@@ -215,7 +213,7 @@ export function useShirtHistory() {
       designId,
       versionNumber: 1,
       prompt: shirtData.prompt,
-      imageUrl: shirtData.imageUrl,
+      imageUrl: shirtData.imageUrl || "",
       responseId: shirtData.responseId,
       createdAt: shirtData.generatedAt || now,
       quality: "high", // Default
@@ -299,7 +297,7 @@ export function useShirtHistory() {
       designId: designId,
       versionNumber: maxVersionNumber + 1,
       prompt: shirtData.prompt,
-      imageUrl: shirtData.imageUrl,
+      imageUrl: shirtData.imageUrl || "",
       responseId: shirtData.responseId,
       createdAt: now,
       quality: "high", // Default

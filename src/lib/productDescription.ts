@@ -15,9 +15,9 @@ export const formatPromptChain = (promptChain: string[]): string => {
   const formattedSteps = promptChain
     .map((prompt, index) => {
       if (index === 0) {
-        return `1. Original: <em>"${prompt}"</em>`;
+        return `1. <em>"${prompt}"</em>`;
       } else {
-        return `${index + 1}. Then: <em>"${prompt}"</em>`;
+        return `${index + 1}. <em>"${prompt}"</em>`;
       }
     })
     .join("<br>");

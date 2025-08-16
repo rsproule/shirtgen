@@ -93,6 +93,9 @@ export interface ShirtHistoryItem {
     style?: string;
   };
 
+  // Prompt evolution tracking
+  promptChain?: string[]; // Full prompt chain from original to this version
+
   // Publishing metadata
   publishedAt?: string;
   publishError?: string; // Last publishing error if any

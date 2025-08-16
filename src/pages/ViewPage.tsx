@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { PromptChain } from "@/components/ui/PromptChain";
 import { PublishButton } from "@/components/ui/PublishButton";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -35,7 +36,6 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
-import { formatPromptChain } from "@/lib/productDescription";
 import { generateDataUrlHash } from "@/services/imageHash";
 import { ImageProcessor } from "@/services/printify/ImageProcessor";
 import type { ShirtData } from "@/types";
@@ -180,22 +180,26 @@ export function ViewPage() {
     }
   }, []);
 
-  // Reset adjust loading state when new complete image data arrives during adjustment
+  // Reset adjust loading state when new image data arrives during adjustment (partial or complete)
   useEffect(() => {
     if (
       shirtData &&
-      !shirtData.isPartial &&
       isAdjusting &&
       shirtData.imageUrl &&
       adjustmentStartImageUrl.current &&
       shirtData.imageUrl !== adjustmentStartImageUrl.current
     ) {
-      // Only reset if this is actually a new adjustment result (different image URL)
+      // Reset loading overlay as soon as we get the first partial or complete image
       console.log(
-        "🎯 New complete adjustment image received - resetting adjust loading state",
+        "🎯 New adjustment image received (partial or complete) - hiding loading overlay",
       );
       setIsAdjusting(false);
-      adjustmentStartImageUrl.current = null; // Reset the reference
+
+      // Only reset the reference when we get the final complete image
+      if (!shirtData.isPartial) {
+        adjustmentStartImageUrl.current = null;
+        console.log("🎯 Complete adjustment image - reset reference");
+      }
     }
   }, [shirtData?.imageUrl, shirtData?.isPartial, isAdjusting]);
 
@@ -807,7 +811,7 @@ export function ViewPage() {
           <div className="mx-auto max-w-4xl">
             {/* User Prompt Display */}
             {shirtData.prompt && (
-              <div className="mb-2 text-center sm:mb-4">
+              <div className="mb-2 sm:mb-4">
                 <div className="flex items-center justify-between gap-3">
                   <TooltipProvider>
                     <Tooltip>
@@ -816,10 +820,18 @@ export function ViewPage() {
                           onClick={handleCopyPrompt}
                           className="group hover:bg-muted max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors"
                         >
-                          <div className="flex items-center justify-center gap-2">
-                            <p className="text-muted-foreground group-hover:text-foreground max-w-md truncate text-sm italic">
-                              "{shirtData.prompt}"
-                            </p>
+                          <div className="flex items-center justify-start gap-2">
+                            <div className="text-muted-foreground group-hover:text-foreground w-96 text-sm italic">
+                              <PromptChain
+                                chain={
+                                  versions.find(
+                                    v => v.version === currentVersion,
+                                  )?.promptChain
+                                }
+                                prompt={shirtData.prompt}
+                                mode="condensed"
+                              />
+                            </div>
                             {copied && (
                               <Check className="h-4 w-4 flex-shrink-0 text-green-600" />
                             )}
@@ -827,7 +839,16 @@ export function ViewPage() {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="max-w-xs">"{shirtData.prompt}"</p>
+                        <div className="max-w-xs">
+                          <PromptChain
+                            chain={
+                              versions.find(v => v.version === currentVersion)
+                                ?.promptChain
+                            }
+                            prompt={shirtData.prompt}
+                            mode="full"
+                          />
+                        </div>
                         <p className="text-primary-foreground/50 mt-1 text-xs">
                           Click to copy
                         </p>
