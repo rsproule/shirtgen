@@ -22,7 +22,7 @@ import {
   Loader2,
   Share2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type PublishStatus =
   | "processing"
@@ -213,41 +213,45 @@ export function PublishButton() {
     productName: string;
   } | null>(null);
 
-  // Check if current image hash is already published
-  useEffect(() => {
-    const checkPublishedStatus = async () => {
-      if (!shirtData?.imageUrl) {
-        setAlreadyPublished(null);
+  // Unified checker that consults both new and legacy storage
+  const computePublishedStatus = useCallback(async () => {
+    if (!shirtData?.imageUrl) {
+      setAlreadyPublished(null);
+      return;
+    }
+
+    try {
+      const imageHash = await generateDataUrlHash(shirtData.imageUrl);
+
+      // Prefer the simple publishedProducts table
+      const publishedProduct = await db.publishedProducts.get(imageHash);
+      if (publishedProduct) {
+        setAlreadyPublished({
+          shopifyUrl: publishedProduct.shopifyUrl,
+          productName: publishedProduct.productName,
+        });
         return;
       }
 
-      try {
-        const currentImageHash = await generateDataUrlHash(shirtData.imageUrl);
-
-        // Check if this exact image hash was already published
-        const publishedProduct =
-          await db.publishedProducts.get(currentImageHash);
-
-        if (publishedProduct) {
-          setAlreadyPublished({
-            shopifyUrl: publishedProduct.shopifyUrl,
-            productName: publishedProduct.productName,
-          });
-          console.log(
-            "📦 This image is already published:",
-            publishedProduct.shopifyUrl,
-          );
-        } else {
-          setAlreadyPublished(null);
-        }
-      } catch (error) {
-        console.error("Failed to check published status:", error);
-        setAlreadyPublished(null);
+      // Fallback to legacy shirtHistory check
+      const legacy = await getPublishedProduct(imageHash);
+      if (legacy) {
+        setAlreadyPublished({
+          shopifyUrl: legacy.shopifyUrl,
+          productName: legacy.productName,
+        });
+        return;
       }
-    };
 
-    checkPublishedStatus();
+      setAlreadyPublished(null);
+    } catch (error) {
+      setAlreadyPublished(null);
+    }
   }, [shirtData?.imageUrl]);
+
+  useEffect(() => {
+    void computePublishedStatus();
+  }, [computePublishedStatus]);
 
   // Load design title from database
   useEffect(() => {
@@ -277,39 +281,7 @@ export function PublishButton() {
     loadDesignTitle();
   }, [shirtData?.imageUrl, shirtData?.prompt, getByHash]);
 
-  // Function to check published status
-  const checkPublishedStatus = async () => {
-    if (!shirtData?.imageUrl) {
-      setAlreadyPublished(null);
-      return;
-    }
-
-    try {
-      const imageHash = await generateDataUrlHash(shirtData.imageUrl);
-      const publishedProduct = await getPublishedProduct(imageHash);
-
-      if (publishedProduct) {
-        console.log(
-          "📦 Found already published product:",
-          publishedProduct.productName,
-        );
-        setAlreadyPublished({
-          shopifyUrl: publishedProduct.shopifyUrl,
-          productName: publishedProduct.productName,
-        });
-      } else {
-        setAlreadyPublished(null);
-      }
-    } catch (error) {
-      console.warn("Failed to check published status:", error);
-      setAlreadyPublished(null);
-    }
-  };
-
-  // Check if this image is already published when shirtData changes
-  useEffect(() => {
-    checkPublishedStatus();
-  }, [shirtData?.imageUrl]);
+  // (second checker removed; unified into computePublishedStatus)
 
   // Prevent navigation/refresh during publishing
   useEffect(() => {
@@ -466,7 +438,7 @@ export function PublishButton() {
 
     // If we just published successfully, update the navbar button state
     if (isPublished) {
-      await checkPublishedStatus();
+      await computePublishedStatus();
     }
 
     setIsPublished(false);
