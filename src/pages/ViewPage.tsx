@@ -1023,212 +1023,222 @@ export function ViewPage() {
 
       {/* Auto-save indicator - Bottom right of entire page */}
       <div
-        className={`fixed right-4 z-50 transition-all duration-200 ${showDebugInfo ? "bottom-32" : "bottom-4"}`}
+        className={`fixed right-4 z-50 transition-all duration-200 ${import.meta.env.DEV && showDebugInfo ? "bottom-32" : "bottom-4"}`}
       >
         <AutoSaveIndicator status={autoSaveStatus} lastSavedAt={lastSavedAt} />
       </div>
 
-      {/* Debug Information Panel */}
-      <div className="border-border bg-card fixed right-0 bottom-0 left-0 z-40 border-t">
-        <div className="mx-auto max-w-7xl px-4">
-          <button
-            onClick={() => setShowDebugInfo(!showDebugInfo)}
-            className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-2 text-sm transition-colors"
-          >
-            {showDebugInfo ? (
-              <>
-                <ChevronDown className="h-4 w-4" />
-                Hide Debug Info
-              </>
-            ) : (
-              <>
-                <ChevronUp className="h-4 w-4" />
-                Show Debug Info
-              </>
-            )}
-          </button>
+      {/* Debug Information Panel - Only in development */}
+      {import.meta.env.DEV && (
+        <div className="border-border bg-card fixed right-0 bottom-0 left-0 z-40 border-t">
+          <div className="mx-auto max-w-7xl px-4">
+            <button
+              onClick={() => setShowDebugInfo(!showDebugInfo)}
+              className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-2 text-sm transition-colors"
+            >
+              {showDebugInfo ? (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  Hide Debug Info
+                </>
+              ) : (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  Show Debug Info
+                </>
+              )}
+            </button>
 
-          {showDebugInfo && (
-            <div className="border-border bg-muted/30 mb-4 rounded-lg border p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-foreground text-sm font-semibold">
-                  Debug Information
-                </h3>
-                <Button
-                  onClick={copyDebugInfo}
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-3"
-                >
-                  <Copy className="mr-2 h-3 w-3" />
-                  {copied ? "Copied!" : "Copy JSON"}
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* Shirt Data */}
-                <div className="bg-background rounded-md border p-3">
-                  <h4 className="text-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-                    Shirt Data
-                  </h4>
-                  <div className="space-y-1 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Prompt:</span>{" "}
-                      {shirtData?.prompt || "None"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Response ID:
-                      </span>{" "}
-                      {shirtData?.responseId || "None"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Design ID:</span>{" "}
-                      {shirtData?.designId || "None"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Is Partial:</span>{" "}
-                      {shirtData?.isPartial ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Partial Index:
-                      </span>{" "}
-                      {shirtData?.partialIndex ?? "N/A"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Has Image:</span>{" "}
-                      {shirtData?.imageUrl ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Generated:</span>{" "}
-                      {shirtData?.generatedAt
-                        ? new Date(shirtData.generatedAt).toLocaleTimeString()
-                        : "N/A"}
-                    </div>
-                  </div>
+            {showDebugInfo && (
+              <div className="border-border bg-muted/30 mb-4 rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-foreground text-sm font-semibold">
+                    Debug Information
+                  </h3>
+                  <Button
+                    onClick={copyDebugInfo}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3"
+                  >
+                    <Copy className="mr-2 h-3 w-3" />
+                    {copied ? "Copied!" : "Copy JSON"}
+                  </Button>
                 </div>
 
-                {/* Versions */}
-                <div className="bg-background rounded-md border p-3">
-                  <h4 className="text-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-                    Versions
-                  </h4>
-                  <div className="space-y-1 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Total:</span>{" "}
-                      {versions.length}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {/* Shirt Data */}
+                  <div className="bg-background rounded-md border p-3">
+                    <h4 className="text-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+                      Shirt Data
+                    </h4>
+                    <div className="space-y-1 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">Prompt:</span>{" "}
+                        {shirtData?.prompt || "None"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Response ID:
+                        </span>{" "}
+                        {shirtData?.responseId || "None"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Design ID:
+                        </span>{" "}
+                        {shirtData?.designId || "None"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Is Partial:
+                        </span>{" "}
+                        {shirtData?.isPartial ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Partial Index:
+                        </span>{" "}
+                        {shirtData?.partialIndex ?? "N/A"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Has Image:
+                        </span>{" "}
+                        {shirtData?.imageUrl ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Generated:
+                        </span>{" "}
+                        {shirtData?.generatedAt
+                          ? new Date(shirtData.generatedAt).toLocaleTimeString()
+                          : "N/A"}
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Current:</span>{" "}
-                      {currentVersion}
-                    </div>
-                    <div className="text-muted-foreground mt-2 text-xs font-medium">
-                      Version List:
-                    </div>
-                    {versions.length > 0 ? (
-                      <div className="max-h-20 overflow-y-auto">
-                        {versions.map(v => (
-                          <div
-                            key={v.version}
-                            className={`text-xs ${v.version === currentVersion ? "text-primary font-medium" : "text-muted-foreground"}`}
-                          >
-                            v{v.version}: {v.quality} (
-                            {new Date(v.createdAt).toLocaleTimeString()})
+                  </div>
+
+                  {/* Versions */}
+                  <div className="bg-background rounded-md border p-3">
+                    <h4 className="text-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+                      Versions
+                    </h4>
+                    <div className="space-y-1 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">Total:</span>{" "}
+                        {versions.length}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Current:</span>{" "}
+                        {currentVersion}
+                      </div>
+                      <div className="text-muted-foreground mt-2 text-xs font-medium">
+                        Version List:
+                      </div>
+                      {versions.length > 0 ? (
+                        <div className="max-h-20 overflow-y-auto">
+                          {versions.map(v => (
+                            <div
+                              key={v.version}
+                              className={`text-xs ${v.version === currentVersion ? "text-primary font-medium" : "text-muted-foreground"}`}
+                            >
+                              v{v.version}: {v.quality} (
+                              {new Date(v.createdAt).toLocaleTimeString()})
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-muted-foreground text-xs">
+                          No versions loaded
+                        </div>
+                      )}
+
+                      {/* Show prompt chain for current version */}
+                      {versions.length > 0 && (
+                        <>
+                          <div className="text-muted-foreground mt-2 text-xs font-medium">
+                            Prompt Chain:
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-muted-foreground text-xs">
-                        No versions loaded
-                      </div>
-                    )}
-
-                    {/* Show prompt chain for current version */}
-                    {versions.length > 0 && (
-                      <>
-                        <div className="text-muted-foreground mt-2 text-xs font-medium">
-                          Prompt Chain:
-                        </div>
-                        <div className="max-h-16 overflow-y-auto">
-                          {(() => {
-                            const currentVersionData = versions.find(
-                              v => v.version === currentVersion,
-                            );
-                            const chain = currentVersionData?.promptChain;
-                            if (chain && chain.length > 0) {
-                              return (
-                                <div className="text-muted-foreground space-y-1 text-xs">
-                                  {chain.map((prompt, index) => (
-                                    <div key={index}>
-                                      {index + 1}. {prompt}
-                                    </div>
-                                  ))}
-                                </div>
+                          <div className="max-h-16 overflow-y-auto">
+                            {(() => {
+                              const currentVersionData = versions.find(
+                                v => v.version === currentVersion,
                               );
-                            } else {
-                              return (
-                                <div className="text-muted-foreground text-xs">
-                                  No chain available
-                                </div>
-                              );
-                            }
-                          })()}
-                        </div>
-                      </>
-                    )}
+                              const chain = currentVersionData?.promptChain;
+                              if (chain && chain.length > 0) {
+                                return (
+                                  <div className="text-muted-foreground space-y-1 text-xs">
+                                    {chain.map((prompt, index) => (
+                                      <div key={index}>
+                                        {index + 1}. {prompt}
+                                      </div>
+                                    ))}
+                                  </div>
+                                );
+                              } else {
+                                return (
+                                  <div className="text-muted-foreground text-xs">
+                                    No chain available
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* State */}
-                <div className="bg-background rounded-md border p-3">
-                  <h4 className="text-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-                    State
-                  </h4>
-                  <div className="space-y-1 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">
-                        Is Adjusting:
-                      </span>{" "}
-                      {isAdjusting ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Show Adjust Modal:
-                      </span>{" "}
-                      {showAdjustModal ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Adjust Quality:
-                      </span>{" "}
-                      {adjustQuality}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Is Editing Title:
-                      </span>{" "}
-                      {isEditingTitle ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        History Loading:
-                      </span>{" "}
-                      {isHistoryLoading ? "Yes" : "No"}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        History Items:
-                      </span>{" "}
-                      {history?.length || 0}
+                  {/* State */}
+                  <div className="bg-background rounded-md border p-3">
+                    <h4 className="text-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
+                      State
+                    </h4>
+                    <div className="space-y-1 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">
+                          Is Adjusting:
+                        </span>{" "}
+                        {isAdjusting ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Show Adjust Modal:
+                        </span>{" "}
+                        {showAdjustModal ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Adjust Quality:
+                        </span>{" "}
+                        {adjustQuality}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Is Editing Title:
+                        </span>{" "}
+                        {isEditingTitle ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          History Loading:
+                        </span>{" "}
+                        {isHistoryLoading ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          History Items:
+                        </span>{" "}
+                        {history?.length || 0}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Adjust Image Modal */}
       <Dialog open={showAdjustModal} onOpenChange={setShowAdjustModal}>
