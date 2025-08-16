@@ -22,9 +22,7 @@ export class ImageGenerationStreamProcessor {
   }
 
   async processStream(
-    stream: Stream<ResponseStreamEvent> & {
-      _request_id?: string | null | undefined;
-    },
+    stream: Stream<ResponseStreamEvent>,
   ): Promise<string | undefined> {
     console.log("Stream:", stream);
     try {
