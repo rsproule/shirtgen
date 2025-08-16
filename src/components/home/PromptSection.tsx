@@ -105,7 +105,7 @@ export function PromptSection({
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-7xl px-8">
+    <div className="mx-auto mt-8 w-full max-w-[520px] px-4 sm:max-w-3xl sm:px-8 lg:max-w-7xl">
       {/* Chat UI Container - with blur overlay when not authenticated */}
       <div className="relative">
         {/* Main Chat UI */}

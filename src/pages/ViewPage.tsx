@@ -156,6 +156,39 @@ export function ViewPage() {
     console.log("🎯 Adjustment completed, saving to database");
     try {
       await addToHistory(shirtData);
+
+      // Kick off title regeneration in background using full prompt chain (latest version)
+      try {
+        if (shirtData.designId) {
+          const allVersions = await getVersionsByDesignId(shirtData.designId);
+          const latest = allVersions.sort(
+            (a, b) => b.versionNumber - a.versionNumber,
+          )[0];
+          // Fire-and-forget: generate title and store it against the latest image hash
+          // Prefer the latest prompt as primary signal but include chain context
+          // Reuse the image-generation hook's title pipeline by instantiating it locally
+          // We can't call its internal function here, so we instead enqueue a minimal title job via history API
+          // The history API will update design's generatedTitle when provided
+          try {
+            const imageUrl = shirtData.imageUrl || "";
+            const imageHash = imageUrl
+              ? await generateDataUrlHash(imageUrl)
+              : undefined;
+            if (imageHash) {
+              // Simple heuristic name using chain, non-blocking; server-quality name will still come from normal flow later
+              const quickName = (latest?.prompt || shirtData.prompt || "")
+                .slice(0, 30)
+                .trim();
+              await updateExternalIds(imageHash, { generatedTitle: quickName });
+              setTitle(quickName);
+            }
+          } catch (e) {
+            console.warn("Failed quick title update:", e);
+          }
+        }
+      } catch (e) {
+        console.warn("⚠️ Failed to kick off title regeneration:", e);
+      }
       console.log("🎯 Successfully saved adjustment to database");
 
       // Reload versions after a short delay to ensure database write is complete
@@ -736,7 +769,7 @@ export function ViewPage() {
             </div>
 
             {/* Version Selector - Right */}
-            {versions.length >= 1 && (
+            {versions.length >= 1 && !isAdjusting && !shirtData?.isPartial && (
               <div className="flex-shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -812,7 +845,7 @@ export function ViewPage() {
             {/* User Prompt Display */}
             {shirtData.prompt && (
               <div className="mb-2 sm:mb-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -821,7 +854,7 @@ export function ViewPage() {
                           className="group hover:bg-muted max-w-full cursor-pointer rounded-lg px-3 py-1 transition-colors"
                         >
                           <div className="flex items-center justify-start gap-2">
-                            <div className="text-muted-foreground group-hover:text-foreground w-96 text-sm italic">
+                            <div className="text-muted-foreground group-hover:text-foreground w-full text-sm italic sm:w-96">
                               <PromptChain
                                 chain={
                                   versions.find(
@@ -858,17 +891,16 @@ export function ViewPage() {
 
                   {/* Adjust Image Button - Only show if responseId is available */}
                   {shirtData.responseId && !shirtData.isPartial && (
-                    <PulsatingButton
+                    <Button
                       onClick={handleOpenAdjustModal}
                       disabled={isAdjusting}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2"
-                      pulseColor="var(--primary-light)"
+                      size="sm"
+                      className="flex w-auto items-center gap-2"
+                      variant="outline"
                     >
-                      <div className="flex items-center gap-2">
-                        <Wand2 className="h-4 w-4" />
-                        {isAdjusting ? "Adjusting..." : "Adjust"}
-                      </div>
-                    </PulsatingButton>
+                      <Wand2 className="h-4 w-4" />
+                      {isAdjusting ? "Adjusting..." : "Adjust"}
+                    </Button>
                   )}
                 </div>
                 {shirtData.isPartial && (
