@@ -9,9 +9,10 @@ import {
 
 interface SettingsModalProps {
   className?: string;
+  imageUrl?: string;
 }
 
-export function SettingsModal({ className = '' }: SettingsModalProps) {
+export function SettingsModal({ className = '', imageUrl }: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -52,8 +53,19 @@ export function SettingsModal({ className = '' }: SettingsModalProps) {
               </button>
             </div>
             
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Image editor coming soon...</p>
+            <div className="space-y-4">
+              {imageUrl && (
+                <div className="flex justify-center">
+                  <img
+                    src={imageUrl}
+                    alt="User's image"
+                    className="max-w-full max-h-64 rounded-lg border border-border object-contain"
+                  />
+                </div>
+              )}
+              <div className="text-center">
+                <p className="text-muted-foreground">Image editor coming soon...</p>
+              </div>
             </div>
           </div>
         </div>

@@ -427,7 +427,9 @@ export function ViewPage() {
               {/* Shirt Color Selection */}
               <div className="flex items-center gap-2">
                 <ShirtColorPicker />
-                <SettingsModal />
+                {shirtData.imageUrl && (
+                  <SettingsModal imageUrl={shirtData.imageUrl} />
+                )}
               </div>
 
               {/* Texture Placement */}
