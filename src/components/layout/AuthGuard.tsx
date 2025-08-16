@@ -1,4 +1,4 @@
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { Navbar } from "@/components/layout/Navbar";
 import { useEffect, useState } from "react";
 

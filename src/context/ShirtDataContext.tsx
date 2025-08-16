@@ -1,33 +1,7 @@
 import type { ShirtData, TexturePlacement } from "@/types";
-import { useEcho, type EchoUser } from "@zdql/echo-react-sdk";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
-
-interface ShirtDataContextType {
-  shirtData: ShirtData | null;
-  setShirtData: (data: ShirtData | null) => void;
-  texturePlacement: TexturePlacement;
-  setTexturePlacement: (placement: TexturePlacement) => void;
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
-  isAuthenticated: boolean;
-  isAuthLoading: boolean;
-  shirtColor: string;
-  setShirtColor: (color: string) => void;
-  signIn: () => void;
-  showInsufficientBalanceModal: boolean;
-  setShowInsufficientBalanceModal: (show: boolean) => void;
-  user: EchoUser | null;
-}
-
-const ShirtDataContext = createContext<ShirtDataContextType | undefined>(
-  undefined,
-);
+import { useEcho } from "@merit-systems/echo-react-sdk";
+import { useEffect, useState, type ReactNode } from "react";
+import { ShirtDataContext } from "./ShirtDataContextBase";
 
 export function ShirtDataProvider({ children }: { children: ReactNode }) {
   const [shirtData, setShirtData] = useState<ShirtData | null>(null);
@@ -92,10 +66,4 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useShirtData() {
-  const context = useContext(ShirtDataContext);
-  if (context === undefined) {
-    throw new Error("useShirtData must be used within a ShirtDataProvider");
-  }
-  return context;
-}
+// Hook moved to ./useShirtData to satisfy react-refresh rule

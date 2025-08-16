@@ -1,22 +1,29 @@
-import { ActionButtons } from "@/components/forms/ActionButtons";
+import { ImagePreview } from "@/components/forms/ImagePreview";
 import { PromptHistory } from "@/components/forms/PromptHistory";
 import { PromptInput } from "@/components/forms/PromptInput";
-import { TypingStats } from "@/components/forms/TypingStats";
+import {
+  QualitySelector,
+  type Quality,
+} from "@/components/forms/QualitySelector";
 import { PulsatingButton } from "@/components/magicui/pulsating-button";
 import { Button } from "@/components/ui/button";
 import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
-import { useTypingStats } from "@/hooks/useTypingStats";
 import { SHOPIFY_URL } from "@/lib/utils";
 import { StoreIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PromptSectionProps {
   prompt: string;
   setPrompt: (prompt: string) => void;
-  onGenerate: (enhancedPrompt?: string) => void;
+  onGenerate: (
+    enhancedPrompt?: string,
+    base64Images?: string[],
+    quality?: Quality,
+  ) => void;
   onSelectFromHistory: (prompt: string) => void;
   createFullPrompt: (userPrompt: string, themes: string[]) => string;
 }
@@ -29,15 +36,28 @@ export function PromptSection({
   createFullPrompt,
 }: PromptSectionProps) {
   const { isAuthenticated, signIn } = useShirtData();
-  const { typingStats, handleInputChange, setPromptWithoutStats } =
-    useTypingStats(prompt);
   const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
     useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
+  const [images, setImages] = useState<string[]>([]);
+  const [quality, setQuality] = useState<Quality>("high");
+
+  // Load quality preference from localStorage on mount
+  useEffect(() => {
+    const savedQuality = localStorage.getItem("imageQuality") as Quality;
+    if (savedQuality && ["low", "medium", "high"].includes(savedQuality)) {
+      setQuality(savedQuality);
+    }
+  }, []);
+
+  // Save quality preference to localStorage when it changes
+  const handleQualityChange = (newQuality: Quality) => {
+    setQuality(newQuality);
+    localStorage.setItem("imageQuality", newQuality);
+  };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-    handleInputChange(newValue);
     setPrompt(newValue);
   };
 
@@ -50,17 +70,21 @@ export function PromptSection({
   };
 
   const handleGenerate = () => {
+    if (!isAuthenticated) {
+      alert("Please sign in to generate shirt designs");
+      return;
+    }
+
     // Add selected themes to favorites when used
     selectedThemes.forEach(theme => addToFavorites(theme));
 
     // Enhance prompt with selected themes before calling onGenerate
     const enhancedPrompt = enhancePromptWithThemes(prompt, selectedThemes);
-    onGenerate(enhancedPrompt);
+    onGenerate(enhancedPrompt, images.length > 0 ? images : undefined, quality);
   };
 
   const handleSelectFromHistory = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
-    setPromptWithoutStats();
     onSelectFromHistory(selectedPrompt);
   };
 
@@ -68,10 +92,14 @@ export function PromptSection({
     toggleTheme(theme);
   };
 
+  const handleImagePaste = (base64: string) => {
+    setImages([...images, base64]);
+  };
+
   const fullPromptPreview = createFullPrompt(prompt, selectedThemes);
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-7xl px-8">
+    <div className="mx-auto mt-8 w-full max-w-[520px] px-4 sm:max-w-3xl sm:px-8 lg:max-w-7xl">
       {/* Chat UI Container - with blur overlay when not authenticated */}
       <div className="relative">
         {/* Main Chat UI */}
@@ -100,16 +128,43 @@ export function PromptSection({
             fullPrompt={fullPromptPreview}
             activeThemes={selectedThemes}
             onThemeRemove={handleThemeSelect}
+            onImagePaste={handleImagePaste}
           />
 
-          {/* Stats Bar */}
-          <TypingStats stats={typingStats} promptLength={prompt.length} />
+          {/* Bottom Section with Image Preview and Action Buttons */}
+          <div className="mt-4 flex items-center justify-between">
+            {/* Image Preview - Left Side */}
+            <div className="flex-shrink-0">
+              <ImagePreview
+                images={images}
+                onImagesChange={setImages}
+                isAuthenticated={isAuthenticated}
+              />
+            </div>
 
-          {/* Action Buttons */}
-          <ActionButtons
-            onGenerate={handleGenerate}
-            promptLength={prompt.length}
-          />
+            {/* Generate Button and Quality Selector - Far Right */}
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <QualitySelector
+                quality={quality}
+                onQualityChange={handleQualityChange}
+                disabled={!isAuthenticated}
+              />
+              <PulsatingButton
+                onClick={handleGenerate}
+                onTouchEnd={handleGenerate}
+                disabled={!isAuthenticated || prompt.length < 10}
+                disabledAnimation={!isAuthenticated || prompt.length < 10}
+                pulseColor="var(--primary-light)"
+                className={`text-primary-foreground touch-manipulation ${
+                  !isAuthenticated || prompt.length < 10
+                    ? "bg-muted cursor-not-allowed"
+                    : "bg-primary"
+                }`}
+              >
+                Generate Design
+              </PulsatingButton>
+            </div>
+          </div>
 
           {/* Theme Buttons */}
           <div className="mt-4">
