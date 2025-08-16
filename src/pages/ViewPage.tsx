@@ -35,6 +35,7 @@ import { useShirtData } from "@/context/ShirtDataContext";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
+import { formatPromptChain } from "@/lib/productDescription";
 import { generateDataUrlHash } from "@/services/imageHash";
 import { ImageProcessor } from "@/services/printify/ImageProcessor";
 import type { ShirtData } from "@/types";
@@ -46,6 +47,7 @@ import {
   Download,
   Edit3,
   History,
+  Loader2,
   Save,
   Wand2,
   X,
@@ -774,7 +776,7 @@ export function ViewPage() {
         </div>
 
         {/* 3D Scene - Takes remaining space */}
-        <div className="min-h-0 flex-1">
+        <div className="relative min-h-0 flex-1">
           <Scene3D>
             {shirtData.imageUrl && (
               <Shirt3D
@@ -783,6 +785,21 @@ export function ViewPage() {
               />
             )}
           </Scene3D>
+
+          {/* Adjustment Loading Overlay */}
+          {isAdjusting && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-4 rounded-lg bg-white/90 p-6 shadow-lg dark:bg-gray-900/90">
+                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                <div className="text-center">
+                  <p className="text-sm font-medium">Adjusting Image</p>
+                  <p className="text-muted-foreground text-xs">
+                    This may take a moment...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom Controls */}
@@ -811,7 +828,7 @@ export function ViewPage() {
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="max-w-xs">"{shirtData.prompt}"</p>
-                        <p className="text-muted-foreground mt-1 text-xs">
+                        <p className="text-primary-foreground/50 mt-1 text-xs">
                           Click to copy
                         </p>
                       </TooltipContent>

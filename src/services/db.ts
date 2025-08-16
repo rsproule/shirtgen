@@ -53,6 +53,16 @@ export interface ShirtVersion {
   };
 }
 
+// Simple table to track all published products by hash
+export interface PublishedProduct {
+  hash: string; // SHA-256 hash of the image - PRIMARY KEY
+  productName: string; // Name of the published product
+  printifyProductId: string; // Printify product ID
+  shopifyUrl: string; // Direct Shopify store URL
+  publishedAt: string; // When it was published
+  createdBy?: string; // User ID who published it (optional)
+}
+
 export interface ShirtHistoryItem {
   hash: string; // SHA-256 hash as PRIMARY KEY - KEEP existing system
   originalPrompt: string; // Full original user prompt
@@ -67,6 +77,7 @@ export interface ShirtHistoryItem {
   versionNumber?: number; // Version number (1, 2, 3, etc.)
   isLatestVersion?: boolean; // True for the most recent version of a design
   parentHash?: string; // Hash of the image this was based on (for edits)
+  versionCount?: number; // Total number of versions for this design (for UI display)
 
   // External platform tracking
   printifyImageId?: string; // Printify uploaded image ID
@@ -109,6 +120,9 @@ const db = new Dexie("InstashirtDB") as Dexie & {
   // New proper schema
   designs: EntityTable<ShirtDesign, "designId">;
   versions: EntityTable<ShirtVersion, "hash">;
+
+  // Simple published products tracking
+  publishedProducts: EntityTable<PublishedProduct, "hash">;
 };
 
 db.version(1).stores({
@@ -290,5 +304,16 @@ db.version(4)
 
     console.log("✅ Migration to new schema completed");
   });
+
+// Version 5: Add simple published products tracking
+db.version(5).stores({
+  shirtHistory:
+    "hash, createdAt, lifecycle, printifyProductId, shopifyProductId, designId, versionNumber, isLatestVersion", // Keep legacy
+  promptHistory: "id, timestamp",
+  designs: "designId, createdAt, updatedAt, lifecycle", // Designs table
+  versions:
+    "hash, designId, versionNumber, createdAt, isLatestVersion, promptChain", // Versions table
+  publishedProducts: "hash, publishedAt, printifyProductId", // Simple published tracking
+});
 
 export { db };

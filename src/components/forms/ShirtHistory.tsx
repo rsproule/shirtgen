@@ -60,6 +60,9 @@ export function ShirtHistory() {
         item.createdAt || item.generatedAt || new Date().toISOString(),
       isPartial: false,
       partialIndex: -1,
+      // Include the crucial fields for ViewPage functionality
+      designId: item.designId,
+      responseId: item.responseId,
     };
 
     // Track this as the last viewed shirt

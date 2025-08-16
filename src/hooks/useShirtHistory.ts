@@ -15,44 +15,122 @@ export function useShirtHistory() {
   // Query both designs and their latest versions for the history view
   const history = useLiveQuery(async () => {
     try {
-      // Get all designs, sorted by most recent
+      console.log("🔍 DEBUG: History query started");
+
+      // Try to get from new tables first
       const designs = await db.designs
         .orderBy("updatedAt")
         .reverse()
         .limit(MAX_HISTORY_ITEMS)
         .toArray();
 
-      // Get the latest version for each design
-      const historyItems: ShirtHistoryItem[] = [];
+      console.log("🔍 DEBUG: Found designs:", designs.length);
+      console.log("🔍 DEBUG: Designs data:", designs);
 
-      for (const design of designs) {
-        const latestVersion = await db.versions
-          .where({ designId: design.designId, isLatestVersion: true })
-          .first();
+      if (designs.length > 0) {
+        console.log(
+          "📚 Loading history from new designs table:",
+          designs.length,
+          "designs",
+        );
 
-        if (latestVersion) {
-          // Create a compatible ShirtHistoryItem for the UI
-          const historyItem: ShirtHistoryItem = {
-            hash: latestVersion.hash,
-            originalPrompt: design.originalPrompt,
-            generatedTitle: design.generatedTitle,
-            imageUrl: latestVersion.imageUrl,
-            createdAt: design.createdAt,
-            updatedAt: design.updatedAt,
-            lifecycle: design.lifecycle,
-            designId: design.designId,
-            versionNumber: latestVersion.versionNumber,
-            isLatestVersion: true,
-            responseId: latestVersion.responseId,
-            // Legacy compatibility
-            prompt: design.originalPrompt,
-            generatedAt: design.createdAt,
-          };
-          historyItems.push(historyItem);
+        // Get the latest version for each design
+        const historyItems: ShirtHistoryItem[] = [];
+
+        for (const design of designs) {
+          console.log("🔍 DEBUG: Processing design:", design.designId);
+
+          // Check all versions for this design
+          const allVersionsForDesign = await db.versions
+            .where("designId")
+            .equals(design.designId)
+            .toArray();
+          console.log(
+            "🔍 DEBUG: All versions for design:",
+            allVersionsForDesign,
+          );
+
+          // Check the isLatestVersion field on each version
+          allVersionsForDesign.forEach((version, index) => {
+            console.log(`🔍 DEBUG: Version ${index + 1}:`, {
+              versionNumber: version.versionNumber,
+              isLatestVersion: version.isLatestVersion,
+              hash: version.hash.substring(0, 8) + "...",
+            });
+          });
+
+          let latestVersion = await db.versions
+            .where({ designId: design.designId, isLatestVersion: true })
+            .first();
+
+          console.log("🔍 DEBUG: Latest version found:", latestVersion);
+
+          // Fallback: if no version marked as latest, use the highest version number
+          if (!latestVersion && allVersionsForDesign.length > 0) {
+            latestVersion = allVersionsForDesign.reduce((latest, current) =>
+              current.versionNumber > latest.versionNumber ? current : latest,
+            );
+            console.log(
+              "🔍 DEBUG: Using fallback latest version:",
+              latestVersion,
+            );
+          }
+
+          if (latestVersion) {
+            // Create a compatible ShirtHistoryItem for the UI
+            // Get version count for this design
+            const versionCount = allVersionsForDesign.length;
+
+            const historyItem: ShirtHistoryItem = {
+              hash: latestVersion.hash,
+              originalPrompt: design.originalPrompt,
+              generatedTitle: design.generatedTitle,
+              imageUrl: latestVersion.imageUrl,
+              createdAt: design.createdAt,
+              updatedAt: design.updatedAt,
+              lifecycle: design.lifecycle,
+              designId: design.designId,
+              versionNumber: latestVersion.versionNumber,
+              isLatestVersion: true,
+              responseId: latestVersion.responseId,
+              // Add version count for UI
+              versionCount: versionCount,
+              // Legacy compatibility
+              prompt: design.originalPrompt,
+              generatedAt: design.createdAt,
+            };
+            historyItems.push(historyItem);
+          }
         }
-      }
 
-      return historyItems;
+        console.log(
+          "🔍 DEBUG: Final history items from new tables:",
+          historyItems.length,
+        );
+        console.log("🔍 DEBUG: Final history data:", historyItems);
+        return historyItems;
+      } else {
+        // Fallback to legacy table if new tables are empty
+        console.log(
+          "📚 No designs found, falling back to legacy shirtHistory table",
+        );
+
+        const legacyItems = await db.shirtHistory
+          .orderBy("updatedAt")
+          .reverse()
+          .limit(MAX_HISTORY_ITEMS)
+          .toArray();
+
+        console.log("🔍 DEBUG: Found legacy items:", legacyItems.length);
+        console.log("🔍 DEBUG: Legacy data:", legacyItems);
+
+        console.log(
+          "📚 Loading history from legacy table:",
+          legacyItems.length,
+          "items",
+        );
+        return legacyItems;
+      }
     } catch (error) {
       console.error("Failed to load shirt history:", error);
       return [];

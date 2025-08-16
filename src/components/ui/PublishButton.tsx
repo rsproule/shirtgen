@@ -213,6 +213,42 @@ export function PublishButton() {
     productName: string;
   } | null>(null);
 
+  // Check if current image hash is already published
+  useEffect(() => {
+    const checkPublishedStatus = async () => {
+      if (!shirtData?.imageUrl) {
+        setAlreadyPublished(null);
+        return;
+      }
+
+      try {
+        const currentImageHash = await generateDataUrlHash(shirtData.imageUrl);
+
+        // Check if this exact image hash was already published
+        const publishedProduct =
+          await db.publishedProducts.get(currentImageHash);
+
+        if (publishedProduct) {
+          setAlreadyPublished({
+            shopifyUrl: publishedProduct.shopifyUrl,
+            productName: publishedProduct.productName,
+          });
+          console.log(
+            "📦 This image is already published:",
+            publishedProduct.shopifyUrl,
+          );
+        } else {
+          setAlreadyPublished(null);
+        }
+      } catch (error) {
+        console.error("Failed to check published status:", error);
+        setAlreadyPublished(null);
+      }
+    };
+
+    checkPublishedStatus();
+  }, [shirtData?.imageUrl]);
+
   // Load design title from database
   useEffect(() => {
     const loadDesignTitle = async () => {
@@ -367,6 +403,19 @@ export function PublishButton() {
           printifyProductId: result.product.id,
           shopifyUrl: result.product.external?.handle,
         });
+
+        // Save to published products table
+        const publishedProduct = {
+          hash: imageHash,
+          productName: confirmedProductName,
+          printifyProductId: result.product.id,
+          shopifyUrl: result.product.external?.handle || "",
+          publishedAt: new Date().toISOString(),
+          createdBy: user?.id,
+        };
+
+        await db.publishedProducts.put(publishedProduct);
+        console.log("📦 Saved published product:", publishedProduct);
 
         // Update lifecycle to PUBLISHED
         await updateLifecycle(imageHash, ImageLifecycleState.PUBLISHED);
