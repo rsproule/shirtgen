@@ -4,7 +4,7 @@ import { PromptSection } from "@/components/home/PromptSection";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { Navbar } from "@/components/layout/Navbar";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
 import { useShirtHistory } from "@/hooks/useShirtHistory";

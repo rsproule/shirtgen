@@ -1,5 +1,5 @@
 import { Textarea } from "@/components/ui/textarea";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { useEffect, useRef, useState } from "react";
 
 interface PromptInputProps {

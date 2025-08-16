@@ -32,7 +32,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
 import { useShirtHistory } from "@/hooks/useShirtHistory";

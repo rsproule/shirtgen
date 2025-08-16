@@ -1,4 +1,6 @@
-import { useShirtData } from "@/context/ShirtDataContext";
+import type { Stream } from "openai/core/streaming.mjs";
+import type { ResponseStreamEvent } from "openai/resources/responses/responses";
+import { useShirtData } from "@/context/useShirtData";
 import { ImageGenerationStreamProcessor } from "@/hooks/streamProcessor";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { generateDataUrlHash } from "@/services/imageHash";
@@ -167,9 +169,11 @@ export function useImageGeneration(
         quality,
         editResponseId,
       );
-      const stream = await openai.responses.create(
+      const stream = (await openai.responses.create(
         requestConfig as Parameters<typeof openai.responses.create>[0],
-      );
+      )) as unknown as Stream<ResponseStreamEvent> & {
+        _request_id?: string | null | undefined;
+      };
 
       let hasNavigated = false;
       let responseId: string | undefined;

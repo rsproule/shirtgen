@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { useShirtHistory } from "@/hooks/useShirtHistory";
 import { PRODUCT_DESCRIPTION_TEMPLATE } from "@/lib/productDescription";
 import { SHOPIFY_URL } from "@/lib/utils";

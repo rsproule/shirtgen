@@ -9,7 +9,7 @@ import { PulsatingButton } from "@/components/magicui/pulsating-button";
 import { Button } from "@/components/ui/button";
 import { FavoritesDisplay } from "@/components/ui/FavoritesDisplay";
 import { ThemeButtons } from "@/components/ui/theme-buttons";
-import { useShirtData } from "@/context/ShirtDataContext";
+import { useShirtData } from "@/context/useShirtData";
 import { useFavoriteThemes } from "@/hooks/useFavoriteThemes";
 import { useThemeSuggestions } from "@/hooks/useThemeSuggestions";
 import { SHOPIFY_URL } from "@/lib/utils";
