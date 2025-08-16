@@ -70,12 +70,6 @@ export function PromptSection({
   };
 
   const handleGenerate = () => {
-    console.log(
-      "Generate button clicked - isAuthenticated:",
-      isAuthenticated,
-      "promptLength:",
-      prompt.length,
-    );
     if (!isAuthenticated) {
       alert("Please sign in to generate shirt designs");
       return;

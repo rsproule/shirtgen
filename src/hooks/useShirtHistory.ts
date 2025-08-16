@@ -15,8 +15,6 @@ export function useShirtHistory() {
   // Query both designs and their latest versions for the history view
   const history = useLiveQuery(async () => {
     try {
-      console.log("🔍 DEBUG: History query started");
-
       // Try to get from new tables first
       const designs = await db.designs
         .orderBy("updatedAt")
@@ -24,27 +22,13 @@ export function useShirtHistory() {
         .limit(MAX_HISTORY_ITEMS)
         .toArray();
 
-      console.log("🔍 DEBUG: Found designs:", designs.length);
-      console.log("🔍 DEBUG: Designs data:", designs);
-
       if (designs.length > 0) {
-        console.log(
-          "📚 Loading history from new designs table:",
-          designs.length,
-          "designs",
-        );
-
         // OPTIMIZED: Get all versions for all designs in one query
         const designIds = designs.map(d => d.designId);
         const allVersions = await db.versions
           .where("designId")
           .anyOf(designIds)
           .toArray();
-
-        console.log(
-          "🔍 DEBUG: Loaded all versions in one query:",
-          allVersions.length,
-        );
 
         // Group versions by designId for efficient lookup
         const versionsByDesign = new Map<string, ShirtVersion[]>();
@@ -101,17 +85,9 @@ export function useShirtHistory() {
           historyItems.push(historyItem);
         }
 
-        console.log(
-          "🔍 DEBUG: Final history items from new tables:",
-          historyItems.length,
-        );
-        console.log("🔍 DEBUG: Final history data:", historyItems);
         return historyItems;
       } else {
         // Fallback to legacy table if new tables are empty
-        console.log(
-          "📚 No designs found, falling back to legacy shirtHistory table",
-        );
 
         const legacyItems = await db.shirtHistory
           .orderBy("updatedAt")
@@ -119,14 +95,6 @@ export function useShirtHistory() {
           .limit(MAX_HISTORY_ITEMS)
           .toArray();
 
-        console.log("🔍 DEBUG: Found legacy items:", legacyItems.length);
-        console.log("🔍 DEBUG: Legacy data:", legacyItems);
-
-        console.log(
-          "📚 Loading history from legacy table:",
-          legacyItems.length,
-          "items",
-        );
         return legacyItems;
       }
     } catch (error) {
@@ -140,26 +108,13 @@ export function useShirtHistory() {
   const addToHistory = async (shirtData: ShirtData): Promise<string> => {
     if (!shirtData.imageUrl || !shirtData.prompt) return "";
 
-    console.log("💾 Adding to history with data:", {
-      prompt: shirtData.prompt,
-      responseId: shirtData.responseId,
-      isPartial: shirtData.isPartial,
-      hasImageUrl: !!shirtData.imageUrl,
-      designId: shirtData.designId,
-    });
-
     try {
       const hash = await generateDataUrlHash(shirtData.imageUrl);
 
       // Check if this is a new version of an existing design
       if (shirtData.designId) {
-        console.log(
-          "💾 This is a version of existing design:",
-          shirtData.designId,
-        );
         return await addVersionToExistingDesign(shirtData, hash);
       } else {
-        console.log("💾 This is a new design, creating fresh entry");
         return await createNewDesign(shirtData, hash);
       }
     } catch (error) {
@@ -175,8 +130,6 @@ export function useShirtHistory() {
     // Check if this exact image already exists
     const existingVersion = await db.versions.get(hash);
     if (existingVersion) {
-      console.log("💾 Image hash already exists, updating responseId");
-
       // Update responseId if provided and different
       const updatedResponseId =
         shirtData.responseId || existingVersion.responseId;
@@ -241,7 +194,6 @@ export function useShirtHistory() {
       }
     }
 
-    console.log("💾 Created new design with designId:", designId);
     return hash;
   };
 
@@ -285,12 +237,6 @@ export function useShirtHistory() {
     const parentPromptChain = parentVersion?.promptChain || [];
     const newPromptChain = [...parentPromptChain, shirtData.prompt];
 
-    console.log("🔗 Building prompt chain:", {
-      parentChainLength: parentPromptChain.length,
-      newPrompt: shirtData.prompt,
-      fullChain: newPromptChain,
-    });
-
     // Create new version entry
     const newVersion: ShirtVersion = {
       hash,
@@ -316,10 +262,6 @@ export function useShirtHistory() {
     await db.designs.update(designId, updatedDesign);
     await setLastViewed(hash);
 
-    console.log(
-      `💾 Added version ${maxVersionNumber + 1} to design:`,
-      designId,
-    );
     return hash;
   };
 

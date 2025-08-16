@@ -223,26 +223,19 @@ export function ViewPage() {
       shirtData.imageUrl !== adjustmentStartImageUrl.current
     ) {
       // Reset loading overlay as soon as we get the first partial or complete image
-      console.log(
-        "🎯 New adjustment image received (partial or complete) - hiding loading overlay",
-      );
       setIsAdjusting(false);
 
       // Only reset the reference when we get the final complete image
       if (!shirtData.isPartial) {
         adjustmentStartImageUrl.current = null;
-        console.log("🎯 Complete adjustment image - reset reference");
       }
     }
-  }, [shirtData?.imageUrl, shirtData?.isPartial, isAdjusting]);
+  }, [shirtData?.imageUrl, shirtData?.isPartial, isAdjusting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load version data when shirt data changes
   useEffect(() => {
     const loadVersionData = async () => {
       if (!shirtData?.imageUrl || !shirtData?.designId) {
-        console.log(
-          "📚 No shirt data, imageUrl, or designId, skipping version load",
-        );
         return;
       }
 
@@ -274,16 +267,7 @@ export function ViewPage() {
 
           setVersions(versionData);
           setCurrentVersion(currentVersionNumber);
-
-          console.log(
-            "📚 Loaded",
-            allVersions.length,
-            "versions for design:",
-            shirtData.designId,
-          );
-          console.log("📚 Current version:", currentVersionNumber);
         } else {
-          console.log("📚 No versions found for designId:", shirtData.designId);
           // Create a single version from current data
           const singleVersion: UIShirtVersion = {
             version: 1,
@@ -304,7 +288,7 @@ export function ViewPage() {
     };
 
     loadVersionData();
-  }, [shirtData?.designId, shirtData?.imageUrl]); // Removed getVersionsByDesignId to prevent loops
+  }, [shirtData?.designId, shirtData?.imageUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const loadShirtData = async () => {
