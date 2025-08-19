@@ -10,5 +10,4 @@ export default defineConfig({
       "@": resolve(import.meta.dirname || ".", "./src"),
     },
   },
-  optimizeDeps: { exclude: ["@merit-systems/echo-react-sdk"] },
 });
