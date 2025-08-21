@@ -123,9 +123,9 @@ export class ProductBuilder {
       case "pocket":
         // For pocket, use front position with smaller scale and left breast positioning
         printPosition = "front";
-        printScale = shirtConfig.scale * 0.33; // 33% of normal size for pocket
-        printX = 0.29; // Left of center (29% from left edge) - matches Shirt3D.tsx
-        printY = 0.38; // Higher than center (38% from top) - matches Shirt3D.tsx
+        printScale = shirtConfig.scale * 0.40; // 40% of normal size for pocket
+        printX = 0.80; // Right breast area (80% from left edge) - properly positioned on left
+        printY = 0.25; // Upper chest area (25% from top) - left breast position
         break;
       case "front":
       default:
