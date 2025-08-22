@@ -23,7 +23,7 @@ export function PromptInput({
   onThemeRemove,
   onImagePaste,
 }: PromptInputProps) {
-  const { isAuthenticated } = useShirtData();
+  const { user } = useShirtData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -44,7 +44,7 @@ export function PromptInput({
 
   // Handle paste events to capture images
   const handlePaste = async (e: React.ClipboardEvent) => {
-    if (!isAuthenticated || !onImagePaste) return;
+    if (!user || !onImagePaste) return;
 
     const items = e.clipboardData.items;
 
@@ -70,10 +70,10 @@ export function PromptInput({
 
   // Auto-focus the textarea when component mounts and user is authenticated
   useEffect(() => {
-    if (isAuthenticated && textareaRef.current) {
+    if (user && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [isAuthenticated]);
+  }, [user]);
 
   // Auto-resize textarea based on content
   useEffect(() => {
@@ -98,11 +98,11 @@ export function PromptInput({
           onPaste={handlePaste}
           placeholder={placeholder}
           className="bg-muted/50 min-h-32 w-full resize-none overflow-hidden rounded-lg border-0 p-4 text-base shadow-none transition-shadow duration-200 focus:ring-0 sm:text-xl"
-          disabled={!isAuthenticated}
+          disabled={!user}
         />
 
         {/* Active Theme Chips - Desktop */}
-        {activeThemes.length > 0 && isAuthenticated && (
+        {activeThemes.length > 0 && user && (
           <>
             {/* Desktop: Show individual theme chips */}
             <div className="absolute bottom-3 left-3 hidden flex-wrap gap-1 sm:flex">
@@ -132,7 +132,7 @@ export function PromptInput({
         )}
 
         {/* Full Prompt Tooltip - Triggered by +n indicator */}
-        {fullPrompt && isAuthenticated && activeThemes.length > 0 && (
+        {fullPrompt && user && activeThemes.length > 0 && (
           <div className="absolute right-3 bottom-3">
             <div className="relative">
               <button
