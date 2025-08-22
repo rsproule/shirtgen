@@ -9,7 +9,6 @@ export interface ShirtDataContextType {
   setTexturePlacement: (placement: TexturePlacement) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  isAuthenticated: boolean;
   isAuthLoading: boolean;
   shirtColor: string;
   setShirtColor: (color: string) => void;

@@ -7,7 +7,7 @@ import { EchoSignIn, EchoTokenPurchase } from "@merit-systems/echo-react-sdk";
 import { Store } from "lucide-react";
 
 export function Navbar() {
-  const { isAuthenticated, isAuthLoading } = useShirtData();
+  const { user, isAuthLoading } = useShirtData();
 
   return (
     <nav className="border-border border-b">
@@ -26,7 +26,7 @@ export function Navbar() {
 
           {isAuthLoading ? (
             <Skeleton className="h-8 w-24" />
-          ) : isAuthenticated ? (
+          ) : user ? (
             <EchoTokenPurchase />
           ) : (
             <EchoSignIn />
