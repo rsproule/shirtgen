@@ -14,7 +14,6 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
 
   // Centralize authentication state to prevent multiple useEcho calls
   const {
-    isAuthenticated,
     isLoading: isAuthLoading,
     signIn,
     user,
@@ -51,7 +50,6 @@ export function ShirtDataProvider({ children }: { children: ReactNode }) {
         setTexturePlacement,
         isLoading,
         setIsLoading,
-        isAuthenticated,
         isAuthLoading,
         shirtColor,
         setShirtColor,

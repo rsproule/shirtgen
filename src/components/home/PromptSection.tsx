@@ -35,7 +35,7 @@ export function PromptSection({
   onSelectFromHistory,
   createFullPrompt,
 }: PromptSectionProps) {
-  const { isAuthenticated, signIn } = useShirtData();
+  const { signIn, user } = useShirtData();
   const { selectedThemes, toggleTheme, enhancePromptWithThemes } =
     useThemeSuggestions();
   const { addToFavorites } = useFavoriteThemes();
@@ -70,7 +70,7 @@ export function PromptSection({
   };
 
   const handleGenerate = () => {
-    if (!isAuthenticated) {
+    if (!user) {
       alert("Please sign in to generate shirt designs");
       return;
     }
@@ -104,7 +104,7 @@ export function PromptSection({
       <div className="relative">
         {/* Main Chat UI */}
         <div
-          className={`${!isAuthenticated ? "pointer-events-none blur-sm" : ""}`}
+          className={`${!user ? "pointer-events-none blur-sm" : ""}`}
         >
           {/* Top Section */}
           <div className="mb-1 flex items-start justify-between">
@@ -138,7 +138,7 @@ export function PromptSection({
               <ImagePreview
                 images={images}
                 onImagesChange={setImages}
-                isAuthenticated={isAuthenticated}
+                isAuthenticated={!!user}
               />
             </div>
 
@@ -147,16 +147,16 @@ export function PromptSection({
               <QualitySelector
                 quality={quality}
                 onQualityChange={handleQualityChange}
-                disabled={!isAuthenticated}
+                disabled={!user}
               />
               <PulsatingButton
                 onClick={handleGenerate}
                 onTouchEnd={handleGenerate}
-                disabled={!isAuthenticated || prompt.length < 10}
-                disabledAnimation={!isAuthenticated || prompt.length < 10}
+                disabled={!user || prompt.length < 10}
+                disabledAnimation={!user || prompt.length < 10}
                 pulseColor="var(--primary-light)"
                 className={`text-primary-foreground touch-manipulation ${
-                  !isAuthenticated || prompt.length < 10
+                  !user || prompt.length < 10
                     ? "bg-muted cursor-not-allowed"
                     : "bg-primary"
                 }`}
@@ -176,7 +176,7 @@ export function PromptSection({
         </div>
 
         {/* Sign-in overlay for non-authenticated users */}
-        {!isAuthenticated && (
+        {!user && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <PulsatingButton
