@@ -26,7 +26,7 @@ export function Navbar() {
 
           {isAuthLoading ? (
             <Skeleton className="h-8 w-24" />
-          ) : user ? (
+          ) : user !== null ? (
             <EchoTokenPurchase />
           ) : (
             <EchoSignIn />
