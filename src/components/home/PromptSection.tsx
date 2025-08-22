@@ -103,9 +103,7 @@ export function PromptSection({
       {/* Chat UI Container - with blur overlay when not authenticated */}
       <div className="relative">
         {/* Main Chat UI */}
-        <div
-          className={`${!user ? "pointer-events-none blur-sm" : ""}`}
-        >
+        <div className={`${!user ? "pointer-events-none blur-sm" : ""}`}>
           {/* Top Section */}
           <div className="mb-1 flex items-start justify-between">
             {/* Favorites Display - Top Left */}
