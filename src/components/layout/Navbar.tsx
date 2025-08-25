@@ -24,7 +24,7 @@ export function Navbar() {
             <Store className="h-4 w-4" />
           </Button>
 
-          {isAuthLoading ? (
+          {isAuthLoading && !user ? (
             <Skeleton className="h-8 w-24" />
           ) : user !== null ? (
             <EchoTokenPurchase />

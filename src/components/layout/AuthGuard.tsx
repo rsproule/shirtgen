@@ -6,10 +6,10 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { isAuthLoading } = useShirtData();
+  const { isAuthLoading, user } = useShirtData();
 
   // Show loading during initial authentication
-  if (isAuthLoading) {
+  if (isAuthLoading && !user) {
     return (
       <div className="flex min-h-svh flex-col bg-white">
         <Navbar />

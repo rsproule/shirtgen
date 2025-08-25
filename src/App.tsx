@@ -7,17 +7,17 @@ import { useEchoErrorToast } from "@/hooks/useEchoErrorToast";
 import { useRecoveryPrompt } from "@/hooks/useRecoveryPrompt";
 import { HomePage } from "@/pages/HomePage";
 import { ViewPage } from "@/pages/ViewPage";
-import { EchoProvider } from "@merit-systems/echo-react-sdk";
+import { EchoProvider, type EchoConfig } from "@merit-systems/echo-react-sdk";
 import { Analytics } from "@vercel/analytics/react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { ShirtDataProvider } from "./context/ShirtDataContext";
 
-const echoConfig = {
+const echoConfig: EchoConfig = {
   appId: "60601628-cdb7-481e-8f7e-921981220348",
   apiUrl: "https://echo.merit.systems",
   // rfs local testing
   // appId: "0e173291-6d49-49e4-8163-937d25ea7e34",
-  // apiUrl: "http://localhost:3001",
+  // apiUrl: "http://localhost:3000",
 };
 
 function AppContent() {
