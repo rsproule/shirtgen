@@ -155,7 +155,7 @@ class PrintifyService {
     description: string,
     uploadedImageId: string,
     imageHash: string,
-    placement: "front" | "back" | "full-shirt" | "pocket" = "front",
+    placement: "front" | "back" = "front",
   ): Promise<PrintifyProduct> {
     console.log("🏭 Step 3: Creating product on Printify...");
     const identifier = createProductIdentifier(imageHash);
@@ -234,7 +234,7 @@ class PrintifyService {
     prompt: string,
     productName: string,
     description: string = "",
-    placement: "front" | "back" | "full-shirt" | "pocket" = "front",
+    placement: "front" | "back" = "front",
     onStatusUpdate?: (
       status:
         | "processing"

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useShirtData } from "@/context/ShirtDataContext";
 import * as THREE from "three";
 
-type TexturePlacement = "front" | "back" | "full-shirt" | "pocket";
+type TexturePlacement = "front" | "back";
 
 interface Shirt3DProps {
   imageUrl: string;
@@ -89,64 +89,6 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
         ctx.save();
 
         switch (texturePlacement) {
-          case "full-shirt": {
-            // Center on front of shirt and extend to sleeves
-            const frontWidth = canvas.width * 0.45; // Slightly larger (45% of canvas)
-            const frontHeight = canvas.height * 0.55; // Slightly larger (55% of canvas)
-            const frontX = canvas.width * 0.3; // Center on front of T-shirt
-            const frontY = canvas.height * 0.35; // Move up slightly (35% instead of 30%)
-
-            // Calculate dimensions preserving aspect ratio
-            let drawWidth = frontWidth;
-            let drawHeight = frontWidth / imgAspectRatio;
-
-            // If height exceeds front area, scale down proportionally
-            if (drawHeight > frontHeight) {
-              drawHeight = frontHeight;
-              drawWidth = frontHeight * imgAspectRatio;
-            }
-
-            ctx.translate(frontX, frontY);
-            ctx.rotate(Math.PI);
-            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
-            ctx.drawImage(
-              img,
-              -drawWidth / 2,
-              -drawHeight / 2,
-              drawWidth,
-              drawHeight,
-            );
-            break;
-          }
-
-          case "pocket": {
-            // Small pocket-sized image on left breast area
-            const maxSize = canvas.width * 0.12; // Smaller than front (12% of width)
-            const pocketX = canvas.width * 0.29; // Left of center (35% from left edge)
-            const pocketY = canvas.height * 0.38; // Higher than center (30% from top)
-
-            // Calculate dimensions preserving aspect ratio
-            let drawWidth = maxSize;
-            let drawHeight = maxSize / imgAspectRatio;
-
-            if (drawHeight > maxSize) {
-              drawHeight = maxSize;
-              drawWidth = maxSize * imgAspectRatio;
-            }
-
-            ctx.translate(pocketX + maxSize / 2, pocketY + maxSize / 2);
-            ctx.rotate(Math.PI);
-            ctx.scale(-1, 1); // Flip horizontally to fix mirroring
-            ctx.drawImage(
-              img,
-              -drawWidth / 2,
-              -drawHeight / 2,
-              drawWidth,
-              drawHeight,
-            );
-            break;
-          }
-
           case "front": {
             // Small patch on chest area - adjust position for front placement
             const maxSize = canvas.width * 0.2; // Scale with canvas size (20% of width)
@@ -271,7 +213,6 @@ export function Shirt3D({ imageUrl, texturePlacement }: Shirt3DProps) {
 
       switch (texturePlacement) {
         case "front":
-        case "full-shirt":
           newTargetRotation = 0;
           break;
         case "back":

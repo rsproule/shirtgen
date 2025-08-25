@@ -93,7 +93,7 @@ export class ProductBuilder {
     productName: string,
     description: string,
     uploadedImageId: string,
-    placement: "front" | "back" | "full-shirt" | "pocket" = "front",
+    placement: "front" | "back" = "front",
   ): CreateProductPayload {
     const shirtConfig = SHIRT_CONFIGS.cc;
 
@@ -112,20 +112,6 @@ export class ProductBuilder {
         printScale = shirtConfig.scale;
         printX = shirtConfig.x;
         printY = shirtConfig.y;
-        break;
-      case "full-shirt":
-        // For full-shirt, we still use front position but with larger scale
-        printPosition = "front";
-        printScale = shirtConfig.scale * 1.2; // 20% larger for full-shirt
-        printX = shirtConfig.x;
-        printY = shirtConfig.y;
-        break;
-      case "pocket":
-        // For pocket, use front position with smaller scale and left breast positioning
-        printPosition = "front";
-        printScale = shirtConfig.scale * 0.45; // 45% of normal size for pocket
-        printX = 0.7; // Right breast area (75% from left edge) - properly positioned on right side
-        printY = 0.25; // Upper chest area (25% from top) - left breast position
         break;
       case "front":
       default:
